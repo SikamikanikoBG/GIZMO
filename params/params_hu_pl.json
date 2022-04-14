@@ -1,0 +1,105 @@
+{
+  "criterion_column": "Criterion_app_2M",
+  "___missing_treatment": "column_mean",
+  "__missing_treatment": "median",
+  "____missing_treatment": "delete",
+  "missing_treatment": {
+    "PP_FLAG_3M": 0
+  },
+  "observation_date_column": "ObservationDate",
+  "t1df": "2021-05-31",
+  "t2df": "2021-04-30",
+  "t3df": "2021-06-30",
+  "periods_to_exclude": [
+    "2018-05-31",
+    "2018-06-30",
+    "2018-07-31",
+    "2018-08-31",
+    "2018-09-30",
+    "2018-10-31",
+    "2018-11-30",
+    "2018-12-31",
+    "2018-01-31",
+    "2018-02-28",
+    "2018-03-31",
+    "2018-04-30",
+    "2019-05-31",
+    "2019-06-30",
+    "2019-07-31",
+    "2019-08-31",
+    "2019-09-30",
+    "2019-10-31",
+    "2019-11-30",
+    "2019-12-31",
+    "2019-01-31",
+    "2019-02-28",
+    "2019-03-31",
+    "2019-04-30",
+    "2021-03-31"
+  ],
+  "columns_to_exclude": [
+    "FOY",
+    "CIF_ID",
+    "Rang",
+    "Criterion_app_3M",
+    "Criterion_app_2M",
+    "PP_FLAG_3M",
+    "ObservationDate"
+  ],
+  "lr_features": [
+    "MARITALSTATUS_dummie_T"
+  ],
+  "lr_features_to_include": [
+  ],
+  "cut_offs": {
+    "xgb": [
+      0,
+      0.43,
+      0.57,
+      1
+    ],
+    "lr": [
+      0,
+      0.37,
+      0.63,
+      1
+    ],
+    "dt": [
+      0,
+      0.37,
+      0.63,
+      1
+    ],
+    "rf": [
+      0,
+      0.37,
+      0.63,
+      1
+    ]
+  },
+  "under_sampling": 1,
+  "secondary_criterion_columns": [
+    "Criterion_app_2M",
+    "OS_CUstomer"
+  ],
+  "trees_features_to_exclude": [
+  ],
+  "_trees_features_to_include": [],
+  "trees_features_to_include": [
+    "Salary_binned_dummie_from_incl_209075.00_to_inf_excl_",
+    "NB_Active_ProductsCustomer_dummie_1",
+    "MM_SinceLastFinanced_CP_binned_dummie_from_incl_-inf_to_16.50_excl_",
+    "OS_Active_CP_div_ratio_CreditLimit_Active_CP_binned_dummie_from_incl_0.24_to_inf_excl_",
+    "NB_FIN_VAT_24M_dummie_0",
+    "CreditLimit_Active_CP_binned_dummie_from_incl_-inf_to_85000.00_excl_",
+    "NB_Active_CP_dummie_1",
+    "InstallmentsLeft_DTS_binned_dummie_from_incl_-inf_to_14.50_excl_",
+    "OS_Active_CP_div_ratio_Installments_Active_CP_binned_dummie_from_incl_3.12_to_inf_excl_",
+    "MaritalStatus_dummie_E",
+    "InstallmentsLeft_VAT_binned_dummie_from_incl_21.50_to_inf_excl_",
+    "AGE_binned_dummie_from_incl_57.50_to_inf_excl_",
+    "MaritalStatus_dummie_H",
+    "OS_Active_DTS_binned_dummie_from_incl_93574.50_to_inf_excl_",
+    "NB_Active_Cards_DTScapable_dummie_0"
+  ]
+}

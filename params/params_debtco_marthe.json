@@ -1,0 +1,34 @@
+{
+  "criterion_column": "specific_criterion_for_month_before_take",
+  "missing_treatment": {
+    "FIRST_TRANSACTION_MM": 999
+  },
+  "observation_date_column": "eom_observation",
+  "secondary_criterion_columns": ["eom_observation","monthpp"
+  ],
+  "t1df": 202103,
+  "t2df": 202104,
+  "t3df": 202105,
+  "periods_to_exclude": [202106],
+  "_periods_to_exclude": [
+  ],
+  "columns_to_exclude": ["environ", "eom_observation", "accno", "monthpp", "PersonID", "objectn", "stat0_a", "acquisition_date", "acquisition_month", "prddt", "classifier", "targeted_products_by_person", "targeted_products_by_person_by_month", "targeted_entities", "accno_criterion","between_eom_and_criterion", "objectD", "first_intro_is_criterion", "pTypePerson", "m", "CoDebtor_Occupation", "criterion","sample","DTOGroup_descr", "unnamed: 0","specific_criterion_for_month_before_take"],
+  "lr_features": [
+  ],
+  "lr_features_to_include": [
+  ],
+  "trees_features_to_exclude": [],
+  "trees_features_to_include": [
+  ],
+  "cut_offs": {
+    "xgb": [
+    ],
+    "lr": [
+    ],
+    "dt": [
+    ],
+    "rf": [
+    ]
+  },
+  "under_sampling": 1
+}
