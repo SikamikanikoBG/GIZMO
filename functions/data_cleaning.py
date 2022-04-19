@@ -1,23 +1,21 @@
 import logging
-from os.path import join, isfile
-from os import listdir
 import sys
+from os import listdir
+from os.path import join, isfile
+
 import pandas as pd
-import pickle
-import functions
-import imblearn
-from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 from optbinning import OptimalBinning
 from sklearn.model_selection import train_test_split
 
+import functions
 
-def data_load(input_data_folder_name, input_data_project_folder, criterion_column, periods_to_exclude,
-              observation_date_column, params):
+
+def data_load(session):
     print('\n Starting data load... \n')
     logging.info('\n Data load...')
-    onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
-                 isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
+    onlyfiles = [f for f in listdir(session.input_data_folder_name + session.input_data_project_folder + '/') if
+                 isfile(join(session.input_data_folder_name + session.input_data_project_folder + '/', f))]
     if len(onlyfiles) == 0:
         logging.error('ERROR: No files in input folder. Aborting the program.')
         sys.exit()
@@ -33,42 +31,48 @@ def data_load(input_data_folder_name, input_data_project_folder, criterion_colum
         logging.error('ERROR: input data not a csv file.')
         sys.exit()
 
-    input_df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file)
+    input_df = pd.read_csv(session.input_data_folder_name + session.input_data_project_folder + '/' + input_file)
     print(f"Loading file {input_file}")
     logging.info(f"\n Loading file {input_file}")
     if len(input_df.columns.to_list()) == 1:
-        input_df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file, sep=';')
+        input_df = pd.read_csv(session.input_data_folder_name + session.input_data_project_folder + '/' + input_file,
+                               sep=';')
         if len(input_df.columns.to_list()) == 1:
             logging.error('ERROR: input data separator not any of the following ,;')
             sys.exit()
 
     # Check if multiclass classification criterion is passed
-    if input_df[criterion_column].nunique() > 2:
+    if input_df[session.params['criterion_column']].nunique() > 2:
         print()
         logging.error('ERROR: Multiclass classification criterion passed')
         sys.exit()
 
     # Remove periods:
     logging.info('LOAD: DataFrame len: %s, periods to exclude: %s',
-                 len(input_df), periods_to_exclude)
-    for el in periods_to_exclude:
-        input_df = input_df[input_df[observation_date_column] != el]
+                 len(input_df), session.params['periods_to_exclude'])
+    for el in session.params['periods_to_exclude']:
+        input_df = input_df[input_df[session.params['observation_date_column']] != el]
     logging.info('LOAD:DataFrame len: %s, periods kept after exclusion: %s',
-                 len(input_df), input_df[observation_date_column].unique().tolist())
+                 len(input_df), input_df[session.params['observation_date_column']].unique().tolist())
 
     input_df_full = pd.DataFrame()
-    if params["under_sampling"]:
-        criterion_rate = round(input_df[criterion_column].sum() / input_df[criterion_column].count(), 2)
+    if session.params["under_sampling"]:
+        criterion_rate = round(
+            input_df[session.params['criterion_column']].sum() / input_df[session.params['criterion_column']].count(),
+            2)
         input_df_full = input_df.copy()
         print(
-            f'Starting undersampling with strategy: {params["under_sampling"]}. The initial dataframe lenght is {input_df.shape} and criterion rate: {criterion_rate}')
+            f'Starting undersampling with strategy: {session.params["under_sampling"]}. The initial dataframe lenght is {input_df.shape} and criterion rate: {criterion_rate}')
         logging.info(
-            f'\n Starting undersampling with strategy: {params["under_sampling"]}. The initial dataframe lenght is {input_df.shape} and criterion rate: {criterion_rate}')
-        under = RandomUnderSampler(sampling_strategy=params["under_sampling"])  # define strategy for undersampling
-        under_X, under_y = under.fit_resample(input_df, input_df[
-            criterion_column])  # create new df (under_X)  undersampled based on above strategy
-        input_df = under_X
-        criterion_rate = round(input_df[criterion_column].sum() / input_df[criterion_column].count(), 2)
+            f'\n Starting undersampling with strategy: {session.params["under_sampling"]}. The initial dataframe lenght is {input_df.shape} and criterion rate: {criterion_rate}')
+        under = RandomUnderSampler(
+            sampling_strategy=session.params["under_sampling"])  # define strategy for undersampling
+        under_x, under_y = under.fit_resample(input_df, input_df[
+            session.params['criterion_column']])  # create new df (under_X)  undersampled based on above strategy
+        input_df = under_x
+        criterion_rate = round(
+            input_df[session.params['criterion_column']].sum() / input_df[session.params['criterion_column']].count(),
+            2)
         print(
             f'Undersampling done. The new dataframe lenght is {input_df.shape} and criterion rate: {criterion_rate}')
         logging.info(
@@ -77,8 +81,7 @@ def data_load(input_data_folder_name, input_data_project_folder, criterion_colum
     return input_df, input_df_full
 
 
-def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_project_folder, columns_to_exclude, criterion_column,
-                  observation_date_column, missing_treatment, params):  # start data cleaning
+def data_cleaning(input_df, input_df_full, session):  # start data cleaning
     print('\n Starting data clean... \n')
     logging.info('\n Data clean...')
 
@@ -88,19 +91,19 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     logging.info('\n Splitting columns by types \n')
     categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df)
     for el in categorical_cols[:]:
-        if el in columns_to_exclude:
+        if el in session.params['columns_to_exclude']:
             categorical_cols.remove(el)
 
     for el in numerical_cols[:]:
-        if el in columns_to_exclude:
+        if el in session.params['columns_to_exclude']:
             numerical_cols.remove(el)
 
     for el in object_cols[:]:
-        if el in columns_to_exclude:
+        if el in session.params['columns_to_exclude']:
             object_cols.remove(el)
 
     for el in dates_cols[:]:
-        if el in columns_to_exclude:
+        if el in session.params['columns_to_exclude']:
             dates_cols.remove(el)
 
     # treat specified numerical as objects
@@ -125,11 +128,10 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     print('\n Converting objects to dummies \n')
     logging.info('\n Converting objects to dummies \n')
 
-
     for col in object_cols:
         dummies = pd.get_dummies(input_df[col], prefix=col + '_dummie')
         input_df[dummies.columns] = dummies
-        if params["under_sampling"]:
+        if session.params["under_sampling"]:
             dummies = pd.get_dummies(input_df_full[col], prefix=col + '_dummie')
             input_df_full[dummies.columns] = dummies
 
@@ -148,8 +150,10 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     # Check correlation. # remove low correlation columns from numerical. At this point this is needed to lower the nb of ratios to be created
     print('\n Removing low correlation columns from numerical \n')
     logging.info('\n Removing low correlation columns from numerical \n')
-    final_features = functions.correlation_matrix(X=input_df[final_features], y=input_df[criterion_column],
-                                                  input_data_project_folder=input_data_project_folder, flag_matrix=None,
+    final_features = functions.correlation_matrix(X=input_df[final_features],
+                                                  y=input_df[session.params['criterion_column']],
+                                                  input_data_project_folder=session.input_data_project_folder,
+                                                  flag_matrix=None,
                                                   session_id_folder=None, model_corr='', flag_raw='')
 
     for el in numerical_cols[:]:
@@ -164,7 +168,7 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     print('\n Creating ratios with numerical columns \n')
     logging.info('\n Creating ratios with numerical columns \n')
     input_df = functions.create_ratios(df=input_df, columns=numerical_cols)
-    if params["under_sampling"]:
+    if session.params["under_sampling"]:
         input_df_full = functions.create_ratios(df=input_df_full, columns=numerical_cols)
 
     ratios_cols = []
@@ -177,8 +181,10 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     # Check correlation
     print('\n Removing low correlation columns from ratios \n')
     logging.info('\n Removing low correlation columns from ratios \n')
-    final_features = functions.correlation_matrix(X=input_df[final_features], y=input_df[criterion_column],
-                                                  input_data_project_folder=input_data_project_folder, flag_matrix=None,
+    final_features = functions.correlation_matrix(X=input_df[final_features],
+                                                  y=input_df[session.params['criterion_column']],
+                                                  input_data_project_folder=session.input_data_project_folder,
+                                                  flag_matrix=None,
                                                   session_id_folder=None, model_corr='', flag_raw='')
 
     for el in ratios_cols[:]:
@@ -191,9 +197,12 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
 
     binned_numerical = numerical_cols + ratios_cols
     # Optimal binning
-    input_df, input_df_full, binned_numerical = optimal_binning(df=input_df, df_full = input_df_full, columns=binned_numerical,
-                                                 criterion_column=criterion_column, final_features=final_features,
-                                                 observation_date_column=observation_date_column, params=params)
+    input_df, input_df_full, binned_numerical = optimal_binning(df=input_df, df_full=input_df_full,
+                                                                columns=binned_numerical,
+                                                                criterion_column=session.params['criterion_column'],
+                                                                final_features=final_features,
+                                                                observation_date_column=session.params[
+                                                                    'observation_date_column'], params=session.params)
     final_features = final_features + binned_numerical
     final_features = list(set(final_features))
     for el in final_features[:]:
@@ -206,33 +215,28 @@ def data_cleaning(input_df, input_df_full, output_data_folder_name, input_data_p
     # Check correlation
     print('\n Checking correlation one more time now with binned \n')
     logging.info('\n Checking correlation one more time now with binned \n')
-    final_features = functions.correlation_matrix(X=input_df[final_features], y=input_df[criterion_column],
-                                                  input_data_project_folder=input_data_project_folder, flag_matrix=None,
+    final_features = functions.correlation_matrix(X=input_df[final_features],
+                                                  y=input_df[session.params['criterion_column']],
+                                                  input_data_project_folder=session.input_data_project_folder,
+                                                  flag_matrix=None,
                                                   session_id_folder=None, model_corr='', flag_raw='')
 
-    all_columns = final_features + [criterion_column] + [observation_date_column] + object_cols
-    if params['secondary_criterion_columns']:
-        for el in params['secondary_criterion_columns']:
-            all_columns.append(el)
-        all_columns = list(dict.fromkeys(all_columns[:]))
+    # all_columns = final_features + [session.params['criterion_column']] + [
+    #     session.params['observation_date_column']] + object_cols
+    # if session.params['secondary_criterion_columns']:
+    #     for el in session.params['secondary_criterion_columns']:
+    #         all_columns.append(el)
+    #     all_columns = list(dict.fromkeys(all_columns[:]))
 
-    # Save output data
-    input_df = missing_values(df=input_df, missing_treatment=missing_treatment,
-                              input_data_project_folder=input_data_project_folder)
-    if params['under_sampling']:
-        input_df_full = missing_values(df=input_df_full, missing_treatment=missing_treatment,
-                                  input_data_project_folder=input_data_project_folder)
+    # Finalizing the dataframes
+    input_df = missing_values(df=input_df, missing_treatment=session.params['missing_treatment'],
+                              input_data_project_folder=session.input_data_project_folder)
+    if session.params['under_sampling']:
+        input_df_full = missing_values(df=input_df_full, missing_treatment=session.params['missing_treatment'],
+                                       input_data_project_folder=session.input_data_project_folder)
     all_columns = input_df.columns.to_list()
 
-    print('\n Saving processed data \n')
-    input_df[all_columns].to_parquet(
-        output_data_folder_name + input_data_project_folder + '/' + 'output_data_file.parquet')
-    if params['under_sampling']:
-        input_df_full[all_columns].to_parquet(
-            output_data_folder_name + input_data_project_folder + '/' + 'output_data_file_full.parquet')
-
-    with open(output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl', 'wb') as f:
-        pickle.dump(final_features, f)
+    return input_df[all_columns], input_df_full[all_columns], final_features
 
 
 def missing_values(df, missing_treatment, input_data_project_folder):
@@ -361,12 +365,12 @@ def optimal_binning(df, df_full, columns, criterion_column, final_features, obse
         temp_df2 = temp_df2[temp_df2[observation_date_column] != params['t2df']]
         temp_df2 = temp_df2[temp_df2[observation_date_column] != params['t3df']]
 
-        X_train, _, y_train, _ = train_test_split(
+        x_train, _, y_train, _ = train_test_split(
             temp_df2, temp_df2[criterion_column], test_size=0.33, random_state=42)
-        X_train = X_train.dropna(subset=[col])
+        x_train = x_train.dropna(subset=[col])
 
-        x = X_train[col].values
-        y = X_train[criterion_column].values
+        x = x_train[col].values
+        y = x_train[criterion_column].values
         optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
         optb.fit(x, y)
 
@@ -445,4 +449,4 @@ def optimal_binning(df, df_full, columns, criterion_column, final_features, obse
         new_string = new_string.replace(")", "_excl_")
         new_string = new_string.replace(" ", "")
         df_full.rename(columns={col: new_string}, inplace=True)
-    return df, df_full ,columns
+    return df, df_full, columns

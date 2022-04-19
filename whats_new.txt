@@ -1,1 +1,2 @@
-1.0.0 - initial stable versionasdasdasd
+1.1.0 - main.py and dataload - 2 classes created - session (all session details), loader - 2 dataframes. Requirements updated
+1.0.0 - initial stable version

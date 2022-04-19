@@ -1,18 +1,17 @@
+import argparse
+import json
 import logging
 import os
-import sys
-import pandas as pd
-from datetime import datetime
-import json
 import pickle
-import argparse
-from sklearn.model_selection import train_test_split
-import pyarrow.parquet as pq
+import sys
 import warnings
-import colorama
+from datetime import datetime
+
+import pandas as pd
+import pyarrow.parquet as pq
 from colorama import Fore
 from colorama import Style
-
+from sklearn.model_selection import train_test_split
 
 import functions
 
@@ -95,9 +94,18 @@ try:
     t3df_period = params["t3df"]
     lr_features = params["lr_features"]
     cut_offs = params["cut_offs"]
-except:
+except Exception as e:
     print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
-    pass
+    print(e)
+    logging.error(e)
+    quit()
+
+# create session object
+session = functions.Session
+session.params = params
+session.input_data_folder_name = input_data_folder_name
+session.input_data_project_folder = input_data_project_folder
+session.output_data_folder_name = output_data_folder_name
 
 
 def modeller(input_data_project_folder):
@@ -118,7 +126,8 @@ def modeller(input_data_project_folder):
     logging.info("Data Loaded")
     with (open(output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl', "rb")) as openfile:
         final_features = pickle.load(openfile)
-    print(f'\t All observation dates before splitting the file: {observation_date_column}: {input_df[observation_date_column].unique()}')
+    print(
+        f'\t All observation dates before splitting the file: {observation_date_column}: {input_df[observation_date_column].unique()}')
     if params['under_sampling']:
         print('\n Splitting temporal validation dataframes\n ', t1df_period, t2df_period, t3df_period)
         logging.info(f"Splitting temporal validation dataframes, {t1df_period}, {t2df_period}, {t3df_period}")
@@ -177,7 +186,8 @@ def modeller(input_data_project_folder):
 
     print('\t Splitting train and test dataframes. Done')
     logging.info('Splitting train and test dataframes. Done')
-    models = pd.DataFrame(columns=['Method', 'AccuracyScore', 'AUC', 'PrecisionScore', 'Recall', 'F1', 'DataSet', 'NbFeatures'])
+    models = pd.DataFrame(
+        columns=['Method', 'AccuracyScore', 'AUC', 'PrecisionScore', 'Recall', 'F1', 'DataSet', 'NbFeatures'])
 
     print(Fore.YELLOW + '\n Createing session folder. Starting\n' + Style.RESET_ALL)
     logging.info('Createing session folder. Starting')
@@ -201,73 +211,88 @@ def modeller(input_data_project_folder):
         model_to_predict=None,
         predict_only_flag='no', test_X=X_test, test_y=y_test, final_features=final_features, cut_points_train=None,
         cut_offs=cut_offs, params=params)
-    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, _, x_test_recall, x_test_f1 = functions.xgb(df=X_test, criterion=y_test,
-                                                                                            df_us=X_train_us,
-                                                                                            criterion_us=y_train_us,
-                                                                                            test_X_us=X_test_us,
-                                                                                            test_y_us=y_test_us,
-                                                                                            model_to_predict=model_train,
-                                                                                            predict_only_flag='yes',
-                                                                                            test_X=None, test_y=None,
-                                                                                            final_features=final_features,
-                                                                                            cut_points_train=cut_points_train,
-                                                                                            cut_offs=cut_offs,
-                                                                                            params=params)
+    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, _, x_test_recall, x_test_f1 = functions.xgb(
+        df=X_test, criterion=y_test,
+        df_us=X_train_us,
+        criterion_us=y_train_us,
+        test_X_us=X_test_us,
+        test_y_us=y_test_us,
+        model_to_predict=model_train,
+        predict_only_flag='yes',
+        test_X=None, test_y=None,
+        final_features=final_features,
+        cut_points_train=cut_points_train,
+        cut_offs=cut_offs,
+        params=params)
     t1df, _, t1df_ac, t1df_auc, t1df_prec, t1df_nb_features, _, _, t1df_recall, t1df_f1 = functions.xgb(df=t1df,
-                                                                                  criterion=t1df[criterion_column],
-                                                                                  df_us=X_train_us,
-                                                                                  criterion_us=y_train_us,
-                                                                                  test_X_us=X_test_us,
-                                                                                  test_y_us=y_test_us,
-                                                                                  model_to_predict=model_train,
-                                                                                  predict_only_flag='yes', test_X=None,
-                                                                                  test_y=None,
-                                                                                  final_features=final_features,
-                                                                                  cut_points_train=cut_points_train,
-                                                                                  cut_offs=cut_offs, params=params)
+                                                                                                        criterion=t1df[
+                                                                                                            criterion_column],
+                                                                                                        df_us=X_train_us,
+                                                                                                        criterion_us=y_train_us,
+                                                                                                        test_X_us=X_test_us,
+                                                                                                        test_y_us=y_test_us,
+                                                                                                        model_to_predict=model_train,
+                                                                                                        predict_only_flag='yes',
+                                                                                                        test_X=None,
+                                                                                                        test_y=None,
+                                                                                                        final_features=final_features,
+                                                                                                        cut_points_train=cut_points_train,
+                                                                                                        cut_offs=cut_offs,
+                                                                                                        params=params)
     t2df, _, t2df_ac, t2df_auc, t2df_prec, t2df_nb_features, _, _, t2df_recall, t2df_f1 = functions.xgb(df=t2df,
-                                                                                  criterion=t2df[criterion_column],
-                                                                                  df_us=X_train_us,
-                                                                                  criterion_us=y_train_us,
-                                                                                  test_X_us=X_test_us,
-                                                                                  test_y_us=y_test_us,
-                                                                                  model_to_predict=model_train,
-                                                                                  predict_only_flag='yes', test_X=None,
-                                                                                  test_y=None,
-                                                                                  final_features=final_features,
-                                                                                  cut_points_train=cut_points_train,
-                                                                                  cut_offs=cut_offs, params=params)
+                                                                                                        criterion=t2df[
+                                                                                                            criterion_column],
+                                                                                                        df_us=X_train_us,
+                                                                                                        criterion_us=y_train_us,
+                                                                                                        test_X_us=X_test_us,
+                                                                                                        test_y_us=y_test_us,
+                                                                                                        model_to_predict=model_train,
+                                                                                                        predict_only_flag='yes',
+                                                                                                        test_X=None,
+                                                                                                        test_y=None,
+                                                                                                        final_features=final_features,
+                                                                                                        cut_points_train=cut_points_train,
+                                                                                                        cut_offs=cut_offs,
+                                                                                                        params=params)
     t3df, _, t3df_ac, t3df_auc, t3df_prec, t3df_nb_features, _, _, t3df_recall, t3df_f1 = functions.xgb(df=t3df,
-                                                                                  criterion=t3df[criterion_column],
-                                                                                  df_us=X_train_us,
-                                                                                  criterion_us=y_train_us,
-                                                                                  test_X_us=X_test_us,
-                                                                                  test_y_us=y_test_us,
-                                                                                  model_to_predict=model_train,
-                                                                                  predict_only_flag='yes', test_X=None,
-                                                                                  test_y=None,
-                                                                                  final_features=final_features,
-                                                                                  cut_points_train=cut_points_train,
-                                                                                  cut_offs=cut_offs, params=params)
+                                                                                                        criterion=t3df[
+                                                                                                            criterion_column],
+                                                                                                        df_us=X_train_us,
+                                                                                                        criterion_us=y_train_us,
+                                                                                                        test_X_us=X_test_us,
+                                                                                                        test_y_us=y_test_us,
+                                                                                                        model_to_predict=model_train,
+                                                                                                        predict_only_flag='yes',
+                                                                                                        test_X=None,
+                                                                                                        test_y=None,
+                                                                                                        final_features=final_features,
+                                                                                                        cut_points_train=cut_points_train,
+                                                                                                        cut_offs=cut_offs,
+                                                                                                        params=params)
 
     models = models.append(
-        {'Method': 'xgb', 'AccuracyScore': x_train_ac, 'AUC': x_train_auc, 'PrecisionScore': x_train_prec, 'Recall' : x_train_recall, 'F1': x_train_f1,
+        {'Method': 'xgb', 'AccuracyScore': x_train_ac, 'AUC': x_train_auc, 'PrecisionScore': x_train_prec,
+         'Recall': x_train_recall, 'F1': x_train_f1,
          'DataSet': 'X_train', 'NbFeatures': x_train_nb_features},
         ignore_index=True)
     models = models.append(
-        {'Method': 'xgb', 'AccuracyScore': x_test_ac, 'AUC': x_test_auc, 'PrecisionScore': x_test_prec, 'Recall' : x_test_recall, 'F1': x_test_f1,
+        {'Method': 'xgb', 'AccuracyScore': x_test_ac, 'AUC': x_test_auc, 'PrecisionScore': x_test_prec,
+         'Recall': x_test_recall, 'F1': x_test_f1,
          'DataSet': 'X_test', 'NbFeatures': x_test_nb_features},
         ignore_index=True)
     models = models.append(
-        {'Method': 'xgb', 'AccuracyScore': t1df_ac, 'AUC': t1df_auc, 'PrecisionScore': t1df_prec, 'Recall' : t1df_recall, 'F1': t1df_f1,
+        {'Method': 'xgb', 'AccuracyScore': t1df_ac, 'AUC': t1df_auc, 'PrecisionScore': t1df_prec, 'Recall': t1df_recall,
+         'F1': t1df_f1,
          'DataSet': 't1df', 'NbFeatures': t1df_nb_features},
         ignore_index=True)
     models = models.append(
-        {'Method': 'xgb', 'AccuracyScore': t2df_ac, 'AUC': t2df_auc, 'PrecisionScore': t2df_prec, 'Recall' : t2df_recall, 'F1': t2df_f1,
+        {'Method': 'xgb', 'AccuracyScore': t2df_ac, 'AUC': t2df_auc, 'PrecisionScore': t2df_prec, 'Recall': t2df_recall,
+         'F1': t2df_f1,
          'DataSet': 't2df', 'NbFeatures': t2df_nb_features},
         ignore_index=True)
     models = models.append(
-        {'Method': 'xgb', 'AccuracyScore': t3df_ac, 'AUC': t3df_auc, 'PrecisionScore': t3df_prec,  'Recall' : t3df_recall, 'F1': t3df_f1,
+        {'Method': 'xgb', 'AccuracyScore': t3df_ac, 'AUC': t3df_auc, 'PrecisionScore': t3df_prec, 'Recall': t3df_recall,
+         'F1': t3df_f1,
          'DataSet': 't3df', 'NbFeatures': t3df_nb_features},
         ignore_index=True)
     pickle.dump(model_train, open(session_id_folder + '/xgb/model_train.pkl', 'wb'))
@@ -293,55 +318,65 @@ def modeller(input_data_project_folder):
         model_to_predict=None,
         predict_only_flag='no', test_X=X_test, test_y=y_test, final_features=final_features, cut_offs=cut_offs,
         params=params)
-    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, x_test_recall, x_test_f1  = functions.rand_forest(df=X_test,
-                                                                                                 criterion=y_test,
-                                                                                                 df_us=X_train_us,
-                                                                                                 criterion_us=y_train_us,
-                                                                                                 test_X_us=X_test_us,
-                                                                                                 test_y_us=y_test_us,
-                                                                                                 model_to_predict=model_train,
-                                                                                                 predict_only_flag='yes',
-                                                                                                 test_X=None,
-                                                                                                 test_y=None,
-                                                                                                 final_features=final_features,
-                                                                                                 cut_offs=cut_offs,
-                                                                                                 params=params)
+    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, x_test_recall, x_test_f1 = functions.rand_forest(
+        df=X_test,
+        criterion=y_test,
+        df_us=X_train_us,
+        criterion_us=y_train_us,
+        test_X_us=X_test_us,
+        test_y_us=y_test_us,
+        model_to_predict=model_train,
+        predict_only_flag='yes',
+        test_X=None,
+        test_y=None,
+        final_features=final_features,
+        cut_offs=cut_offs,
+        params=params)
     t1df, _, t1df_ac, t1df_auc, t1df_prec, t1df_nb_features, _, t1df_recall, t1df_f1 = functions.rand_forest(df=t1df,
-                                                                                       criterion=t1df[criterion_column],
-                                                                                       df_us=X_train_us,
-                                                                                       criterion_us=y_train_us,
-                                                                                       test_X_us=X_test_us,
-                                                                                       test_y_us=y_test_us,
-                                                                                       model_to_predict=model_train,
-                                                                                       predict_only_flag='yes',
-                                                                                       test_X=None,
-                                                                                       test_y=None,
-                                                                                       final_features=final_features,
-                                                                                       cut_offs=cut_offs, params=params)
+                                                                                                             criterion=
+                                                                                                             t1df[
+                                                                                                                 criterion_column],
+                                                                                                             df_us=X_train_us,
+                                                                                                             criterion_us=y_train_us,
+                                                                                                             test_X_us=X_test_us,
+                                                                                                             test_y_us=y_test_us,
+                                                                                                             model_to_predict=model_train,
+                                                                                                             predict_only_flag='yes',
+                                                                                                             test_X=None,
+                                                                                                             test_y=None,
+                                                                                                             final_features=final_features,
+                                                                                                             cut_offs=cut_offs,
+                                                                                                             params=params)
     t2df, _, t2df_ac, t2df_auc, t2df_prec, t2df_nb_features, _, t2df_recall, t2df_f1 = functions.rand_forest(df=t2df,
-                                                                                       criterion=t2df[criterion_column],
-                                                                                       df_us=X_train_us,
-                                                                                       criterion_us=y_train_us,
-                                                                                       test_X_us=X_test_us,
-                                                                                       test_y_us=y_test_us,
-                                                                                       model_to_predict=model_train,
-                                                                                       predict_only_flag='yes',
-                                                                                       test_X=None,
-                                                                                       test_y=None,
-                                                                                       final_features=final_features,
-                                                                                       cut_offs=cut_offs, params=params)
+                                                                                                             criterion=
+                                                                                                             t2df[
+                                                                                                                 criterion_column],
+                                                                                                             df_us=X_train_us,
+                                                                                                             criterion_us=y_train_us,
+                                                                                                             test_X_us=X_test_us,
+                                                                                                             test_y_us=y_test_us,
+                                                                                                             model_to_predict=model_train,
+                                                                                                             predict_only_flag='yes',
+                                                                                                             test_X=None,
+                                                                                                             test_y=None,
+                                                                                                             final_features=final_features,
+                                                                                                             cut_offs=cut_offs,
+                                                                                                             params=params)
     t3df, _, t3df_ac, t3df_auc, t3df_prec, t3df_nb_features, _, t3df_recall, t3df_f1 = functions.rand_forest(df=t3df,
-                                                                                       criterion=t3df[criterion_column],
-                                                                                       df_us=X_train_us,
-                                                                                       criterion_us=y_train_us,
-                                                                                       test_X_us=X_test_us,
-                                                                                       test_y_us=y_test_us,
-                                                                                       model_to_predict=model_train,
-                                                                                       predict_only_flag='yes',
-                                                                                       test_X=None,
-                                                                                       test_y=None,
-                                                                                       final_features=final_features,
-                                                                                       cut_offs=cut_offs, params=params)
+                                                                                                             criterion=
+                                                                                                             t3df[
+                                                                                                                 criterion_column],
+                                                                                                             df_us=X_train_us,
+                                                                                                             criterion_us=y_train_us,
+                                                                                                             test_X_us=X_test_us,
+                                                                                                             test_y_us=y_test_us,
+                                                                                                             model_to_predict=model_train,
+                                                                                                             predict_only_flag='yes',
+                                                                                                             test_X=None,
+                                                                                                             test_y=None,
+                                                                                                             final_features=final_features,
+                                                                                                             cut_offs=cut_offs,
+                                                                                                             params=params)
 
     models = models.append(
         {'Method': 'rf', 'AccuracyScore': x_train_ac, 'AUC': x_train_auc, 'PrecisionScore': x_train_prec,
@@ -388,49 +423,53 @@ def modeller(input_data_project_folder):
             model_to_predict=None,
             predict_only_flag='no', test_X=X_test, test_y=y_test, final_features=final_features,
             lr_features=params, cut_offs=cut_offs, params=params)
-        X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, _, x_test_recall, x_test_f1 = functions.lr_run(df=X_test,
-                                                                                                   criterion=y_test,
-                                                                                                   model_to_predict=model_train,
-                                                                                                   predict_only_flag='yes',
-                                                                                                   test_X=None,
-                                                                                                   test_y=None,
-                                                                                                   final_features=final_features,
-                                                                                                   lr_features=None,
-                                                                                                   cut_offs=cut_offs,
-                                                                                                   params=params)
+        X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, _, x_test_recall, x_test_f1 = functions.lr_run(
+            df=X_test,
+            criterion=y_test,
+            model_to_predict=model_train,
+            predict_only_flag='yes',
+            test_X=None,
+            test_y=None,
+            final_features=final_features,
+            lr_features=None,
+            cut_offs=cut_offs,
+            params=params)
         t1df, _, t1df_ac, t1df_auc, t1df_prec, t1df_nb_features, _, _, t1df_recall, t1df_f1 = functions.lr_run(df=t1df,
-                                                                                         criterion=t1df[
-                                                                                             criterion_column],
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         lr_features=None,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t1df[
+                                                                                                                   criterion_column],
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               lr_features=None,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
         t2df, _, t2df_ac, t2df_auc, t2df_prec, t2df_nb_features, _, _, t2df_recall, t2df_f1 = functions.lr_run(df=t2df,
-                                                                                         criterion=t2df[
-                                                                                             criterion_column],
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         lr_features=None,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t2df[
+                                                                                                                   criterion_column],
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               lr_features=None,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
         t3df, _, t3df_ac, t3df_auc, t3df_prec, t3df_nb_features, _, _, t3df_recall, t3df_f1 = functions.lr_run(df=t3df,
-                                                                                         criterion=t3df[
-                                                                                             criterion_column],
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         lr_features=None,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t3df[
+                                                                                                                   criterion_column],
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               lr_features=None,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
 
         models = models.append(
             {'Method': 'lr', 'AccuracyScore': x_train_ac, 'AUC': x_train_auc, 'PrecisionScore': x_train_prec,
@@ -487,61 +526,65 @@ def modeller(input_data_project_folder):
         model_to_predict=None,
         predict_only_flag='no', test_X=X_test, test_y=y_test, final_features=final_features, cut_offs=cut_offs,
         params=params)
-    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, x_test_recall, x_test_f1 = functions.decision_tree(df=X_test,
-                                                                                                   criterion=y_test,
-                                                                                                   df_us=X_train_us,
-                                                                                                   criterion_us=y_train_us,
-                                                                                                   test_X_us=X_test_us,
-                                                                                                   test_y_us=y_test_us,
-                                                                                                   model_to_predict=model_train,
-                                                                                                   predict_only_flag='yes',
-                                                                                                   test_X=None,
-                                                                                                   test_y=None,
-                                                                                                   final_features=final_features,
-                                                                                                   cut_offs=cut_offs,
-                                                                                                   params=params)
+    X_test, _, x_test_ac, x_test_auc, x_test_prec, x_test_nb_features, _, x_test_recall, x_test_f1 = functions.decision_tree(
+        df=X_test,
+        criterion=y_test,
+        df_us=X_train_us,
+        criterion_us=y_train_us,
+        test_X_us=X_test_us,
+        test_y_us=y_test_us,
+        model_to_predict=model_train,
+        predict_only_flag='yes',
+        test_X=None,
+        test_y=None,
+        final_features=final_features,
+        cut_offs=cut_offs,
+        params=params)
     t1df, _, t1df_ac, t1df_auc, t1df_prec, t1df_nb_features, _, t1df_recall, t1df_f1 = functions.decision_tree(df=t1df,
-                                                                                         criterion=t1df[
-                                                                                             criterion_column],
-                                                                                         df_us=X_train_us,
-                                                                                         criterion_us=y_train_us,
-                                                                                         test_X_us=X_test_us,
-                                                                                         test_y_us=y_test_us,
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t1df[
+                                                                                                                   criterion_column],
+                                                                                                               df_us=X_train_us,
+                                                                                                               criterion_us=y_train_us,
+                                                                                                               test_X_us=X_test_us,
+                                                                                                               test_y_us=y_test_us,
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
     t2df, _, t2df_ac, t2df_auc, t2df_prec, t2df_nb_features, _, t2df_recall, t2df_f1 = functions.decision_tree(df=t2df,
-                                                                                         criterion=t2df[
-                                                                                             criterion_column],
-                                                                                         df_us=X_train_us,
-                                                                                         criterion_us=y_train_us,
-                                                                                         test_X_us=X_test_us,
-                                                                                         test_y_us=y_test_us,
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t2df[
+                                                                                                                   criterion_column],
+                                                                                                               df_us=X_train_us,
+                                                                                                               criterion_us=y_train_us,
+                                                                                                               test_X_us=X_test_us,
+                                                                                                               test_y_us=y_test_us,
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
     t3df, _, t3df_ac, t3df_auc, t3df_prec, t3df_nb_features, _, t3df_recall, t3df_f1 = functions.decision_tree(df=t3df,
-                                                                                         criterion=t3df[
-                                                                                             criterion_column],
-                                                                                         df_us=X_train_us,
-                                                                                         criterion_us=y_train_us,
-                                                                                         test_X_us=X_test_us,
-                                                                                         test_y_us=y_test_us,
-                                                                                         model_to_predict=model_train,
-                                                                                         predict_only_flag='yes',
-                                                                                         test_X=None,
-                                                                                         test_y=None,
-                                                                                         final_features=final_features,
-                                                                                         cut_offs=cut_offs,
-                                                                                         params=params)
+                                                                                                               criterion=
+                                                                                                               t3df[
+                                                                                                                   criterion_column],
+                                                                                                               df_us=X_train_us,
+                                                                                                               criterion_us=y_train_us,
+                                                                                                               test_X_us=X_test_us,
+                                                                                                               test_y_us=y_test_us,
+                                                                                                               model_to_predict=model_train,
+                                                                                                               predict_only_flag='yes',
+                                                                                                               test_X=None,
+                                                                                                               test_y=None,
+                                                                                                               final_features=final_features,
+                                                                                                               cut_offs=cut_offs,
+                                                                                                               params=params)
 
     models = models.append(
         {'Method': 'dt', 'AccuracyScore': x_train_ac, 'AUC': x_train_auc, 'PrecisionScore': x_train_prec,
@@ -614,17 +657,22 @@ elif run_info == 'load':
     functions.print_load()
     print(Fore.GREEN + 'Starting the session for: ' + input_data_project_folder + Style.RESET_ALL)
     logging.info(f'Starting the session for: {input_data_project_folder}')
-    input_df, input_df_full = functions.data_load(input_data_folder_name=input_data_folder_name,
-                                                  input_data_project_folder=input_data_project_folder,
-                                                  criterion_column=criterion_column,
-                                                  periods_to_exclude=periods_to_exclude,
-                                                  observation_date_column=observation_date_column, params=params)
-    functions.data_cleaning(input_df=input_df, input_df_full=input_df_full,
-                            output_data_folder_name=output_data_folder_name,
-                            input_data_project_folder=input_data_project_folder,
-                            columns_to_exclude=columns_to_exclude, criterion_column=criterion_column,
-                            observation_date_column=observation_date_column, missing_treatment=missing_treatment,
-                            params=params)
+
+    # create loader object
+    loader = functions.Loader()
+    loader.input_df, loader.input_df_full = functions.data_load(session)
+    loader.input_df, loader.input_df_full, loader.final_features = functions.data_cleaning(input_df=loader.input_df,
+                                                                                           input_df_full=loader.input_df_full,
+                                                                                           session=session)
+    print('\n Saving processed data \n')
+    loader.input_df.to_parquet(
+        session.output_data_folder_name + session.input_data_project_folder + '/' + 'output_data_file.parquet')
+    if params['under_sampling']:
+        loader.input_df_full.to_parquet(
+            session.output_data_folder_name + session.input_data_project_folder + '/' + 'output_data_file_full.parquet')
+    with open(session.output_data_folder_name + session.input_data_project_folder + '/' + 'final_features.pkl',
+              'wb') as f:
+        pickle.dump(loader.final_features, f)
     functions.print_end()
 elif run_info == 'train':
     functions.print_train()
@@ -662,7 +710,7 @@ elif run_info == 'eval':
         print(f'ERROR with LR: {e}')
         pass
     try:
-        print(Fore.GREEN + '\n Starting Eval for DT\n'+Style.RESET_ALL)
+        print(Fore.GREEN + '\n Starting Eval for DT\n' + Style.RESET_ALL)
         functions.merge_word(input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
                              session_id_folder, criterion_column,
                              observation_date_column,
