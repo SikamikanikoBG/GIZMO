@@ -31,10 +31,10 @@ def xgb(df, criterion, test_X, test_y, df_us, criterion_us, test_X_us, test_y_us
     Parameters:
         df, criterion, test_X, test_y, predict_only_flag, model_to_predict, final_features, cut_points_train, cut_offs
         df - the dataframe on which to train or predict the model
-        criterion - series, the column that the model is training/predicting
+        criterion - series, the column that the model is training_flows/predicting
         test_y, test_X - test group used for modelling
         predict only flag - indicates if the function should train or predict
-        final features - the features to be used for training/predicting
+        final features - the features to be used for training_flows/predicting
         cut_points_train - the cut points for probability to generate bands (experimental)
         cut_offs - defined cutoffs in the param file to generate score bands based on the probability
     """
@@ -418,48 +418,3 @@ def get_metrics(y_true, y_pred, y_pred_prob):
     return accuracy_score_val, roc_auc_score_val, precision_score_val, recall_score_val, f1_score_val
 
 
-def raw_features_to_list(final_features):
-    raw_features = []
-    for feat in final_features[:]:
-        if 'binned' in feat:
-            prefix, _, _ = str(feat).partition('_binned')
-            if '_ratio_' in prefix:
-                if '_div_' in prefix:
-                    a, b, c = str(prefix).partition('_div_ratio_')
-                    raw_features.append(a)
-                    raw_features.append(c)
-                elif '_add_' in prefix:
-                    a, b, c = str(prefix).partition('_add_ratio_')
-                    raw_features.append(a)
-                    raw_features.append(c)
-                elif '_subs_' in prefix:
-                    a, b, c = str(prefix).partition('_subs_ratio_')
-                    raw_features.append(a)
-                    raw_features.append(c)
-                elif '_mult_' in prefix:
-                    a, b, c = str(prefix).partition('_mult_ratio_')
-                    raw_features.append(a)
-                    raw_features.append(c)
-            else:
-                raw_features.append(prefix)
-        elif '_ratio_' in feat:
-            if '_div_' in feat:
-                a, b, c = str(feat).partition('_div_ratio_')
-                raw_features.append(a)
-                raw_features.append(c)
-            elif '_add_' in feat:
-                a, b, c = str(feat).partition('_add_ratio_')
-                raw_features.append(a)
-                raw_features.append(c)
-            elif '_subs_' in feat:
-                a, b, c = str(feat).partition('_subs_ratio_')
-                raw_features.append(a)
-                raw_features.append(c)
-            elif '_mult_' in feat:
-                a, b, c = str(feat).partition('_mult_ratio_')
-                raw_features.append(a)
-                raw_features.append(c)
-        else:
-            raw_features.append(feat)
-    raw_features = list(dict.fromkeys(raw_features))
-    return raw_features

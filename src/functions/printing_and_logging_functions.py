@@ -1,5 +1,23 @@
+import logging
+
+from colorama import Fore
+from colorama import Style
+
+
+def print_and_log(text, colour):
+    text = str(text)
+    if colour:
+        print(getattr(Fore, colour) + text + Style.RESET_ALL)
+        if colour == 'RED':
+            logging.error(text)
+        else:
+            logging.info(text)
+    else:
+        print(text)
+        logging.info(text)
+
 def print_load():
-    print("""\
+    print_and_log("""\
 
                      _             
                     (_)            
@@ -24,11 +42,11 @@ def print_load():
                                    
                                    
 
-    """)
+    """, 'GREEN')
 
 
 def print_train():
-    print("""\
+    print_and_log("""\
 
                      _             
                     (_)            
@@ -53,11 +71,11 @@ def print_train():
                                    
                                    
 
-    """)
+    """, 'GREEN')
 
 
 def print_eval():
-    print("""\
+    print_and_log("""\
 
                      _                                  
                     (_)                                 
@@ -79,10 +97,11 @@ def print_eval():
  |______\_/ \__,_|_|\__,_|\__,_|\__|_|\___/|_| |_(_|_|_)
                                                         
                                                         
-    """)
+    """, 'GREEN')
+
 
 def print_end():
-    print("""\
+    print_and_log("""\
 
      _      ______ _   _ _____       _    
   /\| |/\  |  ____| \ | |  __ \   /\| |/\ 
@@ -93,4 +112,4 @@ def print_end():
                                           
                                           
 
-    """)
+    """, 'GREEN')
