@@ -5,10 +5,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src import SessionManager, BaseModeller
-from src.functions.data_prep_functions import correlation_matrix
-from src.functions.printing_and_logging_functions import print_end, print_and_log, print_train
-from src.functions.data_prep_functions import raw_features_to_list
-import pyarrow.parquet as pq
+from src.functions.data_prep.misc_functions import correlation_matrix
+from src.functions.printing_and_logging import print_end, print_and_log, print_train
+from src.functions.data_prep.raw_features_to_list import raw_features_to_list
 
 
 class ModuleClass(SessionManager):

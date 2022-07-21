@@ -1,10 +1,12 @@
 from pickle import dump
 from src import SessionManager
 
-from src.functions.printing_and_logging_functions import print_end, print_and_log, print_load
-from src.functions.data_prep_functions import split_columns_by_types, remove_columns_to_exclude, \
+from src.functions.printing_and_logging import print_end, print_and_log, print_load
+from src.functions.data_prep.misc_functions import split_columns_by_types, remove_columns_to_exclude, \
     switch_numerical_to_object_column, convert_obj_to_cat_and_get_dummies, remove_column_if_not_in_final_features, \
-    optimal_binning, missing_values, create_dict_based_on_col_name_contains, create_ratios, correlation_matrix
+    create_dict_based_on_col_name_contains, create_ratios, correlation_matrix
+from src.functions.data_prep.missing_treatment import missing_values
+from src.functions.data_prep.optimal_binning import optimal_binning
 
 
 class ModuleClass(SessionManager):

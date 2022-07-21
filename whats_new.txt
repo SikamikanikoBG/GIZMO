@@ -1,3 +1,4 @@
+3.1.0 - refactoring. functions split in separated files for easier code editing
 3.0.0 - refactoring. brain new structure with objects.
 2.0.0 - refactoring. Definitions.py added.
 1.3.0 - docs updated - missing treatment

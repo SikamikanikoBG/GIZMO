@@ -14,10 +14,10 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 
 from src.functions.data_load_functions import check_files_for_csv_suffix, check_separator_csv_file
-from src.functions.data_prep_functions import check_if_multiclass_criterion_is_passed, remove_periods_from_df, \
-    under_sampling_df_based_on_params
-from src.functions.modelling_functions import cut_into_bands, get_metrics
-from src.functions.printing_and_logging_functions import print_and_log
+from src.functions.data_prep.misc_functions import check_if_multiclass_criterion_is_passed, remove_periods_from_df
+from src.functions.data_prep.under_sampling import under_sampling_df_based_on_params
+from src.functions.modelling.modelling_functions import cut_into_bands, get_metrics
+from src.functions.printing_and_logging import print_and_log
 
 
 class SessionManager:

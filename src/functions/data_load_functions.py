@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 
 import pandas as pd
-from src.functions.printing_and_logging_functions import print_and_log
+from src.functions.printing_and_logging import print_and_log
 
 
 def check_files_for_csv_suffix(input_data_folder_name, input_data_project_folder):
