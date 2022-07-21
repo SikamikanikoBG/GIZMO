@@ -1,5 +1,5 @@
 from pickle import dump
-from src import SessionManager
+from src.classes.SessionManager import SessionManager
 
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
 from src.functions.data_prep.misc_functions import split_columns_by_types, remove_columns_to_exclude, \

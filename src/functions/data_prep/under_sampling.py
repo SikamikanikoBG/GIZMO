@@ -1,6 +1,6 @@
 from imblearn.under_sampling import RandomUnderSampler
 
-from src import print_and_log
+from src.functions.printing_and_logging import print_and_log
 
 
 def under_sampling_df_based_on_params(input_df, params):

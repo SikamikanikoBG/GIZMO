@@ -4,7 +4,8 @@ import pickle
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src import SessionManager, BaseModeller
+from src.classes.SessionManager import SessionManager
+from src.classes.BaseModeller import BaseModeller
 from src.functions.data_prep.misc_functions import correlation_matrix
 from src.functions.printing_and_logging import print_end, print_and_log, print_train
 from src.functions.data_prep.raw_features_to_list import raw_features_to_list

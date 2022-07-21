@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--data_prep_module', type=str, help='Data prep module to run')
     parser.add_argument('--train_module', type=str, help='Training module to run')
+    parser.add_argument('--predict_module', type=str, help='Training module to run')
     parser.add_argument('--h', type=str, help='You need help...')
     args = parser.parse_args()
 
@@ -32,16 +33,16 @@ if __name__ == '__main__':
         sys.exit()
 
     if args.data_prep_module:
-        data_prep_module = args.data_prep_module.lower()
-        module_lib = import_module(f'src.data_prep_flows.{data_prep_module}')
-        data_prep = module_lib.ModuleClass(args=args)
-        data_prep.run()
-        data_prep.run_time_calc()
-        print_and_log(data_prep.run_time, "")
+        module = args.data_prep_module.lower()
+        module_lib = import_module(f'src.flows.data_prep_flows.{module}')
     elif args.train_module:
-        train_module_arg = args.train_module.lower()
-        module_lib = import_module(f'src.training_flows.{train_module_arg}')
-        train_module = module_lib.ModuleClass(args=args)
-        train_module.run()
-        train_module.run_time_calc()
-        print_and_log(train_module.run_time, "")
+        module = args.train_module.lower()
+        module_lib = import_module(f'src.flows.training_flows.{module}')
+    elif args.predict_module:
+        module = args.predict_module.lower()
+        module_lib = import_module(f'src.flows.predict_flows.{module}')
+
+    module = module_lib.ModuleClass(args=args)
+    module.run()
+    module.run_time_calc()
+    print_and_log(module.run_time, "")
