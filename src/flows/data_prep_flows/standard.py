@@ -2,11 +2,12 @@ from pickle import dump
 from src.classes.SessionManager import SessionManager
 
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
-from src.functions.data_prep.misc_functions import split_columns_by_types, remove_columns_to_exclude, \
-    switch_numerical_to_object_column, convert_obj_to_cat_and_get_dummies, remove_column_if_not_in_final_features, \
-    create_dict_based_on_col_name_contains, create_ratios, correlation_matrix
+from src.functions.data_prep.misc_functions import split_columns_by_types, switch_numerical_to_object_column, convert_obj_to_cat_and_get_dummies, remove_column_if_not_in_final_features, \
+    create_dict_based_on_col_name_contains, create_ratios, correlation_matrix, remove_categorical_cols_with_too_many_values
+
+import src.functions.data_prep.dates_manipulation as date_funcs
 from src.functions.data_prep.missing_treatment import missing_values
-from src.functions.data_prep.optimal_binning import optimal_binning
+from src.classes.OptimalBinning import OptimaBinning
 
 
 class ModuleClass(SessionManager):
@@ -42,16 +43,36 @@ class ModuleClass(SessionManager):
         # input_df = outlier(df=input_df)
 
         print_and_log('\n Splitting columns by types \n', '')
-        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df)
-        remove_columns_to_exclude(categorical_cols, dates_cols, numerical_cols, object_cols, self.params)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
+
+
+
+        print_and_log('\n Converting objects to dates \n', '')
+        input_df = date_funcs.convert_obj_to_date(input_df, object_cols)
+        input_df_full = date_funcs.convert_obj_to_date(input_df_full, object_cols)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
+
+
+        print_and_log('\n Calculating date differences between date columns \n', '')
+        input_df = date_funcs.calculate_date_diff_between_date_columns(input_df, dates_cols)
+        input_df_full = date_funcs.calculate_date_diff_between_date_columns(input_df_full, dates_cols)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
+
+        print_and_log('\n Extracting date characteristics as features \n', '')
+        input_df = date_funcs.extract_date_characteristics_from_date_column(input_df, dates_cols)
+        input_df_full = date_funcs.extract_date_characteristics_from_date_column(input_df_full, dates_cols)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
+
+        print_and_log('\n remove categorical cols with too many values \n', '')
+        object_cols = remove_categorical_cols_with_too_many_values(input_df, object_cols)
 
         # treat specified numerical as objects
         print_and_log('\n Switching type from number to object since nb of categories is below 20 \n', "")
-        switch_numerical_to_object_column(input_df, numerical_cols, object_cols)
+        numerical_cols, object_cols = switch_numerical_to_object_column(input_df, numerical_cols, object_cols)
 
         # convert objects to categories and get dummies
         print_and_log('\n Converting objects to dummies \n', "")
-        convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, self.params)
+        input_df, input_df_full = convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, self.params)
 
         # create cat and dummies dictionaries
         object_cols_cat = create_dict_based_on_col_name_contains(input_df.columns.to_list(), '_cat')
@@ -67,7 +88,7 @@ class ModuleClass(SessionManager):
                                             input_data_project_folder=self.input_data_project_folder,
                                             flag_matrix=None,
                                             session_id_folder=None, model_corr='', flag_raw='')
-        remove_column_if_not_in_final_features(final_features, numerical_cols)
+        final_features, numerical_cols = remove_column_if_not_in_final_features(final_features, numerical_cols)
 
         # Feature engineering
         print_and_log('\n Creating ratios with numerical columns \n', '')
@@ -86,19 +107,30 @@ class ModuleClass(SessionManager):
                                             flag_matrix=None,
                                             session_id_folder=None, model_corr='', flag_raw='')
 
-        remove_column_if_not_in_final_features(final_features, ratios_cols)
+        final_features, numerical_cols = remove_column_if_not_in_final_features(final_features, ratios_cols)
         binned_numerical = numerical_cols + ratios_cols
 
         # Optimal binning
-        input_df, input_df_full, binned_numerical = optimal_binning(df=input_df, df_full=input_df_full,
+        """input_df, input_df_full, binned_numerical = optimal_binning(df=input_df, df_full=input_df_full,
                                                                     columns=binned_numerical,
                                                                     criterion_column=self.criterion_column,
                                                                     final_features=final_features,
                                                                     observation_date_column=self.observation_date_column,
-                                                                    params=self.params)
+                                                                    params=self.params)"""
+
+        optimal_binning_obj = OptimaBinning(df=input_df, df_full=input_df_full,
+                                            columns=binned_numerical,
+                                            criterion_column=self.criterion_column,
+                                            final_features=final_features,
+                                            observation_date_column=self.observation_date_column,
+                                            params=self.params)
+
+        print_and_log('\n Starting numerical features Optimal binning (max 4 bins) based on train df \n', '')
+        input_df, input_df_full, binned_numerical = optimal_binning_obj.run_optimal_binning_multiprocess()
+
         final_features = final_features + binned_numerical
         final_features = list(set(final_features))
-        remove_column_if_not_in_final_features(final_features, final_features[:])
+        final_features, _ = remove_column_if_not_in_final_features(final_features, final_features[:])
 
         # Check correlation
         print_and_log('\n Checking correlation one more time now with binned \n', '')

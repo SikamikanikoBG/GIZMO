@@ -1,5 +1,6 @@
 import os
 import pickle
+from multiprocessing import Pool
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -14,10 +15,6 @@ from src.functions.data_prep.raw_features_to_list import raw_features_to_list
 class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
-        # self.modeller = BaseModeller(model_name='xgb',
-        #                             params=self.params,
-        #                             final_features=self.loader.final_features,
-        #                             cut_offs=self.cut_offs)
         self.metrics_df = pd.DataFrame()
 
     def run(self):
@@ -37,33 +34,43 @@ class ModuleClass(SessionManager):
         # rf for Random forest
         # dt for Decision trees
         # lr for Logistic Regression
-        for model_type in models:
-            print_and_log(f"Starting training procedure for {model_type}", 'YELLOW')
-            globals()['self.modeller_' + model_type] = BaseModeller(model_name=model_type,
-                                                                    params=self.params,
-                                                                    final_features=self.loader.final_features,
-                                                                    cut_offs=self.cut_offs)
 
-            if model_type == 'lr':
-                pass
-            else:
-                self.train_modelling_procedure_trees(model_type)
+        #df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
+        pool = Pool(5)
+        # install_mp_handler()
 
-            self.validation_modelling_procedure(model_type)
-            self.metrics_df = self.metrics_df.append(globals()['self.modeller_' + model_type].metrics)
-            # todo: save results procedure
-
-            pickle.dump(globals()['self.modeller_' + model_type].model,
-                        open(self.session_id_folder + f'/{model_type}/model_train.pkl', 'wb'))
-            globals()['self.modeller_' + model_type].results.to_csv(
-                self.session_id_folder + f'/{model_type}/feat_importance.csv', index=False)
-            print_and_log(f"Feature importance: {globals()['self.modeller_' + model_type].results}", '')
+        metrics = pool.map(self.create_model_procedure, models)
+        pool.close()
+        pool.join()
+        self.metrics_df = self.metrics_df.append(metrics)
 
         print(self.metrics_df.head(50))
         self.save_results()
 
         print_end()
         self.run_time_calc()
+
+    def create_model_procedure(self, model_type):
+        print_and_log(f"Starting training procedure for {model_type}", 'YELLOW')
+        globals()['self.modeller_' + model_type] = BaseModeller(model_name=model_type,
+                                                                params=self.params,
+                                                                final_features=self.loader.final_features,
+                                                                cut_offs=self.cut_offs)
+
+        if model_type == 'lr':
+            pass
+        else:
+            self.train_modelling_procedure_trees(model_type)
+
+        self.validation_modelling_procedure(model_type)
+        # todo: save results procedure
+
+        pickle.dump(globals()['self.modeller_' + model_type].model,
+                    open(self.session_id_folder + f'/{model_type}/model_train.pkl', 'wb'))
+        globals()['self.modeller_' + model_type].results.to_csv(
+            self.session_id_folder + f'/{model_type}/feat_importance.csv', index=False)
+        print_and_log(f"Feature importance: {globals()['self.modeller_' + model_type].results}", '')
+        return self.metrics_df.append(globals()['self.modeller_' + model_type].metrics)
 
     def save_results(self):
         self.loader.train_X.reset_index().to_feather(self.session_id_folder + '/df_x_train.feather')

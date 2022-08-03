@@ -14,6 +14,7 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols):
         else:
             numerical_cols.remove(el)
             print_and_log(f"{el} removed due to low correlation vs the criterion", 'YELLOW')
+    return final_features, numerical_cols
 
 
 def convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, params):
@@ -23,6 +24,7 @@ def convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, par
         if params["under_sampling"]:
             dummies = pd.get_dummies(input_df_full[col], prefix=col + '_dummie')
             input_df_full[dummies.columns] = dummies
+    return input_df, input_df_full
 
 
 def switch_numerical_to_object_column(input_df, numerical_cols, object_cols):
@@ -33,6 +35,7 @@ def switch_numerical_to_object_column(input_df, numerical_cols, object_cols):
             print_and_log(
                 'Switching type for {} from number to object '
                 'since nb of categories is below 20 ({})'.format(el, len(input_df[el].unique())), '')
+    return numerical_cols, object_cols
 
 
 def remove_columns_to_exclude(categorical_cols, dates_cols, numerical_cols, object_cols, params):
@@ -60,25 +63,18 @@ def remove_columns_to_exclude(categorical_cols, dates_cols, numerical_cols, obje
     for el in dates_cols[:]:
         if el in params['columns_to_exclude']:
             dates_cols.remove(el)
+    return categorical_cols, dates_cols, numerical_cols, object_cols
 
 
 def outlier(df):
     return df
 
 
-def split_columns_by_types(df):
+def split_columns_by_types(df, params):
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
     numerical_cols = df.select_dtypes(include=numerics).columns.to_list()
     object_cols = df.select_dtypes(include=['object']).columns.to_list()
-
-    print_and_log('\t Removing from the list for having too many categories', 'YELLOW')
-    for col in object_cols[:]:
-        if len(df[col].unique()) > 20:
-            print_and_log('\t\tRemoving {} from the list for having '
-                          'too many categories ({})'.format(col, len(df[col].unique())), 'YELLOW')
-            object_cols.remove(col)
-
-    dates_cols = df.select_dtypes(include=['datetime', 'datetime64']).columns.to_list()
+    dates_cols = df.select_dtypes(include=['datetime', 'datetime64', 'datetime64[ns]']).columns.to_list()
     categorical_cols = df.select_dtypes(include=['category']).columns.to_list()
 
     print_and_log(f'Columns split by types cat: {categorical_cols}', '')
@@ -86,7 +82,23 @@ def split_columns_by_types(df):
     print_and_log(f'Columns split by types obj: {object_cols}', '')
     print_and_log(f'Columns split by types dat: {dates_cols}', '')
 
+    categorical_cols, dates_cols, numerical_cols, object_cols = remove_columns_to_exclude(categorical_cols,
+                                                                                          dates_cols,
+                                                                                          numerical_cols,
+                                                                                          object_cols,
+                                                                                          params)
+
     return categorical_cols, numerical_cols, object_cols, dates_cols
+
+
+def remove_categorical_cols_with_too_many_values(df, object_cols):
+    print_and_log('\t Removing from the list for having too many categories', 'YELLOW')
+    for col in object_cols[:]:
+        if len(df[col].unique()) > 20:
+            print_and_log('\t\tRemoving {} from the list for having '
+                          'too many categories ({})'.format(col, len(df[col].unique())), 'YELLOW')
+            object_cols.remove(col)
+    return object_cols
 
 
 def convert_column_to_category(df, column):

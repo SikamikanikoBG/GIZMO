@@ -76,6 +76,10 @@ class SessionManager:
             self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
                                         input_data_project_folder=self.input_data_project_folder,
                                         params=self.params)
+        elif self.args.predict_module:
+            self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
+                                        input_data_project_folder=self.input_data_project_folder,
+                                        params=self.params)
 
     def prepare(self):
         """
