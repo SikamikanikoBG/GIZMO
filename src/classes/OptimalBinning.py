@@ -109,16 +109,17 @@ class OptimaBinning:
 
     def run_optimal_binning_multiprocess(self):
         df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
-        pool = Pool(10)
+        pool = Pool(20)
         # install_mp_handler()
 
         arguments = self.columns
+        print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {len(arguments)}")
 
-        for col in arguments:
-            temp_df, temp_df_full, dummies_columns = self.optimal_binning_procedure(col)
-            #pool.close()
-            #pool.join()
-        #   for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
+        #for col in arguments:
+        #   temp_df, temp_df_full, dummies_columns = self.optimal_binning_procedure(col)
+        #pool.close()
+        #pool.join()
+        for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
 
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)
