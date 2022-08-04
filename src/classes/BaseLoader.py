@@ -62,7 +62,7 @@ class BaseLoader:
         # Load csv file
         self.input_df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file)
         # todo: remove after
-        self.input_df = self.input_df.sample(n=100)
+        #self.input_df = self.input_df.sample(n=100)
         print(f"Loading file {input_file}")
         logging.info(f"\n Loading file {input_file}")
         return input_file

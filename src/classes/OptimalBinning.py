@@ -114,11 +114,11 @@ class OptimaBinning:
 
         arguments = self.columns
 
-        #for col in arguments:
-        #    temp_df, temp_df_full, dummies_columns = self.optimal_binning_procedure(col)
+        for col in arguments:
+            temp_df, temp_df_full, dummies_columns = self.optimal_binning_procedure(col)
             #pool.close()
             #pool.join()
-        for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
+        #   for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
 
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)

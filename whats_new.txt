@@ -1,3 +1,4 @@
+3.3.2 - opt binning is no multiprocessing due to performance issues
 3.3.1 - opt binning is now with multiproc. ZAEBI!!!!
 3.3.0 - opotimal binning recoded as class and now with 5 paralelized workers - multiporcess pool map. Date features added. Training modelling also multiprocess
 3.2.0 - updated gitignore
