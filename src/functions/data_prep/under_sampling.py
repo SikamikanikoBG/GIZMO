@@ -18,7 +18,7 @@ def under_sampling_df_based_on_params(input_df, params):
         2)
     input_df_full = input_df.copy()
     print_and_log(f'\n Starting under-sampling with strategy: {params["under_sampling"]}. '
-                  'The initial dataframe length is {input_df.shape} and criterion rate: {criterion_rate}', 'GREEN')
+                  f'The initial dataframe length is {input_df.shape} and criterion rate: {criterion_rate}', 'GREEN')
 
     # define strategy for under-sampling
     under = RandomUnderSampler(sampling_strategy=params["under_sampling"])

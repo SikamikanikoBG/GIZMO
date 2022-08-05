@@ -46,7 +46,7 @@ class ModuleClass(SessionManager):
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
 
 
-
+        # todo: remove after testing opt binning
         print_and_log('\n Converting objects to dates \n', '')
         input_df = date_funcs.convert_obj_to_date(input_df, object_cols)
         input_df_full = date_funcs.convert_obj_to_date(input_df_full, object_cols)

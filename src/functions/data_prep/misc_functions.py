@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 from src.functions.modelling.modelling_functions import cut_into_bands
 from src.functions.printing_and_logging import print_and_log
@@ -193,3 +194,28 @@ def remove_periods_from_df(input_df, params):
     return input_df
 
 
+def treating_outliers(input_df, secondary_input_df):
+    for col in input_df.columns:
+        input_df["zscore"] = stats.zscore(input_df[col])
+        if len(secondary_input_df) > 0:
+            secondary_input_df["zscore"]=stats.zscore(secondary_input_df[col])
+
+        outlier_percentage = round(len(input_df[input_df["zscore"] >= 3]) / len(input_df) * 100, 1)
+
+        if outlier_percentage >= 10:
+            print_and_log(f'\t[ OUTLIER ]: {col}: {outlier_percentage}. DELETING COLUMN!!!', 'YELLOW')
+            input_df[col] = 1
+            if len(secondary_input_df) > 0:
+                secondary_input_df[col] = 1
+        elif outlier_percentage > 0:
+            print_and_log(f'\t[ OUTLIER ]: {col}: {outlier_percentage}. Converting outliers to missing.', '')
+            input_df[col] = np.where(input_df["zscore"] >= 3, np.nan, input_df[col])
+            if len(secondary_input_df) > 0:
+                secondary_input_df[col] = np.where(secondary_input_df["zscore"] >= 3, np.nan, secondary_input_df[col])
+        else:
+            pass
+
+        del input_df["zscore"]
+        if len(secondary_input_df) > 0:
+            del secondary_input_df["zscore"]
+    return input_df, secondary_input_df

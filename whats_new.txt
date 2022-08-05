@@ -1,3 +1,5 @@
+3.4.0 - treating outliers added in data load prep flow.
+3.3.3 - opt binning is again with multiproc. THe issue is - now there are much more columns and opt bin is running slowly. small print cleans done. Dev data prepr flow created for faster runs on development.
 3.3.2 - opt binning is no multiprocessing due to performance issues
 3.3.1 - opt binning is now with multiproc. ZAEBI!!!!
 3.3.0 - opotimal binning recoded as class and now with 5 paralelized workers - multiporcess pool map. Date features added. Training modelling also multiprocess
