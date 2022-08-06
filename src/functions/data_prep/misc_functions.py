@@ -14,7 +14,7 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols):
             pass
         else:
             numerical_cols.remove(el)
-            print_and_log(f"{el} removed due to low correlation vs the criterion", 'YELLOW')
+            print_and_log(f"\t[ REMOVE COLUMNS ] {el} removed due to low correlation vs the criterion", 'YELLOW')
     return final_features, numerical_cols
 
 
@@ -34,7 +34,7 @@ def switch_numerical_to_object_column(input_df, numerical_cols, object_cols):
             numerical_cols.remove(el)
             object_cols.append(el)
             print_and_log(
-                'Switching type for {} from number to object '
+                '\t[ SWITCH TYPE ] Switching type for {} from number to object '
                 'since nb of categories is below 20 ({})'.format(el, len(input_df[el].unique())), '')
     return numerical_cols, object_cols
 
@@ -78,10 +78,10 @@ def split_columns_by_types(df, params):
     dates_cols = df.select_dtypes(include=['datetime', 'datetime64', 'datetime64[ns]']).columns.to_list()
     categorical_cols = df.select_dtypes(include=['category']).columns.to_list()
 
-    print_and_log(f'Columns split by types cat: {categorical_cols}', '')
-    print_and_log(f'Columns split by types num: {numerical_cols}', '')
-    print_and_log(f'Columns split by types obj: {object_cols}', '')
-    print_and_log(f'Columns split by types dat: {dates_cols}', '')
+    print_and_log(f'\tColumns split by types cat: {categorical_cols}', '')
+    print_and_log(f'\tColumns split by types num: {numerical_cols}', '')
+    print_and_log(f'\tColumns split by types obj: {object_cols}', '')
+    print_and_log(f'\tColumns split by types dat: {dates_cols}', '')
 
     categorical_cols, dates_cols, numerical_cols, object_cols = remove_columns_to_exclude(categorical_cols,
                                                                                           dates_cols,
@@ -96,7 +96,7 @@ def remove_categorical_cols_with_too_many_values(df, object_cols):
     print_and_log('\t Removing from the list for having too many categories', 'YELLOW')
     for col in object_cols[:]:
         if len(df[col].unique()) > 20:
-            print_and_log('\t\tRemoving {} from the list for having '
+            print_and_log('\t[ REMOVE COLUMNS ] Removing {} from the list for having '
                           'too many categories ({})'.format(col, len(df[col].unique())), 'YELLOW')
             object_cols.remove(col)
     return object_cols
@@ -132,13 +132,13 @@ def create_ratios(df, columns):
             else:
                 df[col + '_div_ratio_' + col2] = df[col] / df[col2]
                 df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)
-    print_and_log('Feat eng: Ratios created', '')
+    print_and_log('\t[ RATIOS ] Feat eng: Ratios created', '')
     return df
 
 
 def create_tree_feats(df, columns, criterion):
     for col in columns:
-        print(f"Trying tree feature for {col}")
+        print_and_log(f"\t[ TREES ] Trying tree feature for {col}", "")
         df[col + '_tree'], _ = cut_into_bands(X=df[[col]], y=df[criterion], depth=1)
 
         if df[col + '_tree'].nunique() == 1:
@@ -148,7 +148,7 @@ def create_tree_feats(df, columns, criterion):
             df = df.rename(columns={col + "_tree": col + "_tree_" + class0_val})
             print_and_log(
                 'Feature engineering: New feature added with Decision Tree {}'.format(col + "_tree_" + class0_val), '')
-    print_and_log('Feat eng: trees created', 'GREEN')
+    print_and_log('\t[ RATIOS ] Feat eng: trees created', 'GREEN')
     return df
 
 
@@ -174,7 +174,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
                 pass
             else:
                 corr_cols_removed.append(el)
-        print_and_log(f'Feat eng: keep only columns with correlation > 0.05: {corr_cols}', '')
+        print_and_log(f'\t[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {corr_cols}', '')
     else:
         a = X.corr()
         if flag_raw == 'yes':
@@ -186,10 +186,10 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
 
 
 def remove_periods_from_df(input_df, params):
-    print_and_log(f'LOAD: DataFrame len: {len(input_df)}, periods to exclude: {params["periods_to_exclude"]}', '')
+    print_and_log(f'\t[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods to exclude: {params["periods_to_exclude"]}', '')
     for el in params['periods_to_exclude']:
         input_df = input_df[input_df[params['observation_date_column']] != el]
-    print_and_log(f'LOAD: DataFrame len: {len(input_df)}, periods kept after '
+    print_and_log(f'\t[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods kept after '
                   f'exclusion: {input_df[params["observation_date_column"]].unique().tolist()}', '')
     return input_df
 

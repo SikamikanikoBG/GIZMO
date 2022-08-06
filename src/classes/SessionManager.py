@@ -61,6 +61,7 @@ class SessionManager:
             self.lr_features = self.params["lr_features"]
             self.cut_offs = self.params["cut_offs"]
             self.under_sampling = self.params['under_sampling']
+            self.optimal_binning_columns = self.params['optimal_binning_columns']
         except Exception as e:
             print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
             print(e)

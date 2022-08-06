@@ -1,3 +1,4 @@
+3.4.2 - opt bin is run only if specified in params to speedup the process. Removed columns during missing treatment are removed from final features before saving them.
 3.4.1 - zscore in outlies is now absolute value in terms of threshold
 3.4.0 - treating outliers added in data load prep flow.
 3.3.3 - opt binning is again with multiproc. THe issue is - now there are much more columns and opt bin is running slowly. small print cleans done. Dev data prepr flow created for faster runs on development.

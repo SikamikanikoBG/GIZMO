@@ -168,6 +168,7 @@
 "SENIDFISC"
 
   ],
+ "optimal_binning_columns": ["SEMMENSP"],
   "_lr_features": [
 "SEMMENSP_div_ratio_SETODUCLT_binned_dummie_from_incl_-inf_to_0.06_excl_",
 "SEMSRECAGIOS_div_ratio_YY_SEDNAIS_EntryDate_binned_dummie_from_incl_-49.61_to_inf_excl_",

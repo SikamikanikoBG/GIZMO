@@ -7,9 +7,6 @@ from sklearn.model_selection import train_test_split
 from src import print_and_log
 
 
-# from multiprocessing_logging import install_mp_handler
-
-
 class OptimaBinning:
     def __init__(self, df, df_full, columns, criterion_column, final_features, observation_date_column, params):
         self.df = df
@@ -45,9 +42,8 @@ class OptimaBinning:
         temp_df[binned_col_name] = optb.transform(temp_df[col], metric='bins')
 
         dummies = pd.get_dummies(temp_df[binned_col_name], prefix=binned_col_name + '_dummie')
-        #print_and_log('{} is with the following splits: {} and dummie columns: {}'.format(col, optb.splits,
-        #                                                                                 list(dummies.columns)),
-        #              '')
+        print_and_log(f'[ OPTIMAL BINNING ] {col} is with the following splits: {optb.splits} and '
+                      f'dummie columns: {list(dummies.columns)}', '')
         temp_df[dummies.columns] = dummies
 
         if self.params['under_sampling']:
@@ -63,7 +59,6 @@ class OptimaBinning:
 
     def rename_strings_cols_opt_bin(self):
         # Recoding strings
-        print(">>>>>>>>>>>>>>>>>>>>", type(self.columns), len(self.columns), self.columns)
         for string in self.columns[:]:
             new_string = string.replace("<", "less_than")
             new_string = new_string.replace(">", "more_than")
@@ -113,12 +108,7 @@ class OptimaBinning:
         # install_mp_handler()
 
         arguments = self.columns
-        print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {len(arguments)}")
 
-        #for col in arguments:
-        #   temp_df, temp_df_full, dummies_columns = self.optimal_binning_procedure(col)
-        #pool.close()
-        #pool.join()
         for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
 
             if dummies_columns:
