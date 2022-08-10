@@ -40,7 +40,7 @@ class ModuleClass(SessionManager):
         print_and_log('\n Starting data clean... \n', "GREEN")
 
         # todo: treat outlier procedure
-        # input_df = outlier(df=input_df)
+        # input_df = outlier(df_to_aggregate=input_df)
 
         print_and_log('\n Splitting columns by types \n', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
@@ -111,7 +111,7 @@ class ModuleClass(SessionManager):
         binned_numerical = numerical_cols + ratios_cols
 
         # Optimal binning
-        """input_df, input_df_full, binned_numerical = optimal_binning(df=input_df, df_full=input_df_full,
+        """input_df, input_df_full, binned_numerical = optimal_binning(df_to_aggregate=input_df, df_full=input_df_full,
                                                                     columns=binned_numerical,
                                                                     criterion_column=self.criterion_column,
                                                                     final_features=final_features,
@@ -125,7 +125,7 @@ class ModuleClass(SessionManager):
                                             observation_date_column=self.observation_date_column,
                                             params=self.params)
 
-        print_and_log('\n Starting numerical features Optimal binning (max 4 bins) based on train df \n', '')
+        print_and_log('\n Starting numerical features Optimal binning (max 4 bins) based on train df_to_aggregate \n', '')
         input_df, input_df_full, binned_numerical = optimal_binning_obj.run_optimal_binning_multiprocess()
 
         final_features = final_features + binned_numerical

@@ -11,13 +11,13 @@ def convert_obj_to_date(df, object_cols):
         try:
             df[el+'_date'] = df[el].astype(str)  # when date is int without conversion is wrong
             df[el+'_date'] = pd.to_datetime(df[el])
-            print_and_log(f'\t[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
+            print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
         except:
             for form in formats:
                 try:
                     df[el+'_date'] = df[el].astype(str)
                     df[el+'_date'] = pd.to_datetime(df[el], format=form)
-                    print_and_log(f'\t[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
+                    print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
                 except:
                     pass
     return df

@@ -169,6 +169,8 @@
 
   ],
  "optimal_binning_columns": ["SEMMENSP"],
+ "additional_tables":{"file1.csv": ["MSENDOS", "EntryMonth"],
+ "file2.csv": ["MSENDOS", "EntryMonth"]},
   "_lr_features": [
 "SEMMENSP_div_ratio_SETODUCLT_binned_dummie_from_incl_-inf_to_0.06_excl_",
 "SEMSRECAGIOS_div_ratio_YY_SEDNAIS_EntryDate_binned_dummie_from_incl_-49.61_to_inf_excl_",

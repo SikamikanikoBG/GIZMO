@@ -39,7 +39,7 @@ class BaseModeller:
         elif self.model_name == 'dt':
             self.model = tree.DecisionTreeClassifier(max_depth=4)
         else:
-            print_and_log('No model provided (model_name)', 'RED')
+            print_and_log('ERROR: No model provided (model_name)', 'RED')
             sys.exit()
 
     def generate_predictions_and_metrics(self, y_true, df):

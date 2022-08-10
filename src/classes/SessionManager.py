@@ -126,7 +126,7 @@ class SessionManager:
         logging.basicConfig(
             filename=self.log_folder_name + self.log_file_name,
             level=logging.INFO, format='%(asctime)s - %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        print_and_log('Start logging', 'YELLOW')
+        print_and_log('[ LOGGING ] Start logging', 'YELLOW')
 
     def run_time_calc(self):
         """

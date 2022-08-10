@@ -11,6 +11,7 @@ from src.functions.data_prep.under_sampling import under_sampling_df_based_on_pa
 
 class BaseLoader:
     def __init__(self):
+        self.additional_files_df_dict = []
         self.input_df, self.input_df_full = pd.DataFrame(), pd.DataFrame()
         self.final_features = None
         self.train_X, self.train_X_us, self.test_X, self.test_X_us, self.t1df, self.t2df, self.t3df = \
@@ -37,8 +38,16 @@ class BaseLoader:
         if params["under_sampling"]:
             self.input_df, self.input_df_full = under_sampling_df_based_on_params(self.input_df, params)
 
+        if params["additional_tables"]:
+            for file in params["additional_tables"]:
+                print_and_log(f"[ ADDITIONAL TABLES ] Loading {file}", "")
+                additional_file_df = pd.read_csv(input_data_folder_name +
+                                                                   input_data_project_folder + "/" +file)
+                self.additional_files_df_dict.append(additional_file_df)
+
+
     def data_load_train(self, output_data_folder_name, input_data_project_folder, params):
-        print_and_log('\n Loading data \n', 'YELLOW')
+        print_and_log('[ LOADING ] Loading data', 'YELLOW')
         self.input_df = pq.read_table(
             output_data_folder_name + input_data_project_folder + '/' 'output_data_file.parquet')
         self.input_df = self.input_df.to_pandas()
@@ -53,7 +62,7 @@ class BaseLoader:
 
         with (open(output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl', "rb")) as openfile:
             self.final_features = pickle.load(openfile)
-        print_and_log('\t Data Loaded', 'GREEN')
+        print_and_log('[ LOADING ] Data Loaded', 'GREEN')
 
     def load_from_csv(self, input_data_folder_name, input_data_project_folder):
         print('\n Starting data load... \n')
@@ -62,7 +71,7 @@ class BaseLoader:
         # Load csv file
         self.input_df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file)
         # todo: remove after
-        #self.input_df = self.input_df.sample(n=100)
+        self.input_df = self.input_df.sample(n=1000)
         print(f"Loading file {input_file}")
         logging.info(f"\n Loading file {input_file}")
         return input_file
