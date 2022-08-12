@@ -4,3 +4,5 @@
 /sessions
 .idea
 *.xml
+/.~lock.temp.csv#
+/temp.csv

@@ -3,21 +3,21 @@ import pandas as pd
 
 from src.functions.printing_and_logging import print_and_log
 
-formats = ['%Y%m', '%d%m%Y']
+formats = ['%Y-%m', '%Y%m', '%d%m%Y', '%Y%m%d']
 
 
-def convert_obj_to_date(df, object_cols):
-    for el in df[object_cols].columns:
+def convert_obj_to_date(df, object_cols, suffix):
+    for el in object_cols:
         try:
-            df[el+'_date'] = df[el].astype(str)  # when date is int without conversion is wrong
-            df[el+'_date'] = pd.to_datetime(df[el])
-            print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
+            df[el+suffix] = df[el].astype(str)  # when date is int without conversion is wrong
+            df[el+suffix] = pd.to_datetime(df[el])
+            print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+suffix].dtypes}', 'YELLOW')
         except:
             for form in formats:
                 try:
-                    df[el+'_date'] = df[el].astype(str)
-                    df[el+'_date'] = pd.to_datetime(df[el], format=form)
-                    print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+"_date"].dtypes}', 'YELLOW')
+                    df[el+suffix] = df[el].astype(str)
+                    df[el+suffix] = pd.to_datetime(df[el], format=form)
+                    print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+suffix].dtypes}', 'YELLOW')
                 except:
                     pass
     return df

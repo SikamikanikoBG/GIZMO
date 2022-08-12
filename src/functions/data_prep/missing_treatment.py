@@ -8,8 +8,8 @@ def missing_values(df, missing_treatment, input_data_project_folder):
 
     # removing columns with 50% or more missing values
     print_and_log('[ MISSING ] Treating missing values as specified in the param file ', 'GREEN')
-    missing_cols = df[df.columns[df.isnull().mean() > 0.99]].columns.to_list()
-    print_and_log(f'[ MISSING ] The following columns are with >50 perc of missing values '
+    missing_cols = df[df.columns[df.isnull().mean() > 0.70]].columns.to_list()
+    print_and_log(f'[ MISSING ] The following columns are with > 70 perc of missing values '
                   f'and will be deleted: {missing_cols}', '')
     percent_missing = df.isna().sum() * 100 / len(df)
     missing_value_df = pd.DataFrame({'column_name': df.columns,
