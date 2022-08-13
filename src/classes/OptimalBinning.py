@@ -53,6 +53,9 @@ class OptimaBinning:
 
             dummies = pd.get_dummies(temp_df_full[binned_col_name], prefix=binned_col_name + '_dummie')
             temp_df_full[dummies.columns] = dummies
+        else:
+            for col in list(dummies.columns):
+                temp_df_full[col] = 1
 
         dummies_list = list(dummies.columns)
         return temp_df[list(dummies.columns)], temp_df_full[list(dummies.columns)], dummies_list
@@ -113,13 +116,13 @@ class OptimaBinning:
 
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)
-                self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
+                if self.params["under_sampling"]: self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
 
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
-                self.df_full = self.df_full.loc[:, ~self.df_full.columns.duplicated()].copy()
+                if self.params["under_sampling"]: self.df_full = self.df_full.loc[:, ~self.df_full.columns.duplicated()].copy()
 
                 self.df[dummies_columns] = self.df[dummies_columns].fillna(0)
-                self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(0)
+                if self.params["under_sampling"]: self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(0)
 
                 for col in dummies_columns:
                     columns_all.append(col)

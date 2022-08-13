@@ -2,6 +2,7 @@ import argparse
 import sys
 import warnings
 from importlib import import_module
+import psutil
 
 from src.functions.printing_and_logging import print_and_log
 
@@ -9,6 +10,7 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
     # -- session start --
+
 
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Optional app description')
@@ -30,6 +32,10 @@ if __name__ == '__main__':
     help_need = args.h
     if help_need:
         print_and_log(parser.parse_known_args(), "RED")
+        sys.exit()
+
+    if psutil.virtual_memory()[4] / 1e9 < 50:
+        print_and_log('[ RAM MEMORY CHECK ] Free RAM memory < 50GB. Program aborted...', '')
         sys.exit()
 
     if args.data_prep_module:

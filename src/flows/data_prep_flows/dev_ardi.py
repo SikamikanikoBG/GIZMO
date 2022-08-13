@@ -3,6 +3,7 @@ This is a shorter flow in order to speed up the developments.
 """
 from pickle import dump
 
+import numpy as np
 import pandas as pd
 
 import src.functions.data_prep.dates_manipulation as date_funcs
@@ -52,6 +53,7 @@ class ModuleClass(SessionManager):
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'wb') as f:
             dump(self.loader.final_features, f)
+
         print_end()
 
     def data_cleaning(self):  # start data cleaning
@@ -59,16 +61,6 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
-
-        print_and_log('[ DATA CLEANING ] Treating outliers', '')
-        if self.under_sampling:
-            self.loader.in_df[numerical_cols], self.loader.in_df_f[numerical_cols] = treating_outliers(
-                input_df=self.loader.in_df[numerical_cols],
-                secondary_input_df=self.loader.in_df_f[numerical_cols])
-        else:
-            self.loader.in_df[numerical_cols], _ = treating_outliers(
-                input_df=self.loader.in_df[numerical_cols],
-                secondary_input_df=pd.DataFrame())
 
         print_and_log('[ DATA CLEANING ] Converting objects to dates', '')
         self.loader.in_df = date_funcs.convert_obj_to_date(self.loader.in_df, object_cols, "_date")
@@ -154,11 +146,15 @@ class ModuleClass(SessionManager):
 
         all_columns = self.loader.in_df.columns.to_list()
 
-        for el in all_columns[:]:
-            if el not in self.loader.in_df_f.columns:
-                all_columns.remove(el)
-                if el in self.loader.final_features[:]:
-                    self.loader.final_features.remove(el)
+        if self.under_sampling:
+            for el in all_columns[:]:
+                if el not in self.loader.in_df_f.columns:
+                    all_columns.remove(el)
+                    if el in self.loader.final_features[:]:
+                        self.loader.final_features.remove(el)
+
+        # todo remove
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>", self.loader.final_features)
 
         # self.loader.in_df = self.loader.in_df[all_columns].copy()
         if self.under_sampling:

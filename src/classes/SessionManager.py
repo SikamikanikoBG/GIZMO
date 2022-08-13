@@ -62,25 +62,23 @@ class SessionManager:
             self.cut_offs = self.params["cut_offs"]
             self.under_sampling = self.params['under_sampling']
             self.optimal_binning_columns = self.params['optimal_binning_columns']
+            self.main_table = self.params["main_table"]
         except Exception as e:
             print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
             print(e)
             logging.error(e)
             quit()
 
-        self.loader = BaseLoader()
+        self.loader = BaseLoader(params=self.params)
         if self.args.data_prep_module:
-            self.loader.data_load_prep(input_data_folder_name=self.input_data_folder_name,
-                                       input_data_project_folder=self.input_data_project_folder,
-                                       params=self.params)
+            self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
+                                       in_data_proj_folder=self.input_data_project_folder)
         elif self.args.train_module:
             self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
-                                        input_data_project_folder=self.input_data_project_folder,
-                                        params=self.params)
+                                        input_data_project_folder=self.input_data_project_folder)
         elif self.args.predict_module:
             self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
-                                        input_data_project_folder=self.input_data_project_folder,
-                                        params=self.params)
+                                        input_data_project_folder=self.input_data_project_folder)
 
     def prepare(self):
         """

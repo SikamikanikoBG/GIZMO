@@ -1,0 +1,47 @@
+{
+  "criterion_column": "criterion_buy",
+  "custom_calculations": "ardi_criterion_and_ratios",
+  "missing_treatment": {
+    "Info": "Missing"
+  },
+  "observation_date_column": "time",
+ "main_table": "daily_stock_data_month_EURUSD.parquet",
+  "secondary_criterion_columns": [],
+  "t1df": "2022-01-08T00:00:00.000000000",
+  "t2df": "2022-08-05T00:00:00.000000000",
+  "t3df": "2022-08-10T00:00:00.000000000",
+  "periods_to_exclude": [],
+  "columns_to_exclude": [
+    "criterion_buy", "criterion_sell", "check_ROLL_min_90", "criterion_ROLLING_min_90",
+    "check_ROLL_max_90", "criterion_ROLLING_max_90", "currency", "spread", "time"
+  ],
+ "optimal_binning_columns": [],
+ "additional_tables": {},
+  "__additional_tables": {
+"daily_stock_data_month_EURCAD.parquet": ["time"],
+"daily_stock_data_month_EURCHF.parquet":["time"],
+"daily_stock_data_month_EURJPY.parquet": ["time"],
+"daily_stock_data_month_EURNZD.parquet":["time"],
+"daily_stock_data_month_GBPAUD.parquet":["time"],
+"daily_stock_data_month_GBPCAD.parquet": ["time"],
+"daily_stock_data_month_GBPJPY.parquet":["time"],
+"daily_stock_data_month_GBPNZD.parquet": ["time"],
+"daily_stock_data_month_GBPUSD.parquet":["time"],
+"daily_stock_data_month_XAGUSD.parquet":["time"],
+"daily_stock_data_month_XAUUSD.parquet": ["time"]},
+  "_additional_tables":{"file1.csv": []},
+  "lr_features": [],
+
+  "lr_features_to_include":[],
+
+"trees_features_to_include":[],
+"trees_features_to_exclude": [],
+  "cut_offs": {
+    "xgb": [],
+    "_lr": [],
+    "lr": [],
+    "dt": [],
+    "rf": []
+  },
+  "under_sampling": ""
+}

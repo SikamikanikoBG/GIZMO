@@ -6,6 +6,7 @@
    
   },
   "observation_date_column": "EntryMonth",
+ "main_table": "BG_Stage2_Source_corLitAmount.csv",
   "secondary_criterion_columns": [
     "Criterion_Amount_15M",
     "Outstanding"

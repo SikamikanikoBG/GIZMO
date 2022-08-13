@@ -197,67 +197,67 @@ class ModuleClass(SessionManager):
         print_and_log("Splitting train and test dataframes. Starting", '')
         if self.under_sampling:
             self.loader.train_X, self.loader.test_X, self.loader.y_train, self.loader.y_test = train_test_split(
-                self.loader.input_df_full, self.loader.input_df_full[self.criterion_column], test_size=0.33,
+                self.loader.in_df_f, self.loader.in_df_f[self.criterion_column], test_size=0.33,
                 random_state=42)
 
             self.loader.train_X_us, self.loader.test_X_us, self.loader.y_train_us, self.loader.y_test_us = train_test_split(
-                self.loader.input_df, self.loader.input_df[self.criterion_column], test_size=0.33, random_state=42)
-            del self.loader.input_df
-            del self.loader.input_df_full
+                self.loader.in_df, self.loader.in_df[self.criterion_column], test_size=0.33, random_state=42)
+            del self.loader.in_df
+            del self.loader.in_df_f
         else:
             self.loader.train_X, self.loader.test_X, self.loader.y_train, self.loader.y_test = train_test_split(
-                self.loader.input_df, self.loader.input_df[self.criterion_column], test_size=0.33, random_state=42)
-            del self.loader.input_df
+                self.loader.in_df, self.loader.in_df[self.criterion_column], test_size=0.33, random_state=42)
+            del self.loader.in_df
         print_and_log('Splitting train and test dataframes. Done', '')
 
     def split_temporal_validation_periods(self):
         print_and_log(
             f'\t All observation dates before splitting the '
-            f'file: {self.observation_date_column}: {self.loader.input_df[self.observation_date_column].unique()}', '')
+            f'file: {self.observation_date_column}: {self.loader.in_df[self.observation_date_column].unique()}', '')
         if self.under_sampling:
             print_and_log(f"Splitting temporal validation dataframes"
                           f", {self.t1df_period}, {self.t2df_period}, {self.t3df_period}", '')
-            self.loader.t1df = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] == self.t1df_period].copy()
+            self.loader.t1df = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] == self.t1df_period].copy()
             print_and_log(f"t1 done. Shape: {len(self.loader.t1df)}", '')
 
-            self.loader.t2df = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] == self.t2df_period].copy()
+            self.loader.t2df = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] == self.t2df_period].copy()
             print_and_log(f"t2 done. Shape: {len(self.loader.t2df)}", '')
 
-            self.loader.t3df = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] == self.t3df_period].copy()
+            self.loader.t3df = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] == self.t3df_period].copy()
             print_and_log(f"t3 done. Shape: {len(self.loader.t3df)}", '')
         else:
             print_and_log(
                 f"Splitting temporal validation dataframes, {self.t1df_period}, {self.t2df_period}, {self.t3df_period}",
                 '')
-            self.loader.t1df = self.loader.input_df[
-                self.loader.input_df[self.observation_date_column] == self.t1df_period].copy()
+            self.loader.t1df = self.loader.in_df[
+                self.loader.in_df[self.observation_date_column] == self.t1df_period].copy()
             print_and_log(f"t1 done. Shape: {len(self.loader.t1df)}", '')
 
-            self.loader.t2df = self.loader.input_df[
-                self.loader.input_df[self.observation_date_column] == self.t2df_period].copy()
+            self.loader.t2df = self.loader.in_df[
+                self.loader.in_df[self.observation_date_column] == self.t2df_period].copy()
             print_and_log(f"t2 done. Shape: {len(self.loader.t2df)}", '')
 
-            self.loader.t3df = self.loader.input_df[
-                self.loader.input_df[self.observation_date_column] == self.t3df_period].copy()
+            self.loader.t3df = self.loader.in_df[
+                self.loader.in_df[self.observation_date_column] == self.t3df_period].copy()
             print_and_log(f"t3 done. Shape: {len(self.loader.t3df)}", '')
 
-        self.loader.input_df = self.loader.input_df[
-            self.loader.input_df[self.observation_date_column] != self.t1df_period].copy()
-        self.loader.input_df = self.loader.input_df[
-            self.loader.input_df[self.observation_date_column] != self.t2df_period].copy()
-        self.loader.input_df = self.loader.input_df[
-            self.loader.input_df[self.observation_date_column] != self.t3df_period].copy()
+        self.loader.in_df = self.loader.in_df[
+            self.loader.in_df[self.observation_date_column] != self.t1df_period].copy()
+        self.loader.in_df = self.loader.in_df[
+            self.loader.in_df[self.observation_date_column] != self.t2df_period].copy()
+        self.loader.in_df = self.loader.in_df[
+            self.loader.in_df[self.observation_date_column] != self.t3df_period].copy()
 
         if self.params['under_sampling']:
-            self.loader.input_df_full = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] != self.t1df_period].copy()
-            self.loader.input_df_full = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] != self.t2df_period].copy()
-            self.loader.input_df_full = self.loader.input_df_full[
-                self.loader.input_df_full[self.observation_date_column] != self.t3df_period].copy()
+            self.loader.in_df_f = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] != self.t1df_period].copy()
+            self.loader.in_df_f = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] != self.t2df_period].copy()
+            self.loader.in_df_f = self.loader.in_df_f[
+                self.loader.in_df_f[self.observation_date_column] != self.t3df_period].copy()
 
         self.loader.t1df_y = self.loader.t1df[self.criterion_column]
         self.loader.t2df_y = self.loader.t2df[self.criterion_column]

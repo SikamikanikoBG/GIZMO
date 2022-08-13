@@ -22,14 +22,14 @@ class ModuleClass(SessionManager):
         print_load()
         print_and_log(f'Starting the session for: {self.input_data_project_folder}', 'GREEN')
 
-        self.loader.input_df, self.loader.input_df_full, self.loader.final_features = self.data_cleaning(
-                                                                                input_df=self.loader.input_df,
-                                                                                input_df_full=self.loader.input_df_full)
+        self.loader.in_df, self.loader.in_df_f, self.loader.final_features = self.data_cleaning(
+                                                                                input_df=self.loader.in_df,
+                                                                                input_df_full=self.loader.in_df_f)
         # Saving processed data
-        self.loader.input_df.to_parquet(
+        self.loader.in_df.to_parquet(
             self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file.parquet')
         if self.under_sampling:
-            self.loader.input_df_full.to_parquet(
+            self.loader.in_df_f.to_parquet(
                 self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file_full.parquet')
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'wb') as f:
@@ -40,7 +40,7 @@ class ModuleClass(SessionManager):
         print_and_log('\n Starting data clean... \n', "GREEN")
 
         # todo: treat outlier procedure
-        # input_df = outlier(df_to_aggregate=input_df)
+        # in_df = outlier(df_to_aggregate=in_df)
 
         print_and_log('\n Splitting columns by types \n', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=input_df, params=self.params)
@@ -111,7 +111,7 @@ class ModuleClass(SessionManager):
         binned_numerical = numerical_cols + ratios_cols
 
         # Optimal binning
-        """input_df, input_df_full, binned_numerical = optimal_binning(df_to_aggregate=input_df, df_full=input_df_full,
+        """in_df, in_df_f, binned_numerical = optimal_binning(df_to_aggregate=in_df, df_full=in_df_f,
                                                                     columns=binned_numerical,
                                                                     criterion_column=self.criterion_column,
                                                                     final_features=final_features,

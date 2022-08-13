@@ -1,3 +1,4 @@
+3.7.0 - checking if 50GB ram is available at the start, many in undersampling logical bugs fixed.
 3.6.0 - multiprocess - merging now in loop for different periods - dev process
 3.5.0 - first multiprocess created
 3.4.2 - opt bin is run only if specified in params to speedup the process. Removed columns during missing treatment are removed from final features before saving them.
