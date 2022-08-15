@@ -61,9 +61,6 @@ class ModuleClass(SessionManager):
 
         self.loader.final_features = categorical_cols, numerical_cols, object_cols, dates_cols
 
-        #todo keep?
-        #self.remove_identical_columns()
-
         print_and_log('[ DATA CLEANING ] Calculating date differences between date columns', '')
         self.loader.in_df = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df, dates_cols)
         if self.under_sampling: self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(

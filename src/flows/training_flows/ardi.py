@@ -62,7 +62,6 @@ class ModuleClass(SessionManager):
             self.train_modelling_procedure_trees(model_type)
 
         self.validation_modelling_procedure(model_type)
-        # todo: save results procedure
 
         pickle.dump(globals()['self.modeller_' + model_type].model,
                     open(self.session_id_folder + f'/{model_type}/model_train.pkl', 'wb'))
