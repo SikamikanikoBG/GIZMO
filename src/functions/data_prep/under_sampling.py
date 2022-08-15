@@ -30,5 +30,5 @@ def under_sampling_df_based_on_params(input_df, params):
         input_df[params['criterion_column']].sum() / input_df[params['criterion_column']].count(),
         2)
     print_and_log(f'[ UNDERSAMPLING ] Under-sampling done. The new dataframe length is {input_df.shape} and '
-                  'criterion rate: {criterion_rate}', 'GREEN')
+                  f'criterion rate: {criterion_rate}', 'GREEN')
     return input_df, input_df_full

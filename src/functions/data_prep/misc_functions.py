@@ -189,8 +189,6 @@ def remove_periods_from_df(input_df, params):
     print_and_log(f'[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods to exclude: {params["periods_to_exclude"]}', '')
     for el in params['periods_to_exclude']:
         input_df = input_df[input_df[params['observation_date_column']] != el]
-    print_and_log(f'[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods kept after '
-                  f'exclusion: {input_df[params["observation_date_column"]].unique().tolist()}', '')
     return input_df
 
 

@@ -42,36 +42,24 @@ def missing_values(df, missing_treatment, input_data_project_folder):
                 # integer
                 if df[f].dtype == "int":
                     df[f] = df[f].fillna(0)
-                    # print(f'{f} filled with 0')
-                    #print_and_log(f'[ MISSING ] {f} filled with 0', '')
-
                 elif df[f].dtype == "float":
                     df[f] = df[f].fillna(0)
-                    # print(f'{f} filled with 0')
-                    #print_and_log(f'[ MISSING ] {f} filled with 0', '')
-
                 elif df[f].dtype == "uint":
                     df[f] = df[f].fillna(0)
-                    # print(f'{f} filled with 0')
-                    #print_and_log(f'[ MISSING ] {f} filled with 0', '')
-
-                # dates
+                elif df[f].dtype == "uint8":
+                    df[f] = df[f].fillna(0)
                 elif df[f].dtype == '<M8[ns]':
                     df[f] = df[f].fillna(pd.to_datetime('1900-01-01'))
-                    # print(f'{f} filled with 1900-01-01')
-                    #print_and_log(f'[ MISSING ] {f} filled with 1900-01-01', '')
 
-                # boolean
+                elif df[f].dtype == 'datetime64[ns]':
+                    df[f] = df[f].fillna(pd.to_datetime('1900-01-01'))
                 elif df[f].dtype == 'bool':
                     df[f] = df[f].fillna(True)
-                    # print(f'{f} filled with True')
-                    #print_and_log(f'[ MISSING ] {f} filled with True', '')
-
-                # string
-                else:
+                elif df[f].dtype == object:
                     df[f] = df[f].fillna('MissingInformation')
-                    # print(f'{f} filled with MissingInformation')
-                    #print_and_log(f'[ MISSING ] {f} filled with MissingInformation', '')
+                else:
+                    print_and_log(f"[ MISSING ] Column {f} was not treated. Dtype is {df[f].dtype}", "YELLOW")
+                    pass
 
     len_after = len(df)
     removed_missing_rows = len_before - len_after

@@ -42,7 +42,9 @@ class BaseLoader:
         """
 
         # todo: add if logic - when loading from csv and when loading from API
+        print_and_log(f"[ LOADING ] Loading file {self.main_table}", "")
         if '.csv' in self.main_table:
+
             self.in_df = load_from_csv(in_data_folder, in_data_proj_folder, self.main_table)
             self.in_df = check_separator_csv_file(in_data_folder, in_data_proj_folder, self.in_df,
                                                   self.main_table)
@@ -65,12 +67,20 @@ class BaseLoader:
                 else:
                     additional_file_df = load_from_parquet(in_data_folder, in_data_proj_folder, file)
 
-                if self.params["custom_calculations"]:
-                    additional_file_df = module_lib.run(additional_file_df)
+                #todo remove comment
+                """try:
+                    if self.params["custom_calculations"]:
+                        additional_file_df = module_lib.run(additional_file_df)
+                except Exception as e:
+                    print_and_log(f"[ ADDITIONAL TABLES ] Cannot process {file} with custom calcs. Skipping...", "RED")
+                    pass"""
                 self.additional_files_df_dict.append(additional_file_df)
 
         if self.params["under_sampling"]:
             self.in_df, self.in_df_f = under_sampling_df_based_on_params(self.in_df, self.params)
+            # todo: remove after
+            self.in_df[self.params['observation_date_column']] = self.in_df[self.params['observation_date_column']].astype('O')
+            self.in_df_f[self.params['observation_date_column']] = self.in_df_f[self.params['observation_date_column']].astype('O')
 
         check_if_multiclass_criterion_is_passed(self.in_df, self.params)
 

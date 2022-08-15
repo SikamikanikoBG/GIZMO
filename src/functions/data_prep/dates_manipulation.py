@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from src.functions.printing_and_logging import print_and_log
@@ -28,10 +27,15 @@ def calculate_date_diff_between_date_columns(df, dates_cols):
         for el2 in dates_cols:
             if el != el2:
                 try:
-                    df[el + '_diff_days_' + el2] = abs((df[el] - df[el2]) / pd.Timedelta(days=1))
+                    #df[el + '_diff_days_' + el2] = abs((df[el] - df[el2]) / pd.Timedelta(days=1))
                     df[el + '_diff_hours_' + el2] = abs((df[el] - df[el2]) / pd.Timedelta(hours=1))
-                    df[el + '_diff_minutes_' + el2] = abs((df[el] - df[el2]) / pd.Timedelta(minutes=1))
-                    df[el + '_diff_months_' + el2] = abs(((df[el] - df[el2]) / np.timedelta64(1, 'M')))
+                    #df[el + '_diff_minutes_' + el2] = abs((df[el] - df[el2]) / pd.Timedelta(minutes=1))
+                    #df[el + '_diff_months_' + el2] = abs(((df[el] - df[el2]) / np.timedelta64(1, 'M')))
+
+                    #if len(df[el + '_diff_days_' + el2]) == 1: del df[el + '_diff_days_' + el2]
+                    if len(df[el + '_diff_hours_' + el2]) == 1: del df[el + '_diff_hours_' + el2]
+                    #if len(df[el + '_diff_minutes_' + el2]) == 1: del df[el + '_diff_minutes_' + el2]
+                    #if len(df[el + '_diff_months_' + el2]) == 1: del df[el + '_diff_months_' + el2]
                 except:
                     pass
 
@@ -44,4 +48,10 @@ def extract_date_characteristics_from_date_column(df, dates_cols):
         df[el + '_MonthDay_NB'] = df[el].dt.day
         df[el + '_WeekDay_NB'] = df[el].dt.dayofweek
         df[el + '_YearDay_NB'] = df[el].dt.dayofyear
+
+        if len(df[el + '_Week_NB']) == 1: del df[el + '_Week_NB']
+        if len(df[el + '_MonthDay_NB']) == 1: del df[el + '_MonthDay_NB']
+        if len(df[el + '_WeekDay_NB']) == 1: del df[el + '_WeekDay_NB']
+        if len(df[el + '_YearDay_NB']) == 1: del df[el + '_YearDay_NB']
+
     return df

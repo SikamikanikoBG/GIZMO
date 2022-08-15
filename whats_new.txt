@@ -1,3 +1,6 @@
+3.7.3 - bug in additional files merging - date with object merging in dev_ardi
+3.7.2 - updated requirements
+3.7.1 - missing added uint8, period[T], period[M]
 3.7.0 - checking if 50GB ram is available at the start, many in undersampling logical bugs fixed.
 3.6.0 - multiprocess - merging now in loop for different periods - dev process
 3.5.0 - first multiprocess created
