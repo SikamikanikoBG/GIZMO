@@ -16,12 +16,12 @@
     "check_ROLL_max_90", "criterion_ROLLING_max_90", "currency", "spread", "time"
   ],
  "optimal_binning_columns": [],
- "___additional_tables": {},
-  "__additional_tables": {"daily_stock_data_month_GBPUSD.parquet":["time"],
+ "additional_tables": {},
+  "_additional_tables": {"daily_stock_data_month_GBPUSD.parquet":["time"],
     "daily_stock_data_month_GBPNZD.parquet": ["time"],
     "daily_stock_data_month_XAGUSD.parquet":["time"],
   "daily_stock_data_month_XAUUSD.parquet": ["time"]},
-  "additional_tables": {
+  "__additional_tables": {
 "daily_stock_data_month_EURCAD.parquet": ["time"],
 "daily_stock_data_month_EURCHF.parquet":["time"],
 "daily_stock_data_month_EURJPY.parquet": ["time"],
@@ -33,7 +33,6 @@
 "daily_stock_data_month_GBPUSD.parquet":["time"],
 "daily_stock_data_month_XAGUSD.parquet":["time"],
 "daily_stock_data_month_XAUUSD.parquet": ["time"]},
-  "_additional_tables":{"file1.csv": []},
   "lr_features": [],
 
   "lr_features_to_include":[],

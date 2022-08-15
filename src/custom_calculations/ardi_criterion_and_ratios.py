@@ -17,18 +17,19 @@ def run(df):
 def calculate_criterion(df):
     profit_pips = .0030
     loss_pips = .0050
+    period = 240
 
-    df['check_ROLL_min_90'] = df['low'][::-1].rolling(window=90).min()
-    df['check_ROLL_max_90'] = df['high'][::-1].rolling(window=90).max()
+    df['check_ROLL_min_'+str(period)] = df['low'][::-1].rolling(window=period).min()
+    df['check_ROLL_max_'+str(period)] = df['high'][::-1].rolling(window=period).max()
     df['check_pips'] = df['open'] + profit_pips
 
-    df['criterion_ROLLING_min_90'] = df['low'][::-1].rolling(window=90).min() - df['open']
-    df['criterion_ROLLING_max_90'] = df['high'][::-1].rolling(window=90).max() - df['open']
+    df['criterion_ROLLING_min_'+str(period)] = df['low'][::-1].rolling(window=period).min() - df['open']
+    df['criterion_ROLLING_max_'+str(period)] = df['high'][::-1].rolling(window=period).max() - df['open']
 
-    df['criterion_buy'] = np.where((df['criterion_ROLLING_max_90'] > profit_pips)
-                                   & (df['criterion_ROLLING_min_90'] > -loss_pips), 1, 0)
-    df['criterion_sell'] = np.where((df['criterion_ROLLING_max_90'] < loss_pips)
-                                    & (df['criterion_ROLLING_min_90'] < -profit_pips), 1, 0)
+    df['criterion_buy'] = np.where((df['criterion_ROLLING_max_'+str(period)] > profit_pips)
+                                   & (df['criterion_ROLLING_min_'+str(period)] > -loss_pips), 1, 0)
+    df['criterion_sell'] = np.where((df['criterion_ROLLING_max_'+str(period)] < loss_pips)
+                                    & (df['criterion_ROLLING_min_'+str(period)] < -profit_pips), 1, 0)
     return df
 
 

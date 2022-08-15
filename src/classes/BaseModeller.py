@@ -90,19 +90,20 @@ class BaseModeller:
         ac, auc, prec, recall, f1, cr, cr_p, vol = get_metrics(y_pred=df[f'{self.model_name}_y_pred'], y_true=y_true,
                                                 y_pred_prob=df[f'{self.model_name}_y_pred_prob'])
 
-        desired_cutoff = 0.8
+        desired_cutoff = 0.7
         df_temp_tocalc_proba = df[df[f'{self.model_name}_y_pred_prob'] >= desired_cutoff].copy()
         cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[self.params['criterion_column']].count(), 2)
-        cr_p_des_vol = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df[self.params['criterion_column']].count(), 2)
+        cr_p_des_vol = round(df_temp_tocalc_proba[f'{self.model_name}_y_pred'].sum() / df[self.params['criterion_column']].count(), 2)
+
         metrics_df = pd.DataFrame()
         metrics_df['AccuracyScore'] = [ac]
         metrics_df['AUC'] = [auc]
         metrics_df['PrecisionScore'] = [prec]
         metrics_df['Recall'] = [recall]
         metrics_df['F1'] = [f1]
-        metrics_df['Criterion_rate'] = [cr]
-        metrics_df['Criterion_rate_predicted'] = [cr_p]
-        metrics_df['Criterion_rate_predicted_' + str(desired_cutoff*100)] = [cr_p_des_cutt]
+        metrics_df['CR'] = [cr]
+        metrics_df['CR_pred_cutoff'] = [cr_p]
+        metrics_df['PrecisionScore_cutoff_' + str(desired_cutoff*100)] = [cr_p_des_cutt]
         metrics_df['Volumes_Criterion_rate_predicted_' + str(desired_cutoff*100)] = [cr_p_des_vol]
         metrics_df['Volumes'] = [vol]
         return metrics_df

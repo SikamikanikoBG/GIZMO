@@ -6,19 +6,21 @@ formats = ['%Y-%m', '%Y%m', '%d%m%Y', '%Y%m%d']
 
 
 def convert_obj_to_date(df, object_cols, suffix):
+    switched = []
     for el in object_cols:
         try:
             df[el+suffix] = df[el].astype(str)  # when date is int without conversion is wrong
             df[el+suffix] = pd.to_datetime(df[el])
-            print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+suffix].dtypes}', 'YELLOW')
+            switched.append(el)
         except:
             for form in formats:
                 try:
                     df[el+suffix] = df[el].astype(str)
                     df[el+suffix] = pd.to_datetime(df[el], format=form)
-                    print_and_log(f'[ OBJECT TO DATE ] Column {el} converted to {df[el+suffix].dtypes}', 'YELLOW')
+                    switched.append(el)
                 except:
                     pass
+    print_and_log(f'[ OBJECT TO DATE ] Column converted to dates: {len(switched)}', '')
     return df
 
 

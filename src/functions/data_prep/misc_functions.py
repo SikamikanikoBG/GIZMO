@@ -9,12 +9,14 @@ from src.functions.printing_and_logging import print_and_log
 
 
 def remove_column_if_not_in_final_features(final_features, numerical_cols):
+    removed = []
     for el in numerical_cols[:]:
         if el in final_features:
             pass
         else:
             numerical_cols.remove(el)
-            print_and_log(f"[ REMOVE COLUMNS ] {el} removed due to low correlation vs the criterion", 'YELLOW')
+            removed.append(el)
+    print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {removed}", 'YELLOW')
     return final_features, numerical_cols
 
 
@@ -29,13 +31,14 @@ def convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, par
 
 
 def switch_numerical_to_object_column(input_df, numerical_cols, object_cols):
+    switched = []
     for el in numerical_cols[:]:
         if len(input_df[el].unique()) < 20:
             numerical_cols.remove(el)
             object_cols.append(el)
-            print_and_log(
-                '[ SWITCH TYPE ] Switching type for {} from number to object '
-                'since nb of categories is below 20 ({})'.format(el, len(input_df[el].unique())), '')
+            switched.append(el)
+    print_and_log(
+                f'[ SWITCH TYPE ] Switching type from number to object since nb of categories is below 20 ({switched})', '')
     return numerical_cols, object_cols
 
 
@@ -174,7 +177,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
                 pass
             else:
                 corr_cols_removed.append(el)
-        print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {corr_cols}', '')
+        print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {len(corr_cols)} columns', '')
     else:
         a = X.corr()
         if flag_raw == 'yes':
