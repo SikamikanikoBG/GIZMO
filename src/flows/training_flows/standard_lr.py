@@ -28,22 +28,14 @@ class ModuleClass(SessionManager):
         self.split_train_test_df()
         self.create_train_session_folder()
 
-        models = ['xgb', 'rf', 'dt']
-        # models should be specified as following:
-        # xgb for XGBoost
-        # rf for Random forest
-        # dt for Decision trees
-        # lr for Logistic Regression
-
-        #df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
+        models = ['xgb', 'rf', 'dt', 'lr']
         pool = Pool(5)
-        # install_mp_handler()
-
         metrics = pool.map(self.create_model_procedure, models)
         pool.close()
         pool.join()
         self.metrics_df = self.metrics_df.append(metrics)
 
+        print(self.metrics_df.head(50))
         self.save_results()
 
         print_end()
@@ -56,11 +48,7 @@ class ModuleClass(SessionManager):
                                                                 final_features=self.loader.final_features,
                                                                 cut_offs=self.cut_offs)
 
-        if model_type == 'lr':
-            pass
-        else:
-            self.train_modelling_procedure_trees(model_type)
-
+        self.train_modelling_procedure_trees(model_type)
         self.validation_modelling_procedure(model_type)
 
         pickle.dump(globals()['self.modeller_' + model_type].model,
@@ -108,14 +96,22 @@ class ModuleClass(SessionManager):
         """
         results = pd.DataFrame()
 
-        if globals()['self.modeller_' + model_type].trees_features_to_include:
-            globals()['self.modeller_' + model_type].final_features = globals()[
-                'self.modeller_' + model_type].trees_features_to_include
+        if model_type == 'lr':
+            if globals()['self.modeller_' + model_type].lr_features_to_include:
+                globals()['self.modeller_' + model_type].final_features.append(globals()[
+                    'self.modeller_' + model_type].lr_features_to_include)
+        else:
+            if globals()['self.modeller_' + model_type].trees_features_to_include:
+                globals()['self.modeller_' + model_type].final_features = globals()[
+                    'self.modeller_' + model_type].trees_features_to_include
 
         # load model
         globals()['self.modeller_' + model_type].load_model()
 
-        self.training_models_fit_procedure(model_type)
+        if model_type == 'lr':
+            self.training_models_fit_procedure_lr()
+        else:
+            self.training_models_fit_procedure(model_type)
 
         results['columns'] = self.loader.train_X[globals()['self.modeller_' + model_type].final_features].columns
         results['importances'] = globals()['self.modeller_' + model_type].model.feature_importances_
@@ -141,8 +137,7 @@ class ModuleClass(SessionManager):
         # fitting new model only with selected final features
         self.training_models_fit_procedure(model_type)
 
-        #
-        # print_and_log(f'FINAL FEATURES: {globals()["self.modeller_" + model_type].final_features}', 'GREEN')
+        print_and_log(f'FINAL FEATURES: {globals()["self.modeller_" + model_type].final_features}', 'GREEN')
 
         globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
             globals()[
@@ -159,7 +154,8 @@ class ModuleClass(SessionManager):
                            session_id_folder=self.session_id_folder,
                            model_corr=model_type,
                            flag_raw='')
-        globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(globals()['self.modeller_' + model_type].final_features)
+        globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(
+            globals()['self.modeller_' + model_type].final_features)
         correlation_matrix(X=self.loader.train_X[globals()['self.modeller_' + model_type].raw_features],
                            y=None,
                            flag_matrix='all',
@@ -262,3 +258,97 @@ class ModuleClass(SessionManager):
         self.loader.t2df_y = self.loader.t2df[self.criterion_column]
         self.loader.t3df_y = self.loader.t3df[self.criterion_column]
         print_and_log("Splitting temporal validation dataframes. Done", '')
+
+    def training_models_fit_procedure_lr(self):
+        """model_type = 'lr'
+        globals()['self.modeller_' + model_type].model_fit(self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
+                self.loader.y_train_us,
+                self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+
+        # todo: create training method for lr to be able to do this loop of modelling. BUT with US going to lunch
+        Coefficients = pd.read_html(globals()['self.modeller_' + model_type].lr_table.tables[1].as_html(), header=0, index_col=0)[0]
+        Coefficients = Coefficients.reset_index()
+        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        Coefficients = Coefficients[Coefficients.error < 0.01]
+        Coefficients = Coefficients['index'].tolist()
+        Coefficients.remove('const')
+
+        globals()['self.modeller_' + model_type].model_fit(
+            self.loader.train_X_us[Coefficients],
+            self.loader.y_train_us,
+            self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+        Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        Coefficients = Coefficients.reset_index()
+        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        Coefficients = Coefficients[Coefficients.error < 0.01]
+        Coefficients['coef_abs'] = abs(Coefficients['coef'])
+        Coefficients = Coefficients[Coefficients.coef_abs > 0.00005]
+        Coefficients = Coefficients['index'].tolist()
+        Coefficients.remove('const')
+
+        lr_model, table, train_auc = lr(df_sample[Coefficients], criterion)
+        Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        Coefficients = Coefficients.reset_index()
+        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        Coefficients = Coefficients['index'].tolist()
+        Coefficients.remove('const')
+        if len(Coefficients) > 8:
+            df_abs = abs(df[Coefficients].corr())
+            df_abs = df_abs.where(df_abs < 1)
+            df_abs = df_abs.where(df_abs > 0.5)
+            df_abs = df_abs.isnull().values.all()
+            if df_abs:
+                if train_auc > auc_max:
+                    tries = 0
+                    auc_max = train_auc
+                print(
+                    '\t After {} attempts: LR Model found with AUC: {} and {} nb of features. AUC max so far {}'.format(
+                        tries, round(train_auc, 2), len(Coefficients), round(auc_max, 2)))
+                results_lr = results_lr.append(
+                    {'auc': train_auc, 'features': Coefficients},
+                    ignore_index=True)
+
+        except:
+        pass"""
+
+
+        """final_features = results_lr[results_lr['auc'] == results_lr['auc'].max()]
+        final_features = final_features['features'].iloc[0]
+        print(len(final_features), final_features)
+        logging.info(f'The number of features is {len(final_features)} for feature {final_features}')
+        
+        lr_model, table, train_auc = lr(df[final_features], criterion)
+        print('\t WINNER AUC: {}'.format(train_auc))
+        logging.info(f'WINNER AUC: {train_auc}')
+        
+        lr_table = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        lr_table = lr_table.reset_index()
+        lr_table = lr_table[['index', 'coef', 'P>|z|']]
+        lr_table = lr_table.rename(columns={'P>|z|': 'error'})
+        lr_model.feature_names = final_features
+        
+        else:
+        lr_model = model_to_predict
+        final_features = lr_model.feature_names
+        
+        df = sm.add_constant(df, has_constant='add')  # add constant
+        final_features.insert(0, 'const')
+        df['lr_y_pred'] = lr_model.predict(df[final_features])
+        df['lr_y_pred_prob'] = lr_model.predict(df[final_features])
+        y_pred = lr_model.predict(df[final_features])
+        
+        ac, auc, prec, recall, f1 = get_metrics(y_pred=y_pred, y_true=criterion, y_pred_prob=df['lr_y_pred_prob'])
+        
+        if cut_offs["lr"]:
+            df['lr_bands_predict'] = pd.cut(df['lr_y_pred'], bins=cut_offs["lr"], include_lowest=True).astype('str')
+            df['lr_bands_predict_proba'] = pd.cut(df['lr_y_pred_prob'], bins=cut_offs["lr"], include_lowest=True).astype(
+                'str')
+        else:
+            df['lr_bands_predict'], _ = cut_into_bands(X=df[['lr_y_pred']], y=criterion, depth=3)
+            df['lr_bands_predict_proba'], _ = cut_into_bands(X=df[['lr_y_pred_prob']], y=criterion, depth=3)
+        logging.info('LR: Model found')
+        
+        final_features.remove('const')"""
