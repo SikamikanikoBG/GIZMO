@@ -33,16 +33,6 @@ class ModuleClass(SessionManager):
 
         self.data_cleaning()
 
-        # todo: remove after
-        """cols = []
-        for col in self.loader.in_df_f.columns:
-            if 'file' in col:
-                cols.append(col)
-        cols.append('MSENDOS')
-        self.loader.in_df_f[self.loader.in_df_f['MSENDOS'].isin([42040052111100, 42081073691100])][
-            cols].to_csv(
-            "temp.csv", index=False)"""
-
         # Saving processed data
         self.loader.in_df.to_parquet(
             self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file.parquet')

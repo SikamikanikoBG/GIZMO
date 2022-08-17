@@ -2,7 +2,7 @@ import pandas as pd
 
 from src.functions.printing_and_logging import print_and_log
 
-formats = ['%Y-%m', '%Y%m', '%d%m%Y', '%Y%m%d']
+formats = ['%Y-%m', '%Y%m', '%d%m%Y', '%Y%m%d', '%Y-%m-%d']
 
 
 def convert_obj_to_date(df, object_cols, suffix):
