@@ -21,18 +21,21 @@ from src.functions.printing_and_logging import print_end, print_and_log, print_l
 class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
+        self.predict_session_flag = None
 
     def run(self):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
-        self.prepare()
         print_load()
         print_and_log(f'Starting the session for: {self.input_data_project_folder}', 'GREEN')
 
         self.merging_additional_files_procedure()
 
-        self.data_cleaning()
+        if self.predict_session_flag == 1:
+            self.data_preparation()
+        else:
+            self.data_cleaning()
 
         # Saving processed data
         self.loader.in_df.to_parquet(
@@ -46,64 +49,16 @@ class ModuleClass(SessionManager):
 
         print_end()
 
+    def data_preparation(self):
+        numerical_cols, object_cols_cat, object_cols_dummies = self.dates_recoding_and_objects_dummy()
+        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols)
+        self.loader.in_df = missing_values(df=self.loader.in_df, missing_treatment=self.missing_treatment,
+                                           input_data_project_folder=self.input_data_project_folder)
+
     def data_cleaning(self):  # start data cleaning
 
-        print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
-        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
-                                                                                           params=self.params)
+        numerical_cols, object_cols_cat, object_cols_dummies = self.dates_recoding_and_objects_dummy()
 
-        print_and_log('[ DATA CLEANING ] Converting objects to dates', '')
-        self.loader.in_df = date_funcs.convert_obj_to_date(self.loader.in_df, object_cols, "_date")
-        if self.under_sampling: self.loader.in_df_f = date_funcs.convert_obj_to_date(self.loader.in_df_f, object_cols,
-                                                                                     "_date")
-        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
-                                                                                           params=self.params)
-
-        self.loader.final_features = categorical_cols, numerical_cols, object_cols, dates_cols
-
-        print_and_log('[ DATA CLEANING ] Calculating date differences between date columns', '')
-        self.loader.in_df = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df, dates_cols)
-        if self.under_sampling: self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(
-            self.loader.in_df_f,
-            dates_cols)
-        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
-                                                                                           params=self.params)
-
-        print_and_log('[ DATA CLEANING ] Extracting date characteristics as features', '')
-        self.loader.in_df = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df,
-                                                                                     dates_cols)
-        if self.under_sampling: self.loader.in_df_f = date_funcs.extract_date_characteristics_from_date_column(
-            self.loader.in_df_f,
-            dates_cols)
-        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
-                                                                                           params=self.params)
-
-        print_and_log('[ DATA CLEANING ]  remove categorical cols with too many values', '')
-        object_cols = remove_categorical_cols_with_too_many_values(self.loader.in_df, object_cols)
-
-        # treat specified numerical as objects
-        print_and_log('[ DATA CLEANING ]  Switching type from number to object since nb of categories is below 20', "")
-        self.remove_columns_with_single_values(numerical_cols=numerical_cols,
-                                               object_cols_cat=[],
-                                               object_cols_dummies=[],
-                                               categorical_cols=categorical_cols,
-                                               object_cols=object_cols,
-                                               dates_cols=dates_cols)
-        numerical_cols, object_cols = switch_numerical_to_object_column(self.loader.in_df, numerical_cols,
-                                                                        object_cols)
-
-        # convert objects to categories and get dummies
-        print_and_log('[ DATA CLEANING ]  Converting objects to dummies', "")
-        self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
-                                                                                    self.loader.in_df_f,
-                                                                                    object_cols, self.params)
-
-        # create cat and dummies dictionaries
-        object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
-        object_cols_dummies = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_dummie')
-
-        # final features to be processed further
-        self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols
 
         # Check correlation. Remove low correlation columns from numerical. At this point this is needed to lower the nb of ratios to be created
         print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
@@ -167,6 +122,62 @@ class ModuleClass(SessionManager):
         # self.loader.in_df = self.loader.in_df[all_columns].copy()
         if self.under_sampling:
             self.loader.in_df_f = self.loader.in_df_f[all_columns].copy()
+
+    def dates_recoding_and_objects_dummy(self):
+        print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
+                                                                                           params=self.params)
+        print_and_log('[ DATA CLEANING ] Converting objects to dates', '')
+        self.loader.in_df = date_funcs.convert_obj_to_date(self.loader.in_df, object_cols, "_date")
+        if self.under_sampling and self.predict_session_flag != 1:
+            self.loader.in_df_f = date_funcs.convert_obj_to_date(self.loader.in_df_f, object_cols,
+                                                                                     "_date")
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
+                                                                                           params=self.params)
+        self.loader.final_features = categorical_cols, numerical_cols, object_cols, dates_cols
+        print_and_log('[ DATA CLEANING ] Calculating date differences between date columns', '')
+        self.loader.in_df = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df, dates_cols)
+        if self.under_sampling and self.predict_session_flag != 1:
+            self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(
+            self.loader.in_df_f, dates_cols)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
+                                                                                           params=self.params)
+        print_and_log('[ DATA CLEANING ] Extracting date characteristics as features', '')
+        self.loader.in_df = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df,
+                                                                                     dates_cols)
+        if self.under_sampling and self.predict_session_flag != 1:
+            self.loader.in_df_f = date_funcs.extract_date_characteristics_from_date_column(
+            self.loader.in_df_f,dates_cols)
+        categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
+                                                                                           params=self.params)
+        print_and_log('[ DATA CLEANING ]  remove categorical cols with too many values', '')
+
+        if self.predict_session_flag == 1:
+            pass
+        else:
+            object_cols = remove_categorical_cols_with_too_many_values(self.loader.in_df, object_cols)
+            # treat specified numerical as objects
+            print_and_log('[ DATA CLEANING ]  Switching type from number to object since nb of categories is below 20', "")
+            self.remove_columns_with_single_values(numerical_cols=numerical_cols,
+                                               object_cols_cat=[],
+                                               object_cols_dummies=[],
+                                               categorical_cols=categorical_cols,
+                                               object_cols=object_cols,
+                                               dates_cols=dates_cols)
+
+        numerical_cols, object_cols = switch_numerical_to_object_column(self.loader.in_df, numerical_cols,
+                                                                        object_cols)
+        # convert objects to categories and get dummies
+        print_and_log('[ DATA CLEANING ]  Converting objects to dummies', "")
+        self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
+                                                                                    self.loader.in_df_f,
+                                                                                    object_cols, self.params)
+        # create cat and dummies dictionaries
+        object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
+        object_cols_dummies = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_dummie')
+        # final features to be processed further
+        self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols
+        return numerical_cols, object_cols_cat, object_cols_dummies
 
     def remove_identical_columns(self):
         print_and_log('[ DATA CLEANING ] Removing identical columns', 'YELLOW')

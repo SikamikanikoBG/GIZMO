@@ -12,8 +12,8 @@
   "t3df": "2022-08-08 00:00:00",
   "periods_to_exclude": [],
   "columns_to_exclude": [
-    "criterion_buy", "criterion_sell", "check_ROLL_min_90", "criterion_ROLLING_min_90",
-    "check_ROLL_max_90", "criterion_ROLLING_max_90", "currency", "spread", "time"
+    "criterion_buy", "criterion_sell", "check_ROLL_min_240", "criterion_ROLLING_min_240",
+    "check_ROLL_max_240", "criterion_ROLLING_max_240", "currency", "spread", "time"
   ],
  "optimal_binning_columns": [],
  "additional_tables": {},

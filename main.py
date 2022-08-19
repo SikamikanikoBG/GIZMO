@@ -26,6 +26,10 @@ if __name__ == '__main__':
     parser.add_argument('--data_prep_module', type=str, help='Data prep module to run')
     parser.add_argument('--train_module', type=str, help='Training module to run')
     parser.add_argument('--predict_module', type=str, help='Training module to run')
+    parser.add_argument('--pred_data_prep', type=str, help='Which data prep to be used for predict')
+
+    parser.add_argument('--main_model', type=str, help='Main model to predict')
+
     parser.add_argument('--h', type=str, help='You need help...')
     args = parser.parse_args()
 
@@ -49,6 +53,8 @@ if __name__ == '__main__':
         module_lib = import_module(f'src.flows.predict_flows.{module}')
 
     module = module_lib.ModuleClass(args=args)
+    module.prepare()
+    module.start_logging()
     module.run()
     module.run_time_calc()
     print_and_log(module.run_time, "")

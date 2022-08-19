@@ -1,0 +1,71 @@
+{
+  "criterion_column": "PL_REQUEST_2M_FLG",
+
+  "missing_treatment": {
+    "Info": "Missing"
+
+  },
+  "main_table":"CZ_PL_INACTIVES.csv",
+  "custom_calculations": "",
+  "additional_tables": {},
+  "observation_date_column": "OBSERVATIONDATE",
+  "secondary_criterion_columns": ["NB_ACTIVE_VAT",
+    "NB_ACTIVE_VAT"
+  ],
+  "t1df": "2022-03-31",
+  "t2df": "2022-04-29",
+  "t3df": "2022-05-31",
+  "periods_to_exclude": ["2022-06-30"],
+  "columns_to_exclude": ["CON_CCIF",
+    "FLAG_ACTIVE_INACTIVECUSTOMER",
+    "MONTHS_INACTIVE",
+    "OBSERVATIONDATE",
+    "const"
+  ],
+
+"_lr_features": ["DWELLINGOWNERSHIP_date_dummie_Rent", "NB_ACTIVE_CARD_dummie_0.0",
+"NB_ACTIVE_PL_binned_dummie_from_excl_-inf_to_0.50_excl_",
+"NB_ACTIVE_CARD_dummie_2.0", "MARITALSTATUS_dummie_Single",
+"AMOUNT_TOTAL_MONTHLY_INTEREST_binned_dummie_from_excl_-inf_to_149.80_excl_",
+"EMAIL_FLAG_dummie_1.0"],
+  "lr_features": [
+    "DWELLINGOWNERSHIP_date_dummie_Rent",
+    "NB_ACTIVE_CARD_dummie_0.0",
+"NB_ACTIVE_PL_binned_dummie_from_excl_-inf_to_0.50_excl_",
+"NB_ACTIVE_CARD_dummie_2.0",
+    "MARITALSTATUS_dummie_Single",
+"AMOUNT_TOTAL_MONTHLY_INTEREST_binned_dummie_from_excl_-inf_to_149.80_excl_",
+"EMAIL_FLAG_dummie_1.0"],
+
+  "lr_features_to_include":[
+
+
+
+],
+
+"trees_features_to_include":[
+
+],
+
+
+ "trees_features_to_exclude": [
+
+],
+  "cut_offs": {
+
+    "xgb": [0,0.117,0.302,0.473,1],
+    "_lr": [0,0.123,0.297,0.70,1],
+    "lr": [0,0.255,0.40,0.70,1],
+    "dt": [0,0.102,0.263,0.586,1],
+    "rf": [0,0.102,0.263,0.586,1]
+  },
+  "under_sampling": 1,
+  "optimal_binning_columns": ["AGE",
+ "SALARY",
+ "NB_FIN_PL_24M",
+ "MONTHS_SINCELASTFINANCED_PL",
+ "MONTHS_SINCELASTFINANCED_VAT",
+ "MONTHS_SINCELASTFINANCED_CARD"
+
+  ]
+}

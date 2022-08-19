@@ -39,14 +39,16 @@ class BaseModeller:
         elif self.model_name == 'dt':
             self.model.fit(train_X[self.final_features], train_y)
         elif self.model_name == 'lr':
-            train_X = sm.add_constant(train_X)  # add constant
+            pass
+            """train_X = sm.add_constant(train_X)  # add constant
             self.model = sm.Logit(train_y, train_X)  # add model
             self.model = self.model.fit(disp=False)  # fit model
             self.lr_logit_roc_auc = roc_auc_score(train_y, self.model.predict(train_X))
-            table = self.model.summary()
+            table = self.model.summary()"""
         else:
             print_and_log(f"[ Modelling ] ERROR: Model {self.model_name} not recognized.", "RED")
             quit()
+
 
     def load_model(self):
         if self.model_name == 'xgb':

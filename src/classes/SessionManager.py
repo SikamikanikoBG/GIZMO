@@ -43,8 +43,7 @@ class SessionManager:
         self.output_data_folder_name = './output_data/'
         self.functions_folder_name = './src/'
         self.params_folder_name = './params/'
-
-        self.start_logging()
+        self.implemented_folder = './implemented_models/'
 
         # Import parameters
         try:
@@ -77,8 +76,7 @@ class SessionManager:
             self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
                                         input_data_project_folder=self.input_data_project_folder)
         elif self.args.predict_module:
-            self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
-                                        input_data_project_folder=self.input_data_project_folder)
+            pass
 
     def prepare(self):
         """
@@ -106,6 +104,8 @@ class SessionManager:
             os.mkdir(self.functions_folder_name)
         if not os.path.isdir(self.params_folder_name):
             os.mkdir(self.params_folder_name)
+        if not os.path.isdir(self.implemented_folder):
+            os.mkdir(self.implemented_folder)
 
         # Create output data project folder
         if not os.path.isdir(self.output_data_folder_name + self.input_data_project_folder + '/'):

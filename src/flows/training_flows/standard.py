@@ -63,7 +63,7 @@ class ModuleClass(SessionManager):
 
         self.validation_modelling_procedure(model_type)
 
-        pickle.dump(globals()['self.modeller_' + model_type].model,
+        pickle.dump(globals()['self.modeller_' + model_type],
                     open(self.session_id_folder + f'/{model_type}/model_train.pkl', 'wb'))
         globals()['self.modeller_' + model_type].results.to_csv(
             self.session_id_folder + f'/{model_type}/feat_importance.csv', index=False)

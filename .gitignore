@@ -6,3 +6,7 @@
 *.xml
 /.~lock.temp.csv#
 /temp.csv
+*.feather
+*.csv
+/implemented_models
+/implemented_models/
