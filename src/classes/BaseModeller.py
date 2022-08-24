@@ -54,7 +54,7 @@ class BaseModeller:
         if self.model_name == 'xgb':
             self.model = xgboost.XGBClassifier(colsample_bytree=.1, subsample=.5, max_depth=5)
         elif self.model_name == 'rf':
-            self.model = RandomForestClassifier(n_estimators=100,
+            self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,
                                                 max_depth=5,
                                                 n_jobs=3,
@@ -92,7 +92,7 @@ class BaseModeller:
         ac, auc, prec, recall, f1, cr, cr_p, vol = get_metrics(y_pred=df[f'{self.model_name}_y_pred'], y_true=y_true,
                                                 y_pred_prob=df[f'{self.model_name}_y_pred_prob'])
 
-        desired_cutoff = 0.7
+        desired_cutoff = 0.6
         df_temp_tocalc_proba = df[df[f'{self.model_name}_y_pred_prob'] >= desired_cutoff].copy()
         cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[self.params['criterion_column']].count(), 2)
         cr_p_des_vol = round(df_temp_tocalc_proba[f'{self.model_name}_y_pred'].sum() / df[self.params['criterion_column']].count(), 2)

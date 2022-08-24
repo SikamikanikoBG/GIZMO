@@ -1,5 +1,6 @@
 import pandas as pd
 
+import definitions
 from src import print_and_log
 
 
@@ -14,7 +15,7 @@ def missing_values(df, missing_treatment, input_data_project_folder):
     percent_missing = df.isna().sum() * 100 / len(df)
     missing_value_df = pd.DataFrame({'column_name': df.columns,
                                      'percent_missing': percent_missing})
-    missing_value_df.to_csv('./output_data/' + input_data_project_folder + '/missing_values.csv', index=False)
+    missing_value_df.to_csv(definitions.ROOT_DIR + '/output_data/' + input_data_project_folder + '/missing_values.csv', index=False)
     df = df.drop(columns=missing_cols)
 
     # drop rows with na

@@ -124,7 +124,7 @@ class ModuleClass(SessionManager):
         # Select importances between 0 and 0.95 and keep top 30 features
         results = results[results['importances'] > 0]
         results = results[results['importances'] < 0.95]
-        results = results[:30]
+        results = results[:100]
         globals()['self.modeller_' + model_type].final_features = results['columns'].unique().tolist()
 
         if globals()['self.modeller_' + model_type].trees_features_to_exclude:
@@ -261,4 +261,14 @@ class ModuleClass(SessionManager):
         self.loader.t1df_y = self.loader.t1df[self.criterion_column]
         self.loader.t2df_y = self.loader.t2df[self.criterion_column]
         self.loader.t3df_y = self.loader.t3df[self.criterion_column]
+
+        cr_t1 = round(self.loader.t1df[self.criterion_column].sum() / len(self.loader.t1df), 2)
+        cr_t2 = round(self.loader.t2df[self.criterion_column].sum() / len(self.loader.t2df), 2)
+        cr_t3 = round(self.loader.t3df[self.criterion_column].sum() / len(self.loader.t3df), 2)
+
+        print_and_log(f"[ TEMPORAL VALIDATION ] CR: t1 {cr_t1}%, t2 {cr_t2}%, t3 {cr_t3}%.", "")
+
+        if len(self.loader.t1df) == 0 or len(self.loader.t2df) == 0 or len(self.loader.t3df) == 0:
+            print_and_log(f"[ TEMPORAL VALIDATION ] ERROR: data for some of the temp validation periods is missing. Termination", "RED")
+            quit()
         print_and_log("Splitting temporal validation dataframes. Done", '')

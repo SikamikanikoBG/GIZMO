@@ -3,6 +3,7 @@ import sys
 import warnings
 from importlib import import_module
 import psutil
+import definitions
 
 from src.functions.printing_and_logging import print_and_log
 
@@ -28,10 +29,15 @@ if __name__ == '__main__':
     parser.add_argument('--predict_module', type=str, help='Training module to run')
     parser.add_argument('--pred_data_prep', type=str, help='Which data prep to be used for predict')
 
+    parser.add_argument('--tp', type=str, help='Which data prep to be used for predict')
+    parser.add_argument('--sl', type=str, help='Which data prep to be used for predict')
+    parser.add_argument('--period', type=str, help='Which data prep to be used for predict')
+
     parser.add_argument('--main_model', type=str, help='Main model to predict')
 
     parser.add_argument('--h', type=str, help='You need help...')
     args = parser.parse_args()
+    definitions.args = args
 
     help_need = args.h
     if help_need:

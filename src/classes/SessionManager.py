@@ -5,6 +5,7 @@ from datetime import datetime
 
 from colorama import Fore, Style
 
+import definitions
 from src import BaseLoader, print_and_log
 
 
@@ -35,19 +36,19 @@ class SessionManager:
         elif self.args.predict_module:
             self.log_file_name = 'predict_' + self.args.predict_module + '_' + self.project_name + '_' + str(
                 self.start) + '_' + self.tag + ".log"
-        self.log_folder_name = './logs/'
-        self.session_folder_name = './sessions/'
+        self.log_folder_name = definitions.ROOT_DIR + '/logs/'
+        self.session_folder_name = definitions.ROOT_DIR + '/sessions/'
         self.session_id_folder = None
-        self.input_data_folder_name = './input_data/'
+        self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
         self.input_data_project_folder = self.project_name
-        self.output_data_folder_name = './output_data/'
-        self.functions_folder_name = './src/'
-        self.params_folder_name = './params/'
-        self.implemented_folder = './implemented_models/'
+        self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'
+        self.functions_folder_name = definitions.ROOT_DIR + '/src/'
+        self.params_folder_name = definitions.ROOT_DIR + '/params/'
+        self.implemented_folder = definitions.ROOT_DIR + '/implemented_models/'
 
         # Import parameters
         try:
-            with open('params/params_' + self.project_name + '.json') as json_file:
+            with open(definitions.ROOT_DIR + '/params/params_' + self.project_name + '.json') as json_file:
                 self.params = json.load(json_file)
             self.criterion_column = self.params['criterion_column']
             self.missing_treatment = self.params["missing_treatment"]

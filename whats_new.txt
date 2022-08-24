@@ -1,3 +1,4 @@
+3.9.0 - grid search for modelling - new file that you can run load and after train session for misc combinations of params
 3.8.0 - prediction flow added. .prepare() moved to main.py to avoid duplicated preparations. start_logging as well.
 3.7.4 - hardcoded values removed
 3.7.3 - bug in additional files merging - date with object merging in dev_ardi

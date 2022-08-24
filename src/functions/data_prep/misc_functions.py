@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+import definitions
 from src.functions.modelling.modelling_functions import cut_into_bands
 from src.functions.printing_and_logging import print_and_log
 
@@ -160,7 +161,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
     if flag_matrix != 'all':
         a = X.corrwith(y)
 
-        a.to_csv('./output_data/' + input_data_project_folder + '/correl.csv')
+        a.to_csv(definitions.ROOT_DIR  + '/output_data/' + input_data_project_folder + '/correl.csv')
         a = abs(a)
         b = a[a <= 0.05]
         c = a[a >= 0.4]

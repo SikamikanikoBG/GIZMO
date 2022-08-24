@@ -46,14 +46,14 @@ def calculate_date_diff_between_date_columns(df, dates_cols):
 
 def extract_date_characteristics_from_date_column(df, dates_cols):
     for el in dates_cols:
-        df[el + '_Week_NB'] = df[el].dt.week
+        #df[el + '_Week_NB'] = df[el].dt.week
         df[el + '_MonthDay_NB'] = df[el].dt.day
         df[el + '_WeekDay_NB'] = df[el].dt.dayofweek
-        df[el + '_YearDay_NB'] = df[el].dt.dayofyear
+        #df[el + '_YearDay_NB'] = df[el].dt.dayofyear
 
-        if len(df[el + '_Week_NB']) == 1: del df[el + '_Week_NB']
+        #if len(df[el + '_Week_NB']) == 1: del df[el + '_Week_NB']
         if len(df[el + '_MonthDay_NB']) == 1: del df[el + '_MonthDay_NB']
         if len(df[el + '_WeekDay_NB']) == 1: del df[el + '_WeekDay_NB']
-        if len(df[el + '_YearDay_NB']) == 1: del df[el + '_YearDay_NB']
+        #if len(df[el + '_YearDay_NB']) == 1: del df[el + '_YearDay_NB']
 
     return df

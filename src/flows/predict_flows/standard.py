@@ -27,6 +27,7 @@ class ModuleClass(SessionManager):
         module_prep_lib = import_module(f'src.flows.data_prep_flows.{module_prep}')
         prep = module_prep_lib.ModuleClass(args=self.args)
         prep.loader.in_df = self.loader.in_df.copy()
+        prep.loader.additional_files_df_dict = self.loader.additional_files_df_dict
         prep.predict_session_flag = 1
         prep.run()
 
@@ -49,7 +50,7 @@ class ModuleClass(SessionManager):
             predict_last_row = round(float(predict_last_row), 5)
             self.loader.in_df[f"predict_last_{model}"] = predict_last_row
 
-        predict_columns = ['time']
+        predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close"]
         for col in self.loader.in_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
