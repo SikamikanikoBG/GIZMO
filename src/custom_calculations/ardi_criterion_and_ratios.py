@@ -78,19 +78,19 @@ def calculate_indicators(df):
         df['vwma_' + period] = stock_df['vwma_' + period]
 
     df['dma'] = stock_df['dma']
-    #df['pdi'] = stock_df['pdi']
+    df['pdi'] = stock_df['pdi']
     df['mdi'] = stock_df['mdi']
-    #df['dx'] = stock_df['dx']
+    df['dx'] = stock_df['dx']
     df['adx'] = stock_df['adx']
-    #df['adxr'] = stock_df['adxr']
+    df['adxr'] = stock_df['adxr']
 
-    #df['cr'] = stock_df['cr']
-    #df['ppo'] = stock_df['ppo']
+    df['cr'] = stock_df['cr']
+    df['ppo'] = stock_df['ppo']
     df['log-ret'] = stock_df['log-ret']
     df['macd_feat'] = stock_df['macd']
-    #df['macds_feat'] = stock_df['macds']
+    df['macds_feat'] = stock_df['macds']
     df['boll_feat'] = stock_df['boll']
-    #df['boll_ub_feat'] = stock_df['boll_ub']
-    #df['boll_lb_feat'] = stock_df['boll_lb']
+    df['boll_ub_feat'] = stock_df['boll_ub']
+    df['boll_lb_feat'] = stock_df['boll_lb']
     del stock_df
     return df

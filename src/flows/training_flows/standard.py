@@ -29,20 +29,15 @@ class ModuleClass(SessionManager):
         self.create_train_session_folder()
 
         models = ['xgb', 'rf', 'dt']
-        # models should be specified as following:
-        # xgb for XGBoost
-        # rf for Random forest
-        # dt for Decision trees
-        # lr for Logistic Regression
+        """models should be specified as following:
+        xgb for XGBoost
+        rf for Random forest
+        dt for Decision trees
+        lr for Logistic Regression"""
 
-        #df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
-        pool = Pool(5)
-        # install_mp_handler()
-
-        metrics = pool.map(self.create_model_procedure, models)
-        pool.close()
-        pool.join()
-        self.metrics_df = self.metrics_df.append(metrics)
+        for model in models:
+            metrics = self.create_model_procedure(model)
+            self.metrics_df = self.metrics_df.append(metrics)
 
         self.save_results()
 
@@ -68,7 +63,7 @@ class ModuleClass(SessionManager):
         globals()['self.modeller_' + model_type].results.to_csv(
             self.session_id_folder + f'/{model_type}/feat_importance.csv', index=False)
         print_and_log(f"Feature importance: {globals()['self.modeller_' + model_type].results}", '')
-        return self.metrics_df.append(globals()['self.modeller_' + model_type].metrics)
+        return globals()['self.modeller_' + model_type].metrics
 
     def save_results(self):
         self.loader.train_X.reset_index().to_feather(self.session_id_folder + '/df_x_train.feather')
@@ -85,10 +80,10 @@ class ModuleClass(SessionManager):
 
         count = 0
         for dataframe in validation_dataframes_X:
-            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
-                globals()['self.modeller_' + model_type].generate_predictions_and_metrics(
+            metrics, validation_dataframes_X[count] = globals()['self.modeller_' + model_type].generate_predictions_and_metrics(
                     y_true=validation_dataframes_y[count],
-                    df=validation_dataframes_X[count]))
+                    df=validation_dataframes_X[count])
+            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(metrics)
             globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = validation_dataframes_name[count]
             count += 1
 
@@ -146,14 +141,12 @@ class ModuleClass(SessionManager):
         # fitting new model only with selected final features
         self.training_models_fit_procedure(model_type)
 
-        #
-        # print_and_log(f'FINAL FEATURES: {globals()["self.modeller_" + model_type].final_features}', 'GREEN')
-
-        globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
-            globals()[
+        metrics, self.loader.train_X = globals()[
                 'self.modeller_' + model_type].generate_predictions_and_metrics(
                 y_true=self.loader.y_train,
-                df=self.loader.train_X))
+                df=self.loader.train_X)
+
+        globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(metrics)
         globals()['self.modeller_' + model_type].metrics['DataSet'] = 'train_X'
         globals()['self.modeller_' + model_type].results = results
 

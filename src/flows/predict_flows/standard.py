@@ -44,6 +44,9 @@ class ModuleClass(SessionManager):
             # Predictions
             self.loader.in_df[f"predict_{model}"] = model_pkl.model.predict_proba(self.loader.in_df[self.loader.final_features])[:, 1]
             self.loader.in_df[f"predict_{model}"] = self.loader.in_df[f"predict_{model}"].round(5)
+
+            # todo: add precision score calculations for the last 2800 (dynamic) rows as validation that the model is still performing
+
             predict_last_row = model_pkl.model.predict_proba(self.loader.in_df[self.loader.final_features].iloc[[-1]])[0][1]
             if predict_last_row < 0.01:
                 predict_last_row = 0.01

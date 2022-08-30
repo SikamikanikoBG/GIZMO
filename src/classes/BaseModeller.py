@@ -108,4 +108,4 @@ class BaseModeller:
         metrics_df['PrecisionScore_cutoff_' + str(desired_cutoff*100)] = [cr_p_des_cutt]
         metrics_df['Volumes_Criterion_rate_predicted_' + str(desired_cutoff*100)] = [cr_p_des_vol]
         metrics_df['Volumes'] = [vol]
-        return metrics_df
+        return metrics_df, df

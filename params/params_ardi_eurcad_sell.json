@@ -16,10 +16,10 @@
     "check_ROLL_max", "criterion_ROLLING_max", "currency", "spread", "time"
   ],
  "optimal_binning_columns": [],
- "additional_tables": {},
-  "_additional_tables": {
+ "_additional_tables": {},
+  "additional_tables": {
     "daily_stock_data_month_EURUSD.parquet": ["time"],
-    "daily_stock_data_month_EURJPY.parquet":["time"],
+    "daily_stock_data_month_EURCHF.parquet":["time"],
   "daily_stock_data_month_XAUUSD.parquet": ["time"]},
   "__additional_tables": {
 "daily_stock_data_month_EURCAD.parquet": ["time"],

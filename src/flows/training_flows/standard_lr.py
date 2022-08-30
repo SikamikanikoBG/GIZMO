@@ -73,7 +73,7 @@ class ModuleClass(SessionManager):
 
         count = 0
         for dataframe in validation_dataframes_X:
-            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+            globals()['self.modeller_' + model_type].metrics, validation_dataframes_X[count] = globals()['self.modeller_' + model_type].metrics.append(
                 globals()['self.modeller_' + model_type].generate_predictions_and_metrics(
                     y_true=validation_dataframes_y[count],
                     df=validation_dataframes_X[count]))
@@ -139,7 +139,7 @@ class ModuleClass(SessionManager):
 
         print_and_log(f'FINAL FEATURES: {globals()["self.modeller_" + model_type].final_features}', 'GREEN')
 
-        globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+        globals()['self.modeller_' + model_type].metrics, self.loader.train_X = globals()['self.modeller_' + model_type].metrics.append(
             globals()[
                 'self.modeller_' + model_type].generate_predictions_and_metrics(
                 y_true=self.loader.y_train,

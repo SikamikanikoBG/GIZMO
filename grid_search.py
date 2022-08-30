@@ -16,12 +16,20 @@ grid_param_init = {"tp": [0.0025, 0.0040, 0.0060],
                    "training_rows": []
                    }
 
-grid_param = {"tp": [0.0025, 0.0040],
+grid_param_ = {"tp": [0.0025, 0.0040],
               "sl": [0.0040, 0.0080],
               "period": [720],
               "t_val_size_per_period": [2800],
               "training_rows": [7000, 15000],
-              "nb_features": [10, 30, 50, 70, 100]
+              "nb_features": [30, 50, 70]
+              }
+
+grid_param = {"tp": [0.0025],
+              "sl": [0.0080],
+              "period": [720],
+              "t_val_size_per_period": [2800],
+              "training_rows": [7000],
+              "nb_features": [30]
               }
 
 results_df = pd.DataFrame()
