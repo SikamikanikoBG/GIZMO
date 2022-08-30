@@ -5,7 +5,7 @@
     "Info": "Missing"
   },
   "observation_date_column": "time",
- "main_table": "daily_stock_data_month_EURCHF.parquet",
+ "main_table": "daily_stock_data_month_NZDUSD.parquet",
   "secondary_criterion_columns": [],
   "t1df": "2023-08-01 00:00:00",
   "t2df": "2023-08-06 00:00:00",
@@ -17,10 +17,12 @@
   ],
  "optimal_binning_columns": [],
  "_additional_tables": {},
-  "additional_tables": {"daily_stock_data_month_EURCAD.parquet":["time"],
+  "additional_tables": {"daily_stock_data_month_GBPUSD.parquet":["time"],
     "daily_stock_data_month_EURUSD.parquet": ["time"],
+    "daily_stock_data_month_EURJPY.parquet":["time"],
   "daily_stock_data_month_XAUUSD.parquet": ["time"],
-  "daily_stock_data_month_CADJPY.parquet":["time"]},
+  "daily_stock_data_month_GBPJPY.parquet":["time"],
+  "daily_stock_data_month_GBPAUD.parquet":["time"]},
   "__additional_tables": {
 "daily_stock_data_month_EURCAD.parquet": ["time"],
 "daily_stock_data_month_EURCHF.parquet":["time"],

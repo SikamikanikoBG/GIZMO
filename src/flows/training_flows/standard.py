@@ -124,7 +124,12 @@ class ModuleClass(SessionManager):
         # Select importances between 0 and 0.95 and keep top 30 features
         results = results[results['importances'] > 0]
         results = results[results['importances'] < 0.95]
-        results = results[:100]
+
+        if self.args.nb_tree_features:
+            nb_features = int(self.args.nb_tree_features)
+            results = results[:nb_features]
+        else:
+            results = results[:100]
         globals()['self.modeller_' + model_type].final_features = results['columns'].unique().tolist()
 
         if globals()['self.modeller_' + model_type].trees_features_to_exclude:

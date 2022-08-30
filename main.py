@@ -32,6 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('--tp', type=str, help='Which data prep to be used for predict')
     parser.add_argument('--sl', type=str, help='Which data prep to be used for predict')
     parser.add_argument('--period', type=str, help='Which data prep to be used for predict')
+    parser.add_argument('--nb_tree_features', type=int, help='Nb of max features for the tree models')
 
     parser.add_argument('--main_model', type=str, help='Main model to predict')
 
