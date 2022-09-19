@@ -1,0 +1,20 @@
+import requests
+import pandas as pd
+
+
+def api_post(url, data):
+    data = data.to_json(orient='records')
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    try:
+        response = requests.post(url=url, data=data, headers=headers)
+    except Exception as e:
+        print(e)
+
+
+
+def api_get(url, conditions):
+    if conditions:
+        url = url + conditions
+    response = requests.get(url)
+    df_received_data = pd.read_json(response.content)
+    return df_received_data

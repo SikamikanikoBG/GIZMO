@@ -1,5 +1,5 @@
 import argparse
-from  datetime import datetime
+from datetime import datetime
 import itertools
 import os
 import subprocess
@@ -9,28 +9,39 @@ import pandas as pd
 
 import definitions
 
-grid_param_init = {"tp": [0.0025, 0.0040, 0.0060],
-                   "sl": [0.0020, 0.0040, 0.0060, 0.0080, 0.0100],
-                   "period": [120, 240, 480, 720],
-                   "t_val_size_per_period": [],
-                   "training_rows": []
-                   }
+from src.functions import api_communication
 
-grid_param_ = {"tp": [0.0025, 0.0040],
-              "sl": [0.0040, 0.0080],
-              "period": [720],
+grid_param = {"tp": [0.0025, 0.0040, 0.0060],
+              "sl": [0.0020, 0.0040, 0.0060, 0.0080, 0.0100],
+              "period": [120, 240, 480, 720],
               "t_val_size_per_period": [2800],
               "training_rows": [7000, 15000],
-              "nb_features": [30, 50, 70]
+              "nb_features": [30, 50]
               }
 
-grid_param = {"tp": [0.0025],
-              "sl": [0.0080],
-              "period": [720],
-              "t_val_size_per_period": [2800],
-              "training_rows": [7000],
-              "nb_features": [30]
-              }
+grid_param_ = {"tp": [0.0025, 0.0040],
+               "sl": [0.0040, 0.0080],
+               "period": [720],
+               "t_val_size_per_period": [2800],
+               "training_rows": [7000, 15000],
+               "nb_features": [30, 50, 70]
+               }
+
+grid_param_eurcad = {"tp": [0.0025],
+                     "sl": [0.0080],
+                     "period": [720],
+                     "t_val_size_per_period": [2800],
+                     "training_rows": [7000],
+                     "nb_features": [30]
+                     }
+
+grid_param___ = {"tp": [0.0025],
+                 "sl": [0.0040],
+                 "period": [720],
+                 "t_val_size_per_period": [2800],
+                 "training_rows": [15000],
+                 "nb_features": [50]
+                 }
 
 results_df = pd.DataFrame()
 
@@ -89,21 +100,27 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
 a = 0
 b = 0
 for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_param["period"],
-                                     grid_param["t_val_size_per_period"], grid_param["training_rows"], grid_param["nb_features"]):
+                                     grid_param["t_val_size_per_period"], grid_param["training_rows"],
+                                     grid_param["nb_features"]):
     a += 1
 
 for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_param["period"],
-                                     grid_param["t_val_size_per_period"], grid_param["training_rows"], grid_param["nb_features"]):
+                                     grid_param["t_val_size_per_period"], grid_param["training_rows"],
+                                     grid_param["nb_features"]):
     b += 1
     time_start = datetime.now()
 
-    models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4], combination[5])
+    models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
+                                combination[5])
     results_df = results_df.append(models_loop_df)
 
     time_end = datetime.now()
     time = time_end - time_start
-    time_remaining = (a-b)*time
+    time_remaining = (a - b) * time
     print(f"Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. Combinations: {combination}. "
           f"Elapsed time: {time} minutes. Time remaining: {time_remaining}")
 
+    results_df['currency'] = project
+    if definitions.api_url_post_models_simulations:
+        api_communication.api_post(definitions.api_url_post_models_simulations, results_df)
     results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)

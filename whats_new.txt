@@ -1,3 +1,4 @@
+3.11.1 - api communication added for posting models.csv and predictions. requirements.txt updated
 3.10.1 - bug fix in standard training flow - t1, t2, t3 dfs were without saved columns for predictions per models
 3.10.0 - new argument added - specify max nb of features for the tree models
 3.9.0 - grid search for modelling - new file that you can run load and after train session for misc combinations of params

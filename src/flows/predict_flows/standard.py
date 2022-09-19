@@ -3,8 +3,10 @@ import pickle
 import sys
 from importlib import import_module
 
+import definitions
 from src.classes.SessionManager import SessionManager
 from src.functions.printing_and_logging import print_end
+from src.functions import api_communication
 
 
 class ModuleClass(SessionManager):
@@ -18,7 +20,7 @@ class ModuleClass(SessionManager):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
-        sys.stdout = open(os.devnull, 'w') # forbid print
+        sys.stdout = open(os.devnull, 'w')  # forbid print
         # Prepare the input data
         self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
                                    in_data_proj_folder=self.input_data_project_folder)
@@ -34,6 +36,7 @@ class ModuleClass(SessionManager):
         # Load output data to be ready for prediction
         self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
                                     input_data_project_folder=self.input_data_project_folder)
+        print(self.loader.in_df.shape)
 
         # Load models
         for model in self.models_list:
@@ -42,22 +45,29 @@ class ModuleClass(SessionManager):
             self.loader.final_features = model_pkl.final_features
 
             # Predictions
-            self.loader.in_df[f"predict_{model}"] = model_pkl.model.predict_proba(self.loader.in_df[self.loader.final_features])[:, 1]
+            self.loader.in_df[f"predict_{model}"] = model_pkl.model.predict_proba(
+                self.loader.in_df[self.loader.final_features])[:, 1]
             self.loader.in_df[f"predict_{model}"] = self.loader.in_df[f"predict_{model}"].round(5)
 
             # todo: add precision score calculations for the last 2800 (dynamic) rows as validation that the model is still performing
 
-            predict_last_row = model_pkl.model.predict_proba(self.loader.in_df[self.loader.final_features].iloc[[-1]])[0][1]
+            predict_last_row = \
+                model_pkl.model.predict_proba(self.loader.in_df[self.loader.final_features].iloc[[-1]])[0][1]
             if predict_last_row < 0.01:
                 predict_last_row = 0.01
             predict_last_row = round(float(predict_last_row), 5)
             self.loader.in_df[f"predict_last_{model}"] = predict_last_row
+            self.loader.in_df["model"] = self.project_name
 
         predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close"]
         for col in self.loader.in_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
-        self.loader.in_df[predict_columns].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
+        self.loader.in_df[predict_columns].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
+                                                  index=False)
+
+        if definitions.api_url_post_results_predict:
+            api_communication.api_post(definitions.api_url_post_results_predict, self.loader.in_df[predict_columns])
 
         print_end()
         sys.stdout = sys.__stdout__  # enable print

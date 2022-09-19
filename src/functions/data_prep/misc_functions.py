@@ -128,6 +128,7 @@ def create_dict_based_on_col_name_contains(input_df_cols, text):
 
 def create_ratios(df, columns):
     temp = []
+
     for col in columns:
         temp.append(col)
         for col2 in columns:
@@ -136,7 +137,7 @@ def create_ratios(df, columns):
             else:
                 df[col + '_div_ratio_' + col2] = df[col] / df[col2]
                 df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)
-    print_and_log('[ RATIOS ] Feat eng: Ratios created', '')
+    print_and_log(f'[ RATIOS ] Feat eng: Ratios created:', '')
     return df
 
 
