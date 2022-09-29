@@ -17,7 +17,10 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols):
         else:
             numerical_cols.remove(el)
             removed.append(el)
-    print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {removed}", 'YELLOW')
+    if len(removed) > 30:
+        print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {len(removed)}", 'YELLOW')
+    else:
+        print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {removed}", 'YELLOW')
     return final_features, numerical_cols
 
 
@@ -38,8 +41,8 @@ def switch_numerical_to_object_column(input_df, numerical_cols, object_cols):
             numerical_cols.remove(el)
             object_cols.append(el)
             switched.append(el)
-    print_and_log(
-                f'[ SWITCH TYPE ] Switching type from number to object since nb of categories is below 20 ({switched})', '')
+    """print_and_log(
+                f'[ SWITCH TYPE ] Switching type from number to object since nb of categories is below 20 ({switched})', '')"""
     return numerical_cols, object_cols
 
 
@@ -82,10 +85,10 @@ def split_columns_by_types(df, params):
     dates_cols = df.select_dtypes(include=['datetime', 'datetime64', 'datetime64[ns]']).columns.to_list()
     categorical_cols = df.select_dtypes(include=['category']).columns.to_list()
 
-    print_and_log(f'[ SPLIT COLUMNS ] Columns split by types cat: {categorical_cols}', '')
+    """print_and_log(f'[ SPLIT COLUMNS ] Columns split by types cat: {len(categorical_cols)}', '')
     print_and_log(f'[ SPLIT COLUMNS ] Columns split by types num: {numerical_cols}', '')
     print_and_log(f'[ SPLIT COLUMNS ] Columns split by types obj: {object_cols}', '')
-    print_and_log(f'[ SPLIT COLUMNS ] Columns split by types dat: {dates_cols}', '')
+    print_and_log(f'[ SPLIT COLUMNS ] Columns split by types dat: {dates_cols}', '')"""
 
     categorical_cols, dates_cols, numerical_cols, object_cols = remove_columns_to_exclude(categorical_cols,
                                                                                           dates_cols,
@@ -169,6 +172,10 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
 
         a = a[a > 0.05]
         a = a[a < 0.4]
+
+        if len(a) > 100:
+            a = a.sort_values(ascending=False)
+            a = a[:100]
 
         corr_cols = a.index.to_list()
         corr_cols_removed = b.index.to_list()

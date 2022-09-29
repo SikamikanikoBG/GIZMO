@@ -11,9 +11,18 @@ from src import BaseLoader, print_and_log
 
 class SessionManager:
     def __init__(self, args):
-        self.start = datetime.now()  # .strftime("%Y-%m-%d_%H:%M:%S")
+        self.check4_time_runtime = None
+        self.check3_time_runtime = None
+        self.check2_time_runtime = None
+        self.check1_time_runtime = None
+        self.start_time = datetime.now()  # .strftime("%Y-%m-%d_%H:%M:%S")
         self.end_time = None
         self.run_time = None
+        self.data_load_time = None
+        self.check1_time = None
+        self.check2_time = None
+        self.check3_time = None
+        self.check4_time = None
         self.session_id = None
         self.params = None
         self.args = args
@@ -29,13 +38,13 @@ class SessionManager:
         # folder structure properties
         if self.args.data_prep_module:
             self.log_file_name = 'load_' + self.args.data_prep_module + '_' + self.project_name + '_' + str(
-                self.start) + '_' + self.tag + ".log"
+                self.start_time) + '_' + self.tag + ".log"
         elif self.args.train_module:
             self.log_file_name = 'train_' + self.args.train_module + '_' + self.project_name + '_' + str(
-                self.start) + '_' + self.tag + ".log"
+                self.start_time) + '_' + self.tag + ".log"
         elif self.args.predict_module:
             self.log_file_name = 'predict_' + self.args.predict_module + '_' + self.project_name + '_' + str(
-                self.start) + '_' + self.tag + ".log"
+                self.start_time) + '_' + self.tag + ".log"
         self.log_folder_name = definitions.ROOT_DIR + '/logs/'
         self.session_folder_name = definitions.ROOT_DIR + '/sessions/'
         self.session_id_folder = None
@@ -134,4 +143,18 @@ class SessionManager:
 
         """
         self.end_time = datetime.now()
-        self.run_time = round(float((self.end_time - self.start).total_seconds()), 2)
+        self.run_time = round(float((self.end_time - self.start_time).total_seconds()), 2)
+        if self.check1_time:
+            self.check1_time_runtime = round(float((self.check1_time - self.start_time).total_seconds()), 2)
+        if self.check2_time:
+            self.check2_time_runtime = round(float((self.check2_time - self.check1_time).total_seconds()), 2)
+        if self.check3_time:
+            self.check3_time_runtime = round(float((self.check3_time - self.check2_time).total_seconds()), 2)
+        if self.check4_time:
+            self.check4_time_runtime = round(float((self.check4_time - self.check3_time).total_seconds()), 2)
+
+        print_and_log(f"RUN time: {self.run_time}, "
+                      f"Check1 time: {self.check1_time_runtime}c, "
+                      f"Check2 time: {self.check2_time_runtime}c, "
+                      f"Check3 time: {self.check3_time_runtime}c, "
+                      f"Check4 time: {self.check4_time_runtime}c, ", "YELLOW")

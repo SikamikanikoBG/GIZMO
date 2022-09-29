@@ -67,13 +67,12 @@ class BaseLoader:
                 else:
                     additional_file_df = load_from_parquet(in_data_folder, in_data_proj_folder, file)
 
-                #todo remove comment
-                """try:
+                try:
                     if self.params["custom_calculations"]:
                         additional_file_df = module_lib.run(additional_file_df)
                 except Exception as e:
                     print_and_log(f"[ ADDITIONAL TABLES ] Cannot process {file} with custom calcs. Skipping...", "RED")
-                    pass"""
+                    pass
                 self.additional_files_df_dict.append(additional_file_df)
 
         if self.params["under_sampling"]:

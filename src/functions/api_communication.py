@@ -7,8 +7,11 @@ def api_post(url, data):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     try:
         response = requests.post(url=url, data=data, headers=headers)
+        return response
     except Exception as e:
         print(e)
+        return e
+
 
 
 

@@ -57,14 +57,14 @@ def columns_to_lower_case_names(df):
 def calculate_indicators(df):
     stock_df = Sdf.retype(df)
     # periods = ["14", "60", "240", "480"]
-    periods = ["14", "480", "1440", "2800"]
+    periods = ["14", "240", "2800"]
     columns = ['open']
     # columns = ['open', 'high', 'low', 'close', 'volume', 'spread']
     for period in periods:
         for col in columns:
             df[col + '_' + period + '_ema'] = stock_df[col + '_' + period + '_ema']
-            df[col + '_' + period + '_delta'] = stock_df[col + '_-' + period + '_d']
-            df[col + '_' + period + '_smma'] = stock_df[col + '_' + period + '_smma']
+            #df[col + '_' + period + '_delta'] = stock_df[col + '_-' + period + '_d']
+            #df[col + '_' + period + '_smma'] = stock_df[col + '_' + period + '_smma']
             #df[col + '_' + period + '_ups_c'] = stock_df['ups_' + period + '_c']
             #df[col + '_' + period + '_downs_c'] = stock_df['downs_' + period + '_c']
         df['rsi_' + period] = stock_df['rsi_' + period]
@@ -72,10 +72,10 @@ def calculate_indicators(df):
         df['wr_' + period] = stock_df['wr_' + period]
         df['cci_' + period] = stock_df['cci_' + period]
         df['atr_' + period] = stock_df['atr_' + period]
-        df['middle_' + period + '_trix'] = stock_df['middle_' + period + '_trix']
-        df['middle_' + period + '_tema'] = stock_df['middle_' + period + '_tema']
-        df['kdjk_' + period] = stock_df['kdjk_' + period]
-        df['vwma_' + period] = stock_df['vwma_' + period]
+        #df['middle_' + period + '_trix'] = stock_df['middle_' + period + '_trix']
+        #df['middle_' + period + '_tema'] = stock_df['middle_' + period + '_tema']
+        #df['kdjk_' + period] = stock_df['kdjk_' + period]
+        #df['vwma_' + period] = stock_df['vwma_' + period]
 
     df['dma'] = stock_df['dma']
     df['pdi'] = stock_df['pdi']
@@ -84,8 +84,8 @@ def calculate_indicators(df):
     df['adx'] = stock_df['adx']
     df['adxr'] = stock_df['adxr']
 
-    df['cr'] = stock_df['cr']
-    df['ppo'] = stock_df['ppo']
+    #df['cr'] = stock_df['cr']
+    #df['ppo'] = stock_df['ppo']
     df['log-ret'] = stock_df['log-ret']
     df['macd_feat'] = stock_df['macd']
     df['macds_feat'] = stock_df['macds']

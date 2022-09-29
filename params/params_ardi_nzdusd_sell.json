@@ -18,8 +18,7 @@
  "optimal_binning_columns": [],
  "_additional_tables": {},
   "additional_tables": {"daily_stock_data_month_AUDUSD.parquet":["time"],
-    "daily_stock_data_month_GBPUSD.parquet": ["time"],
-    "daily_stock_data_month_AUDCAD.parquet":["time"]},
+    "daily_stock_data_month_GBPUSD.parquet": ["time"]},
   "__additional_tables": {
 "daily_stock_data_month_EURCAD.parquet": ["time"],
 "daily_stock_data_month_EURCHF.parquet":["time"],

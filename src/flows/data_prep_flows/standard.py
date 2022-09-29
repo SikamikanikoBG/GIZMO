@@ -20,6 +20,7 @@ from src.functions.printing_and_logging import print_end, print_and_log, print_l
 class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
+        self.predict_session_flag = None
 
     def run(self):
         """
@@ -125,6 +126,7 @@ class ModuleClass(SessionManager):
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             ratios_cols)
+        print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         if self.optimal_binning_columns:
             self.optimal_binning_procedure()
@@ -142,13 +144,18 @@ class ModuleClass(SessionManager):
             if el not in self.loader.in_df.columns:
                 self.loader.final_features.remove(el)
 
+        print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
+
         all_columns = self.loader.in_df.columns.to_list()
 
-        for el in all_columns[:]:
-            if el not in self.loader.in_df_f.columns:
-                all_columns.remove(el)
-                if el in self.loader.final_features[:]:
-                    self.loader.final_features.remove(el)
+        if self.under_sampling:
+            for el in all_columns[:]:
+                if el not in self.loader.in_df_f.columns:
+                    all_columns.remove(el)
+                    if el in self.loader.final_features[:]:
+                        self.loader.final_features.remove(el)
+
+        print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         # self.loader.in_df = self.loader.in_df[all_columns].copy()
         if self.under_sampling:

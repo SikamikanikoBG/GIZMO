@@ -181,7 +181,7 @@ class ModuleClass(SessionManager):
 
     def create_train_session_folder(self):
         print_and_log('Createing session folder. Starting', 'YELLOW')
-        self.session_id = 'TRAIN_' + self.input_data_project_folder + '_' + str(self.start) + '_' + self.tag
+        self.session_id = 'TRAIN_' + self.input_data_project_folder + '_' + str(self.start_time) + '_' + self.tag
         self.session_id_folder = self.session_folder_name + self.session_id
         os.mkdir(self.session_id_folder)
         os.mkdir(self.session_id_folder + '/dt/')

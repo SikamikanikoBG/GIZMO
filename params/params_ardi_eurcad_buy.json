@@ -18,11 +18,7 @@
  "optimal_binning_columns": [],
  "_additional_tables": {},
   "additional_tables": {"daily_stock_data_month_GBPUSD.parquet":["time"],
-    "daily_stock_data_month_EURUSD.parquet": ["time"],
-    "daily_stock_data_month_EURJPY.parquet":["time"],
-  "daily_stock_data_month_XAUUSD.parquet": ["time"],
-  "daily_stock_data_month_CADJPY.parquet":["time"],
-  "daily_stock_data_month_GBPAUD.parquet":["time"]},
+    "daily_stock_data_month_EURUSD.parquet": ["time"]},
   "__additional_tables": {
 "daily_stock_data_month_EURCAD.parquet": ["time"],
 "daily_stock_data_month_EURCHF.parquet":["time"],

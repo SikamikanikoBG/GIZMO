@@ -13,9 +13,9 @@ from src.functions import api_communication
 
 grid_param = {"tp": [0.0025, 0.0040, 0.0060],
               "sl": [0.0020, 0.0040, 0.0060, 0.0080, 0.0100],
-              "period": [120, 240, 480, 720],
-              "t_val_size_per_period": [2800],
-              "training_rows": [7000, 15000],
+              "period": [120, 240, 480],
+              "t_val_size_per_period": [1300],
+              "training_rows": [4000, 5000, 7000],
               "nb_features": [30, 50]
               }
 
@@ -91,6 +91,7 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
     try:
         models_loop = pd.read_csv(f"{latest_train_session_dir}/models.csv")
         models_loop['combination'] = tag
+        os.rmdir(f"{latest_train_session_dir}/models.csv")
     except Exception as e:
         models_loop = pd.DataFrame()
         models_loop['combination'] = f"UNSUCCESSFUL: {tag}_{e}"
@@ -113,7 +114,7 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
                                 combination[5])
     results_df = results_df.append(models_loop_df)
-
+    models_loop_df['currency'] = project
     time_end = datetime.now()
     time = time_end - time_start
     time_remaining = (a - b) * time
@@ -122,5 +123,8 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
 
     results_df['currency'] = project
     if definitions.api_url_post_models_simulations:
-        api_communication.api_post(definitions.api_url_post_models_simulations, results_df)
+        try:
+            api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
+        except:
+            pass
     results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
