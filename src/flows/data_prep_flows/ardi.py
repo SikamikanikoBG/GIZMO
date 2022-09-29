@@ -52,6 +52,7 @@ class ModuleClass(SessionManager):
 
     def data_cleaning(self):  # start data cleaning
 
+        print(f"Check: {self.loader.in_df['atr_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
@@ -93,16 +94,19 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ]  remove categorical cols with too many values', '')
         object_cols = remove_categorical_cols_with_too_many_values(self.loader.in_df, object_cols)
 
+        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
         # treat specified numerical as objects
         print_and_log('[ DATA CLEANING ]  Switching type from number to object since nb of categories is below 20', "")
         numerical_cols, object_cols = switch_numerical_to_object_column(self.loader.in_df, numerical_cols,
                                                                         object_cols)
 
+        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
         # convert objects to categories and get dummies
         print_and_log('[ DATA CLEANING ]  Converting objects to dummies', "")
         self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
                                                                                     self.loader.in_df_f,
                                                                                     object_cols, self.params)
+
 
         # create cat and dummies dictionaries
         object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
@@ -115,22 +119,24 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            numerical_cols)
+                                                                                            numerical_cols, self.params["columns_to_include"])
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
-        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols)
+        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.params["columns_to_include"])
         if self.under_sampling:
-            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols)
+            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.params["columns_to_include"])
 
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
+
+        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF_div_ratio_atr_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
 
         # Check correlation
         print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            ratios_cols)
+                                                                                            ratios_cols, self.params["columns_to_include"])
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         if self.optimal_binning_columns:
@@ -143,6 +149,10 @@ class ModuleClass(SessionManager):
             self.loader.in_df_f = missing_values(df=self.loader.in_df_f,
                                                  missing_treatment=self.missing_treatment,
                                                  input_data_project_folder=self.input_data_project_folder)
+
+        for col in self.params["columns_to_include"]:
+            if col not in self.loader.final_features[:]:
+                self.loader.final_features.append(col)
 
         # check if some final features were deleted
         for el in self.loader.final_features[:]:
@@ -160,8 +170,6 @@ class ModuleClass(SessionManager):
                     if el in self.loader.final_features[:]:
                         self.loader.final_features.remove(el)
 
-        print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
-
         # self.loader.in_df = self.loader.in_df[all_columns].copy()
         if self.under_sampling:
             self.loader.in_df_f = self.loader.in_df_f[all_columns].copy()
@@ -171,7 +179,8 @@ class ModuleClass(SessionManager):
                                                         y=self.loader.in_df[self.criterion_column],
                                                         input_data_project_folder=self.input_data_project_folder,
                                                         flag_matrix=None,
-                                                        session_id_folder=None, model_corr='', flag_raw='')
+                                                        session_id_folder=None, model_corr='', flag_raw='',
+                                                        keep_cols=self.params["columns_to_include"])
 
     def optimal_binning_procedure(self):
         binned_numerical = self.optimal_binning_columns
@@ -187,14 +196,14 @@ class ModuleClass(SessionManager):
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                               self.loader.final_features[:])
+                                                                               self.loader.final_features[:], self.params["columns_to_include"])
 
         # Check correlation
         print_and_log(' Checking correlation one more time now with binned ', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, binned_numerical = remove_column_if_not_in_final_features(
             self.loader.final_features,
-            binned_numerical)
+            binned_numerical, self.params["columns_to_include"])
 
     def merging_additional_files_procedure(self):
         count = 0

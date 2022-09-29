@@ -11,7 +11,7 @@ import definitions
 
 from src.functions import api_communication
 
-grid_param = {"tp": [0.0025, 0.0040, 0.0060],
+grid_param_standard = {"tp": [0.0025, 0.0040, 0.0060],
               "sl": [0.0020, 0.0040, 0.0060, 0.0080, 0.0100],
               "period": [120, 240, 480],
               "t_val_size_per_period": [1300],
@@ -19,29 +19,14 @@ grid_param = {"tp": [0.0025, 0.0040, 0.0060],
               "nb_features": [30, 50]
               }
 
-grid_param_ = {"tp": [0.0025, 0.0040],
-               "sl": [0.0040, 0.0080],
-               "period": [720],
-               "t_val_size_per_period": [2800],
-               "training_rows": [7000, 15000],
-               "nb_features": [30, 50, 70]
-               }
+grid_param = {"tp": [0.0025],
+              "sl": [0.0080],
+              "period": [480],
+              "t_val_size_per_period": [1300],
+              "training_rows": [4000],
+              "nb_features": [30]
+              }
 
-grid_param_eurcad = {"tp": [0.0025],
-                     "sl": [0.0080],
-                     "period": [720],
-                     "t_val_size_per_period": [2800],
-                     "training_rows": [7000],
-                     "nb_features": [30]
-                     }
-
-grid_param___ = {"tp": [0.0025],
-                 "sl": [0.0040],
-                 "period": [720],
-                 "t_val_size_per_period": [2800],
-                 "training_rows": [15000],
-                 "nb_features": [50]
-                 }
 
 results_df = pd.DataFrame()
 
@@ -91,7 +76,7 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
     try:
         models_loop = pd.read_csv(f"{latest_train_session_dir}/models.csv")
         models_loop['combination'] = tag
-        os.rmdir(f"{latest_train_session_dir}/models.csv")
+        #os.rmdir(f"{latest_train_session_dir}/models.csv")
     except Exception as e:
         models_loop = pd.DataFrame()
         models_loop['combination'] = f"UNSUCCESSFUL: {tag}_{e}"

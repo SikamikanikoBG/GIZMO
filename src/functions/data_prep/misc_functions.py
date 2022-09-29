@@ -9,7 +9,7 @@ from src.functions.modelling.modelling_functions import cut_into_bands
 from src.functions.printing_and_logging import print_and_log
 
 
-def remove_column_if_not_in_final_features(final_features, numerical_cols):
+def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_cols):
     removed = []
     for el in numerical_cols[:]:
         if el in final_features:
@@ -17,6 +17,14 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols):
         else:
             numerical_cols.remove(el)
             removed.append(el)
+
+    for col in removed:
+        for col2 in keep_cols:
+            if col == col2:
+                numerical_cols.append(col)
+            elif col in col2:
+                numerical_cols.append(col)
+
     if len(removed) > 30:
         print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {len(removed)}", 'YELLOW')
     else:
@@ -129,17 +137,29 @@ def create_dict_based_on_col_name_contains(input_df_cols, text):
     return collection_cols
 
 
-def create_ratios(df, columns):
+def create_ratios(df, columns, columns_to_include):
+    shortlist = []
     temp = []
 
-    for col in columns:
-        temp.append(col)
-        for col2 in columns:
-            if col2 in temp:
-                pass
-            else:
+    if columns_to_include:
+        for col in columns:
+            for col_keep in columns_to_include:
+                if col == col_keep or col in col_keep:
+                    shortlist.append(col)
+        for col in shortlist:
+            temp.append(col)
+            for col2 in shortlist:
                 df[col + '_div_ratio_' + col2] = df[col] / df[col2]
                 df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)
+    else:
+        for col in columns:
+            temp.append(col)
+            for col2 in columns:
+                if col2 in temp:
+                    pass
+                else:
+                    df[col + '_div_ratio_' + col2] = df[col] / df[col2]
+                    df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)
     print_and_log(f'[ RATIOS ] Feat eng: Ratios created:', '')
     return df
 
@@ -160,7 +180,7 @@ def create_tree_feats(df, columns, criterion):
     return df
 
 
-def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_folder, model_corr, flag_raw):
+def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_folder, model_corr, flag_raw, keep_cols):
     corr_cols = []
     if flag_matrix != 'all':
         a = X.corrwith(y)
@@ -186,6 +206,14 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
                 pass
             else:
                 corr_cols_removed.append(el)
+
+        for col in corr_cols_removed[:]:
+            for col2 in keep_cols:
+                if col == col2:
+                    corr_cols.append(col)
+                elif col in col2:
+                    corr_cols.append(col)
+
         print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {len(corr_cols)} columns', '')
     else:
         a = X.corr()
