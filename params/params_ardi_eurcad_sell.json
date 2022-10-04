@@ -45,5 +45,6 @@
     "dt": [],
     "rf": []
   },
-  "under_sampling": ""
+  "under_sampling": "",
+  "columns_to_include": []
 }

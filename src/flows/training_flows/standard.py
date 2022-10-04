@@ -1,6 +1,5 @@
 import os
 import pickle
-from multiprocessing import Pool
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -156,7 +155,7 @@ class ModuleClass(SessionManager):
                            input_data_project_folder=None,
                            session_id_folder=self.session_id_folder,
                            model_corr=model_type,
-                           flag_raw='')
+                           flag_raw='', keep_cols=None)
         globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(globals()['self.modeller_' + model_type].final_features)
         correlation_matrix(X=self.loader.train_X[globals()['self.modeller_' + model_type].raw_features],
                            y=None,
@@ -164,7 +163,7 @@ class ModuleClass(SessionManager):
                            input_data_project_folder=None,
                            session_id_folder=self.session_id_folder,
                            model_corr=model_type,
-                           flag_raw='yes')
+                           flag_raw='yes', keep_cols=None)
 
     def training_models_fit_procedure(self, model_type):
         if self.under_sampling:

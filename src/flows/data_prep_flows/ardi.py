@@ -52,7 +52,7 @@ class ModuleClass(SessionManager):
 
     def data_cleaning(self):  # start data cleaning
 
-        print(f"Check: {self.loader.in_df['atr_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
+
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
@@ -94,13 +94,13 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ]  remove categorical cols with too many values', '')
         object_cols = remove_categorical_cols_with_too_many_values(self.loader.in_df, object_cols)
 
-        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
+
         # treat specified numerical as objects
         print_and_log('[ DATA CLEANING ]  Switching type from number to object since nb of categories is below 20', "")
         numerical_cols, object_cols = switch_numerical_to_object_column(self.loader.in_df, numerical_cols,
                                                                         object_cols)
 
-        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
+
         # convert objects to categories and get dummies
         print_and_log('[ DATA CLEANING ]  Converting objects to dummies', "")
         self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
@@ -129,8 +129,6 @@ class ModuleClass(SessionManager):
 
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
-
-        print(f"Check: {self.loader.in_df['rs_2800_RN1_daily_stock_data_month_GBPCHF_div_ratio_atr_2800_RN1_daily_stock_data_month_GBPCHF'].head(1)}")
 
         # Check correlation
         print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
@@ -173,6 +171,13 @@ class ModuleClass(SessionManager):
         # self.loader.in_df = self.loader.in_df[all_columns].copy()
         if self.under_sampling:
             self.loader.in_df_f = self.loader.in_df_f[all_columns].copy()
+
+        # remove duplicated features
+        results_check = []
+        for el in self.loader.final_features:
+            if el not in results_check:
+                results_check.append(el)
+        self.loader.final_features = results_check.copy()
 
     def remove_final_features_with_low_correlation(self):
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],
