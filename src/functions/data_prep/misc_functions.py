@@ -146,8 +146,12 @@ def create_ratios(df, columns, columns_to_include):
             for col_keep in columns_to_include:
                 if col == col_keep or col in col_keep:
                     shortlist.append(col)
+        for el in shortlist:
+            if el not in temp:
+                temp.append(el)
+        shortlist = temp.copy()
+
         for col in shortlist:
-            temp.append(col)
             for col2 in shortlist:
                 df[col + '_div_ratio_' + col2] = df[col] / df[col2]
                 df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)

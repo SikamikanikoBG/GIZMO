@@ -17,8 +17,8 @@ class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
         self.main_model = args.main_model.lower()
-        #self.models_list = ['xgb', 'rf', 'dt']
-        self.models_list = ['xgb']
+        self.models_list = ['xgb', 'rf', 'dt']
+        #self.models_list = ['xgb']
         self.args = args
         self.output_df = None
 
@@ -67,19 +67,31 @@ class ModuleClass(SessionManager):
             if predict_last_row < 0.01:
                 predict_last_row = 0.01
             predict_last_row = round(float(predict_last_row), 5)
-            self.output_df[f"predict_last_{model}"] = predict_last_row
-            self.output_df["model"] = self.project_name
+            # self.output_df[f"predict_last_{model}"] = predict_last_row
+        self.output_df["symbol"] = self.params["symbol"]
+        self.output_df["direction"] = self.params["direction"]
+        self.output_df["version"] = self.params["model_version"]
+        self.output_df["tp"] = self.args.tp
+        self.output_df["sl"] = self.args.sl
+        self.output_df["period"] = self.args.period
+        self.output_df["nb_features"] = self.args.nb_tree_features
 
-        predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close"]
+        # --project ardi_eurchf_sell --predict_module standard --main_model xgb --pred_data_prep ardi --tp 0.0025 --sl 0.0080 --period 480 --nb_tree_features 30
+
+        predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol", "direction", "version"]
         for col in self.output_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
-        self.output_df[predict_columns].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
 
+
+
+        # store results
+        self.output_df[predict_columns].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
         if definitions.api_url_post_results_predict:
             try:
-                api_communication.api_post(definitions.api_url_post_results_predict, self.loader.in_df[predict_columns])
-            except:
+                api_communication.api_post(definitions.api_url_post_results_predict, self.output_df[predict_columns])
+            except Exception as e:
+                print(f"ERROR API: {e}")
                 pass
 
         print_end()

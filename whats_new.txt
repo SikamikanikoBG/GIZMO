@@ -1,3 +1,4 @@
+3.13.2 - api communication fixed, ration creation small bug fixed (duplicated values in shortlisted columns)
 3.13.1 - bug fix ardi data prep flow and gris search
 3.13.0 - predict session added
 3.12.0 - cap in nb of predictors based on correl - max 50/100 to make the process faster. Check times added in session manager. Api communication module fixed.
