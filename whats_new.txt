@@ -1,3 +1,5 @@
+3.14.0 - load_data changed to use argumens - volumes and session type to know which API to use
+3.13.3 - data load bug fix
 3.13.2 - api communication fixed, ration creation small bug fixed (duplicated values in shortlisted columns)
 3.13.1 - bug fix ardi data prep flow and gris search
 3.13.0 - predict session added

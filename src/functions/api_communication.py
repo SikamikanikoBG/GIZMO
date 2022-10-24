@@ -21,5 +21,6 @@ def api_get(url, conditions):
     if conditions:
         url = url + conditions
     response = requests.get(url)
+    print(f"Response status: {response.status_code}")
     df_received_data = pd.read_json(response.content)
     return df_received_data

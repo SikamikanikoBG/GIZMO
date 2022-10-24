@@ -53,12 +53,15 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     models_loop_df['currency'] = project
     results_df = results_df.append(models_loop_df)
 
+
+    results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
+
     if definitions.api_url_post_models_simulations:
         try:
-            api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
+            results_df = results_df[~results_df["DataSet"].isin(['test_X', 'train_X'])].copy()
+            api_communication.api_post(definitions.api_url_post_models_simulations, results_df)
         except:
             pass
-    results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
 
     time_end = datetime.now()
     time = time_end - time_start
