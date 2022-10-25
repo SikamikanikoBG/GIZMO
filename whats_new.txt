@@ -1,3 +1,4 @@
+3.14.1 - bugs - predict.sh load_data now with arguments, standard predict session - colum to be saved enriched
 3.14.0 - load_data changed to use argumens - volumes and session type to know which API to use
 3.13.3 - data load bug fix
 3.13.2 - api communication fixed, ration creation small bug fixed (duplicated values in shortlisted columns)

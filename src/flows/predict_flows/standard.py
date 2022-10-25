@@ -75,10 +75,11 @@ class ModuleClass(SessionManager):
         self.output_df["sl"] = self.args.sl
         self.output_df["period"] = self.args.period
         self.output_df["nb_features"] = self.args.nb_tree_features
+        self.output_df["time_stamp"] = self.start_time
 
         # --project ardi_eurchf_sell --predict_module standard --main_model xgb --pred_data_prep ardi --tp 0.0025 --sl 0.0080 --period 480 --nb_tree_features 30
 
-        predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol", "direction", "version"]
+        predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol", "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp"]
         for col in self.output_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
