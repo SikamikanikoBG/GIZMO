@@ -1,3 +1,4 @@
+3.14.3 - load_data - try except added for storing the data in case some input directory does not exists
 3.14.2 - baseloader - accepts argument predict_module to know if it should skip some procedures unneeded for predict
 3.14.1 - bugs - predict.sh load_data now with arguments, standard predict session - colum to be saved enriched
 3.14.0 - load_data changed to use argumens - volumes and session type to know which API to use

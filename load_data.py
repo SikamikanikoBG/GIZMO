@@ -40,7 +40,11 @@ try:
 
     for currency in in_data.Currency.unique().tolist():
         for folder in folders:
-            in_data[in_data['Currency'] == currency].sort_values(by='time', ascending=True).tail(volumes).to_parquet(f'./input_data/{folder}/daily_stock_data_month_{currency}.parquet')
+            try:
+                in_data[in_data['Currency'] == currency].sort_values(by='time', ascending=True).tail(volumes).to_parquet(f'./input_data/{folder}/daily_stock_data_month_{currency}.parquet')
+            except Exception as e:
+                print(e)
+                pass
 
     cutting_time = datetime.datetime.now()
 
