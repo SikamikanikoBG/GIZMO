@@ -16,7 +16,7 @@ def run(df):
     return df
 
 
-def calculate_criterion(df):
+def calculate_criterion(df, predict_module):
     profit_pips = float(definitions.args.tp)
     loss_pips = float(definitions.args.sl) #.0050
     period = int(definitions.args.period) #480
@@ -38,9 +38,13 @@ def calculate_criterion(df):
     print_and_log(f"Criterion BUY: {criterion_buy}, "
           f"Criterion SELL: {criterion_sell}", "")
 
-    if df['criterion_buy'].sum() == 0 or df['criterion_sell'].sum()==0 or df['criterion_buy'].sum() == 1 or df['criterion_sell'].sum()==1:
+    if predict_module:
+        pass
+    elif df['criterion_buy'].sum() == 0 or df['criterion_sell'].sum()==0 or df['criterion_buy'].sum() == 1 or df['criterion_sell'].sum()==1:
         print_and_log(f"ERROR: Only one value in Criterion. Quitting!", "RED")
         quit()
+    else:
+        pass
     return df
 
 

@@ -78,7 +78,7 @@ class SessionManager:
             logging.error(e)
             quit()
 
-        self.loader = BaseLoader(params=self.params)
+        self.loader = BaseLoader(params=self.params, predict_module=self.args.predict_module)
         if self.args.data_prep_module:
             self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
                                        in_data_proj_folder=self.input_data_project_folder)

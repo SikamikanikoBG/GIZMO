@@ -31,7 +31,6 @@ class ModuleClass(SessionManager):
         self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
                                    in_data_proj_folder=self.input_data_project_folder)
 
-
         module_prep = self.args.pred_data_prep.lower()
         module_prep_lib = importlib.import_module(f'src.flows.data_prep_flows.{module_prep}')
         
@@ -75,7 +74,7 @@ class ModuleClass(SessionManager):
         self.output_df["sl"] = self.args.sl
         self.output_df["period"] = self.args.period
         self.output_df["nb_features"] = self.args.nb_tree_features
-        self.output_df["time_stamp"] = self.start_time
+        self.output_df["time_stamp"] = str(self.start_time.strftime("%Y-%m-%d %H:%M:%S"))
 
         # --project ardi_eurchf_sell --predict_module standard --main_model xgb --pred_data_prep ardi --tp 0.0025 --sl 0.0080 --period 480 --nb_tree_features 30
 

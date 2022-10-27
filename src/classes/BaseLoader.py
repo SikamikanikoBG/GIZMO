@@ -21,7 +21,7 @@ def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
 
 
 class BaseLoader:
-    def __init__(self, params):
+    def __init__(self, params, predict_module):
         self.additional_files_df_dict = []
         self.in_df, self.in_df_f = pd.DataFrame(), pd.DataFrame()
         self.params = params
@@ -31,6 +31,7 @@ class BaseLoader:
             pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
         self.y_train, self.y_train_us, self.y_test, self.y_test_us, self.t1df_y, self.t2df_y, self.t3df_y = \
             None, None, None, None, None, None, None
+        self.predict_module = predict_module
 
     def data_load_prep(self, in_data_folder, in_data_proj_folder):
         """
@@ -54,7 +55,7 @@ class BaseLoader:
         if self.params["custom_calculations"]:
             module_lib = import_module(f'src.custom_calculations.{self.params["custom_calculations"]}')
             self.in_df = module_lib.run(self.in_df)
-            self.in_df = module_lib.calculate_criterion(self.in_df)
+            self.in_df = module_lib.calculate_criterion(self.in_df, self.predict_module)
 
         self.in_df = remove_periods_from_df(self.in_df, self.params)
 

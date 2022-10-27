@@ -16,6 +16,7 @@ folders = ["ardi_audnzd_sell",
            "ardi_eurcad_buy",
            "ardi_eurcad_sell",
            "ardi_eurchf_sell",
+            "ardi_eurchf_buy",
            "ardi_nzdusd_sell"]
 
 if session == 'predict':

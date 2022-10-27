@@ -19,6 +19,7 @@ def before_train_dedicate_temp_validation_periods(t_val_size_per_period, trainin
     if training_rows:
         df = df.tail(3 * t_val_size_per_period + training_rows).copy()
 
+    df['time'] = pd.to_datetime(df['time'])
     df.loc[df.tail(t_val_size_per_period * 3).index, 'time'] = np.datetime64(t1)
     df.loc[df.tail(t_val_size_per_period * 2).index, 'time'] = np.datetime64(t2)
     df.loc[df.tail(t_val_size_per_period).index, 'time'] = np.datetime64(t3)
