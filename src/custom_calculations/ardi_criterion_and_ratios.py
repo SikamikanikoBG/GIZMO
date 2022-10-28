@@ -61,7 +61,7 @@ def columns_to_lower_case_names(df):
 def calculate_indicators(df):
     stock_df = Sdf.retype(df)
     # periods = ["14", "60", "240", "480"]
-    periods = ["14", "240", "2800"]
+    periods = ["14", "240", "480"]
     columns = ['open']
     # columns = ['open', 'high', 'low', 'close', 'volume', 'spread']
     for period in periods:

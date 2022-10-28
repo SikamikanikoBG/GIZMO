@@ -58,8 +58,8 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
 
     if definitions.api_url_post_models_simulations:
         try:
-            results_df = results_df[~results_df["DataSet"].isin(['test_X', 'train_X'])].copy()
-            api_communication.api_post(definitions.api_url_post_models_simulations, results_df)
+            models_loop_df = models_loop_df[~models_loop_df["DataSet"].isin(['test_X', 'train_X'])].copy()
+            api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
         except:
             pass
 

@@ -1,6 +1,8 @@
 import datetime
 import argparse
 
+import pandas as pd
+
 import definitions
 from src.functions import api_communication
 
@@ -30,11 +32,9 @@ start_time = datetime.datetime.now()
 
 try:
     in_data = api_communication.api_get(url, None)
-
+    in_data["time"] = pd.datetime(in_data["time"])
     columns_reorder = ['time', 'open', 'high', 'low', 'close', 'volume', 'spread', 'real_volume', 'Currency']
-
     in_data = in_data[columns_reorder].copy()
-    #in_data.to_parquet(f'./input_data/ardi/daily_stock_data_month_test.parquet')
     api_time = datetime.datetime.now()
 
 
