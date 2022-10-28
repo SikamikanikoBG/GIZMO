@@ -27,7 +27,7 @@ def before_train_dedicate_temp_validation_periods(t_val_size_per_period, trainin
     df.to_parquet(f'./output_data/{project}/output_data_file.parquet')
 
 
-def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_features, project):
+def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_features, project, winner):
     subprocess.call(["python", "main.py", "--project", f"{project}",
                      "--data_prep_module", "ardi", "--tp", str(tp), "--sl", str(sl), "--period", str(period)],
                     stdout=open(f"{definitions.ROOT_DIR}/logs/grid_results_{project}.txt", "a"))
@@ -47,7 +47,8 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
         models_loop = pd.read_csv(f"{latest_train_session_dir}/models.csv")
         models_loop['combination'] = tag
         models_loop['time'] = datetime.now().strftime('%Y%m%d')
-        shutil.rmtree(latest_train_session_dir)
+        if not winner:
+            shutil.rmtree(latest_train_session_dir)
     except Exception as e:
         models_loop = pd.DataFrame()
         models_loop['combination'] = f"UNSUCCESSFUL: {tag}_{e}"

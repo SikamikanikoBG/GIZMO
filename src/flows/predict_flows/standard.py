@@ -1,12 +1,15 @@
 import importlib
+import json
 import pickle
 import sys
 
 import pandas as pd
 
 import definitions
+from src.classes.DfAggregator import DfAggregator
 from src.classes.SessionManager import SessionManager
 from src.functions import api_communication
+from src.functions.predict import calculate_predictors
 from src.functions.printing_and_logging import print_end, print_and_log
 
 

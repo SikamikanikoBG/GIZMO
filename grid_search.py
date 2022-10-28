@@ -17,11 +17,11 @@ grid_param = {"tp": [0.0025, 0.0040, 0.0060],
               "nb_features": [30, 50]
               }
 
-grid_param_ = {"tp": [0.0025],
-              "sl": [0.0080],
+grid_param_ = {"tp": [0.004],
+              "sl": [0.0060],
               "period": [480],
               "t_val_size_per_period": [1300],
-              "training_rows": [4000],
+              "training_rows": [10000],
               "nb_features": [30]
               }
 
@@ -30,10 +30,11 @@ results_df = pd.DataFrame()
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(description='Optional app description')
-parser.add_argument('--project', type=str,
-                    help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--project', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--winner', type=str, help='name of the project. Should  the same as the input folder and the param file.')
 args = parser.parse_args()
 project = args.project.lower()
+winner = args.winner
 
 a, b = 0, 0
 for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_param["period"],
@@ -48,7 +49,7 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     time_start = datetime.now()
 
     models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
-                                combination[5], project)
+                                combination[5], project, winner)
 
     models_loop_df['currency'] = project
     results_df = results_df.append(models_loop_df)

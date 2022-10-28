@@ -145,11 +145,8 @@ def create_ratios(df, columns, columns_to_include):
         for col in columns:
             for col_keep in columns_to_include:
                 if col == col_keep or col in col_keep:
-                    shortlist.append(col)
-        for el in shortlist:
-            if el not in temp:
-                temp.append(el)
-        shortlist = temp.copy()
+                    if col not in shortlist:
+                        shortlist.append(col)
 
         for col in shortlist:
             for col2 in shortlist:
