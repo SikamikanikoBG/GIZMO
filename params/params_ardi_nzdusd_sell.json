@@ -1,5 +1,8 @@
 {
   "criterion_column": "criterion_sell",
+  "model_version": "ardi_nzdusd_sell_v1",
+  "symbol" : "NZDUSD",
+  "direction": "sell",
   "custom_calculations": "ardi_criterion_and_ratios",
   "missing_treatment": {
     "Info": "Missing"
@@ -15,6 +18,7 @@
     "criterion_buy", "criterion_sell", "check_ROLL_min", "criterion_ROLLING_min",
     "check_ROLL_max", "criterion_ROLLING_max", "currency", "spread", "time"
   ],
+
  "optimal_binning_columns": [],
  "_additional_tables": {},
   "additional_tables": {"daily_stock_data_month_AUDUSD.parquet":["time"],

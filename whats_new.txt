@@ -1,3 +1,4 @@
+3.14.5 - load data - if folder doesnt exists - create. fixing params and adding new ones
 3.14.4 - small improvements
 3.14.3 - load_data - try except added for storing the data in case some input directory does not exists
 3.14.2 - baseloader - accepts argument predict_module to know if it should skip some procedures unneeded for predict

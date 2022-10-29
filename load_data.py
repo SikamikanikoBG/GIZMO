@@ -1,5 +1,6 @@
-import datetime
 import argparse
+import datetime
+import os
 
 import pandas as pd
 
@@ -15,17 +16,29 @@ volumes = int(args.volumes.lower())
 session = args.session.lower()
 
 folders = ["ardi_audnzd_sell",
+           "ardi_audnzd_buy",
            "ardi_eurcad_buy",
            "ardi_eurcad_sell",
            "ardi_eurchf_sell",
-            "ardi_eurchf_buy",
-           "ardi_nzdusd_sell"]
+           "ardi_eurchf_buy",
+           "ardi_nzdusd_sell",
+           "ardi_nzdusd_buy"]
+
+for folder in folders:
+    path = f'./input_data/{folder}'
+
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(path)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
 
 if session == 'predict':
     url = definitions.api_url_get_input_data
 elif session == 'gridsearch':
     url = definitions.api_url_get_history_data
 else:
+    url = None
     quit()
 
 start_time = datetime.datetime.now()
@@ -37,11 +50,11 @@ try:
     in_data = in_data[columns_reorder].copy()
     api_time = datetime.datetime.now()
 
-
     for currency in in_data.Currency.unique().tolist():
         for folder in folders:
             try:
-                in_data[in_data['Currency'] == currency].sort_values(by='time', ascending=True).tail(volumes).to_parquet(f'./input_data/{folder}/daily_stock_data_month_{currency}.parquet')
+                in_data[in_data['Currency'] == currency].sort_values(by='time', ascending=True).tail(
+                    volumes).to_parquet(f'./input_data/{folder}/daily_stock_data_month_{currency}.parquet')
             except Exception as e:
                 print(e)
                 pass

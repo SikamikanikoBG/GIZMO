@@ -1,5 +1,5 @@
 {
-  "criterion_column": "criterion_sell",
+  "criterion_column": "criterion_buy",
   "model_version": "ardi_eurcad_buy_v1",
   "symbol" : "EURCAD",
   "direction": "buy",
