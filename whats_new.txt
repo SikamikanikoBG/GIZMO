@@ -1,3 +1,4 @@
+3.15.0 - gridsearch for winning models - new parameters for grid search to produce the training sessions and not to delete them. Start it with run gridsearch winners sh
 3.14.6 - load data time pd.datetime removed
 3.14.5 - load data - if folder doesnt exists - create. fixing params and adding new ones
 3.14.4 - small improvements

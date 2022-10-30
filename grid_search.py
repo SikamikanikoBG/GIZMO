@@ -9,21 +9,7 @@ import definitions
 from src.functions import api_communication
 from src.functions.grid_search.grid_search_functions import load_train
 
-grid_param = {"tp": [0.0025, 0.0040, 0.0060],
-              "sl": [0.0040, 0.0060, 0.0080, 0.0100],
-              "period": [120, 240, 480],
-              "t_val_size_per_period": [1300],
-              "training_rows": [4000, 7000, 10000],
-              "nb_features": [30, 50]
-              }
 
-grid_param_ = {"tp": [0.004],
-              "sl": [0.0060],
-              "period": [480],
-              "t_val_size_per_period": [1300],
-              "training_rows": [10000],
-              "nb_features": [30]
-              }
 
 
 results_df = pd.DataFrame()
@@ -32,9 +18,39 @@ results_df = pd.DataFrame()
 parser = argparse.ArgumentParser(description='Optional app description')
 parser.add_argument('--project', type=str, help='name of the project. Should  the same as the input folder and the param file.')
 parser.add_argument('--winner', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--tp', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--sl', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--training_rows', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--nb_features', type=str, help='name of the project. Should  the same as the input folder and the param file.')
+parser.add_argument('--period', type=str, help='name of the project. Should  the same as the input folder and the param file.')
 args = parser.parse_args()
 project = args.project.lower()
 winner = args.winner
+training_rows = int(args.training_rows)
+nb_features = int(args.nb_features)
+tp = float(args.tp)
+sl = float(args.sl)
+period = int(args.period)
+
+if winner:
+    grid_param = {"tp": [tp],
+                   "sl": [sl],
+                   "period": [period],
+                   "t_val_size_per_period": [1300],
+                   "training_rows": [training_rows],
+                   "nb_features": [nb_features]
+                   }
+else:
+    grid_param = {"tp": [0.0025, 0.0040, 0.0060],
+              "sl": [0.0040, 0.0060, 0.0080, 0.0100],
+              "period": [120, 240, 480],
+              "t_val_size_per_period": [1300],
+              "training_rows": [4000, 7000, 10000],
+              "nb_features": [30, 50]
+              }
+
+
+
 
 a, b = 0, 0
 for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_param["period"],
@@ -57,7 +73,7 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
 
     results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
 
-    if definitions.api_url_post_models_simulations:
+    if definitions.api_url_post_models_simulations and not winner:
         try:
             models_loop_df = models_loop_df[~models_loop_df["DataSet"].isin(['test_X', 'train_X'])].copy()
             api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
