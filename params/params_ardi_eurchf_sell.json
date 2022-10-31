@@ -49,6 +49,6 @@
     "rf": []
   },
   "under_sampling": "",
-  "columns_to_include": [
+  "columns_to_include": ["atr_14_RN_1_daily_stock_data_month_EURCAD_div_ratio_rs_240_RN_1_daily_stock_data_month_EURCAD", "atr_14_RN1_daily_stock_data_month_EURCAD_div_ratio_rs_240_RN_1_daily_stock_data_month_EURCAD", "volume_div_ratio_rs_240_RN_1_daily_stock_data_month_EURCAD"
 ]
 }

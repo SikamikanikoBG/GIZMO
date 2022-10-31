@@ -50,5 +50,7 @@
   },
   "under_sampling": "",
   "columns_to_include": [
-]
+"rs_240_div_ratio_atr_14", "atr_14_RN_1_daily_stock_data_month_EURCAD_div_ratio_atr_14", "rsi_240_div_ratio_atr_14", "volume_div_ratio_rsi_240", "volume_div_ratio_rs_240_RN_1_daily_stock_data_month_EURCAD",
+"atr_14_RN1_daily_stock_data_month_EURCAD_div_ratio_atr_14"
+  ]
 }
