@@ -1,6 +1,6 @@
 {
   "criterion_column": "criterion_buy",
-  "model_version": "ardi_audnzd_buy_v1",
+  "model_version": "ardi_audnzd_buy_v20221029",
   "symbol" : "AUDNZD",
   "direction": "buy",
   "custom_calculations": "ardi_criterion_and_ratios",

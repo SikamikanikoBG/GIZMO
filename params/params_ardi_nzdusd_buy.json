@@ -1,6 +1,6 @@
 {
   "criterion_column": "criterion_buy",
-  "model_version": "ardi_nzdusd_buy_v1",
+  "model_version": "ardi_nzdusd_buy_v20221029",
   "symbol" : "NZDUSD",
   "direction": "buy",
   "custom_calculations": "ardi_criterion_and_ratios",
@@ -49,5 +49,6 @@
     "rf": []
   },
   "under_sampling": "",
-  "columns_to_include": []
+  "columns_to_include": ["close_10_sma_div_ratio_boll_feat_RN1_daily_stock_data_month_AUDUSD", "low_div_ratio_close_10_sma_RN1_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_open_14_ema_RN1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_close_agg_sum_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_close_10_sma_RN1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_open_14_ema_RN1_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_close_10_sma_RN_1_daily_stock_data_month_AUDUSD", "high_div_ratio_high_RN1_daily_stock_data_month_AUDUSD", "close_div_ratio_high_RN_1_daily_stock_data_month_AUDUSD", "low_div_ratio_low_RN1_daily_stock_data_month_AUDUSD", "check_pips_div_ratio_high_RN_1_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_close_10_sma_RN1_daily_stock_data_month_AUDUSD", "low_div_ratio_high_RN1_daily_stock_data_month_AUDUSD", "open_div_ratio_open_RN1_daily_stock_data_month_AUDUSD", "low_div_ratio_close_RN_1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_RN_1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_agg_sum_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_open_14_ema_RN_1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_close_10_sma_RN_1_daily_stock_data_month_AUDUSD", "low_div_ratio_high_RN_1_daily_stock_data_month_AUDUSD", "high_div_ratio_close_RN1_daily_stock_data_month_AUDUSD", "low_div_ratio_open_RN_1_daily_stock_data_month_AUDUSD", "check_pips_div_ratio_low_agg_sum_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_feat_RN_1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_high_agg_sum_daily_stock_data_month_AUDUSD", "high_div_ratio_high_agg_sum_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_boll_RN_1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_ub_feat_RN1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_ub_RN1_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_ub_feat_RN_1_daily_stock_data_month_AUDUSD",
+  "close_10_sma_div_ratio_close_10_sma_agg_sum_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_ub_RN_1_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_close_10_sma_agg_sum_daily_stock_data_month_AUDUSD", "low_div_ratio_low_RN_1_daily_stock_data_month_AUDUSD", "open_14_ema_div_ratio_open_14_ema_agg_sum_daily_stock_data_month_AUDUSD", "close_10_sma_div_ratio_boll_RN1_daily_stock_data_month_AUDUSD"]
 }
