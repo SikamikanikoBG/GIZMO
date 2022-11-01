@@ -46,6 +46,10 @@ class ModuleClass(SessionManager):
         self.output_df = pd.read_parquet(
             self.output_data_folder_name + self.input_data_project_folder + "/output_data_file.parquet")
 
+
+        # all final features
+        all_final_features = []
+
         # Load models
         for model in self.models_list:
             model_path = f"./implemented_models/{self.project_name}/{model}/model_train.pkl"
@@ -55,6 +59,10 @@ class ModuleClass(SessionManager):
             self.output_df[f"predict_{model}"] = model_pkl.model.predict_proba(
                 self.output_df[model_pkl.final_features])[:, 1]
             self.output_df[f"predict_{model}"] = self.output_df[f"predict_{model}"].round(5)
+
+            for el in model_pkl.final_features:
+                if el not in all_final_features:
+                    all_final_features.append(el)
 
         self.output_df["symbol"] = self.params["symbol"]
         self.output_df["direction"] = self.params["direction"]
@@ -71,8 +79,13 @@ class ModuleClass(SessionManager):
             if 'predict' in col:
                 predict_columns.append(col)
 
+        # columns with features to be used for data drift detection
+        predict_columns_data_drift = predict_columns.copy()
+        for col in all_final_features:
+            predict_columns_data_drift.append(col)
+
         # store results
-        self.output_df[predict_columns].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
+        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
         if definitions.api_url_post_results_predict:
             try:
                 api_communication.api_post(definitions.api_url_post_results_predict, self.output_df[predict_columns])
