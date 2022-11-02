@@ -91,7 +91,6 @@ class ModuleClass(SessionManager):
         predict_columns.append("mean_w_data_drift")
         predict_columns.append("mean_data_drift_top5")
         predict_columns.append("mean_w_data_drift_top5")
-        print(self.output_df[["mean_data_drift", "mean_w_data_drift", "mean_data_drift_top5", "mean_w_data_drift_top5"]].head())
 
         # store results
         self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
