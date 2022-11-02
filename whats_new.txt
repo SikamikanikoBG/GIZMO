@@ -1,3 +1,4 @@
+3.17.1 - remove last n rows where there is no enough time/periods to calculate the criterion
 3.17.0 - predict - data drift calculation for the new period vs training set
 3.16.0 - predict standard flow - local saved predictions.csv includes all features in order to be used for data drift detection
 3.15.0 - gridsearch for winning models - new parameters for grid search to produce the training sessions and not to delete them. Start it with run gridsearch winners sh
