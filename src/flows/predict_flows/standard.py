@@ -1,15 +1,13 @@
 import importlib
-import json
 import pickle
 import sys
 
 import pandas as pd
 
 import definitions
-from src.classes.DfAggregator import DfAggregator
 from src.classes.SessionManager import SessionManager
 from src.functions import api_communication
-from src.functions.predict import calculate_predictors
+from src.functions.predict.calcula_data_drift import calculate_data_drift
 from src.functions.printing_and_logging import print_end, print_and_log
 
 
@@ -45,7 +43,6 @@ class ModuleClass(SessionManager):
         # Load output data to be ready for prediction
         self.output_df = pd.read_parquet(
             self.output_data_folder_name + self.input_data_project_folder + "/output_data_file.parquet")
-
 
         # all final features
         all_final_features = []
@@ -84,8 +81,21 @@ class ModuleClass(SessionManager):
         for col in all_final_features:
             predict_columns_data_drift.append(col)
 
+        # get data drift
+        mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(self.project_name)
+        self.output_df["mean_data_drift"] = mean_data_drift
+        self.output_df["mean_w_data_drift"] = mean_w_data_drift
+        self.output_df["mean_data_drift_top5"] = mean_data_drift_top5
+        self.output_df["mean_w_data_drift_top5"] = mean_w_data_drift_top5
+        predict_columns.append("mean_data_drift")
+        predict_columns.append("mean_w_data_drift")
+        predict_columns.append("mean_data_drift_top5")
+        predict_columns.append("mean_w_data_drift_top5")
+        print(self.output_df[["mean_data_drift", "mean_w_data_drift", "mean_data_drift_top5", "mean_w_data_drift_top5"]].head())
+
         # store results
-        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv", index=False)
+        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
+                                                          index=False)
         if definitions.api_url_post_results_predict:
             try:
                 api_communication.api_post(definitions.api_url_post_results_predict, self.output_df[predict_columns])
