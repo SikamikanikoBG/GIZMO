@@ -63,22 +63,24 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
                                      grid_param["nb_features"]):
     b += 1
     time_start = datetime.now()
+    if combination[1] > combination[0]:
+        models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
+                                    combination[5], project, winner)
 
-    models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
-                                combination[5], project, winner)
-
-    models_loop_df['currency'] = project
-    results_df = results_df.append(models_loop_df)
+        models_loop_df['currency'] = project
+        results_df = results_df.append(models_loop_df)
 
 
-    results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
+        results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
 
-    if definitions.api_url_post_models_simulations and not winner:
-        try:
-            models_loop_df = models_loop_df[~models_loop_df["DataSet"].isin(['test_X', 'train_X'])].copy()
-            api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
-        except:
-            pass
+        if definitions.api_url_post_models_simulations and not winner:
+            try:
+                models_loop_df = models_loop_df[~models_loop_df["DataSet"].isin(['test_X', 'train_X'])].copy()
+                api_communication.api_post(definitions.api_url_post_models_simulations, models_loop_df)
+            except:
+                pass
+    else:
+        pass
 
     time_end = datetime.now()
     time = time_end - time_start
