@@ -82,6 +82,8 @@ class ModuleClass(SessionManager):
             predict_columns_data_drift.append(col)
 
         # get data drift
+        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
+                                                          index=False)
         mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(self.project_name)
         self.output_df["mean_data_drift"] = mean_data_drift
         self.output_df["mean_w_data_drift"] = mean_w_data_drift

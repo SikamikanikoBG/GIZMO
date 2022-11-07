@@ -23,6 +23,11 @@ class ModuleClass(SessionManager):
         self.prepare()
         print_train()
 
+        # remove last n rows where there is no enough time/periods to calculate the criterion
+        #shape_of_df = len(self.loader.in_df)
+        #records_to_keep = shape_of_df - self.args.period
+        # self.loader.in_df = self.loader.in_df.head(records_to_keep).copy()
+
         self.split_temporal_validation_periods()
         self.split_train_test_df()
         self.create_train_session_folder()

@@ -33,11 +33,6 @@ def calculate_criterion(df, predict_module):
     df['criterion_sell'] = np.where((df['criterion_ROLLING_max'] < loss_pips)
                                     & (df['criterion_ROLLING_min'] < -profit_pips), 1, 0)
 
-    # remove last n rows where there is no enough time/periods to calculate the criterion
-    shape_of_df = len(df)
-    records_to_keep = shape_of_df - period
-    df = df.head(records_to_keep).copy()
-
     criterion_buy = df['criterion_buy'].sum() / df['criterion_buy'].count()
     criterion_sell = df['criterion_sell'].sum() / df['criterion_sell'].count()
 
