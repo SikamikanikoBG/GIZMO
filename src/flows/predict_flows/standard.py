@@ -34,7 +34,6 @@ class ModuleClass(SessionManager):
                 if el not in all_final_features:
                     all_final_features.append(el)
 
-
         # sys.stdout = open(os.devnull, 'w')  # forbid print
         # Prepare the input data
         self.columns_to_include = all_final_features.copy()
@@ -58,7 +57,6 @@ class ModuleClass(SessionManager):
             self.output_data_folder_name + self.input_data_project_folder + "/output_data_file.parquet")
 
         # all final features
-
 
         # Load models
         for model in self.models_list:
@@ -93,7 +91,8 @@ class ModuleClass(SessionManager):
         # get data drift
         self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
                                                           index=False)
-        mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(self.project_name)
+        mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(
+            self.project_name)
         self.output_df["mean_data_drift"] = mean_data_drift
         self.output_df["mean_w_data_drift"] = mean_w_data_drift
         self.output_df["mean_data_drift_top5"] = mean_data_drift_top5
@@ -102,6 +101,18 @@ class ModuleClass(SessionManager):
         predict_columns.append("mean_w_data_drift")
         predict_columns.append("mean_data_drift_top5")
         predict_columns.append("mean_w_data_drift_top5")
+
+        # other indicators
+        other_indicators_list = ['avg_criterion_last_1440', 'open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
+                                 'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'cci_240', 'atr_240',
+                                 'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'cci_480', 'atr_480', 'close_10_sma',
+                                 'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
+                                 'pdm_14', 'pdi_14', 'pdi', 'mdm', 'mdm_14_ema', 'mdm_14', 'mdi_14', 'mdi', 'dx_14',
+                                 'dx', 'adx', 'adxr', 'log-ret', 'macd', 'macds', 'macdh', 'macd_feat', 'macds_feat',
+                                 'boll', 'boll_ub', 'boll_lb', 'boll_feat', 'boll_ub_feat', 'boll_lb_feat']
+        for ind in other_indicators_list:
+            if ind not in predict_columns:
+                predict_columns.append(ind)
 
         # store results
         self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
