@@ -119,13 +119,13 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            numerical_cols, self.params["columns_to_include"])
+                                                                                            numerical_cols, self.columns_to_include)
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
-        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.params["columns_to_include"])
+        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.columns_to_include)
         if self.under_sampling:
-            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.params["columns_to_include"])
+            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.columns_to_include)
 
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
@@ -134,7 +134,7 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            ratios_cols, self.params["columns_to_include"])
+                                                                                            ratios_cols, self.columns_to_include)
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         if self.optimal_binning_columns:
@@ -148,7 +148,7 @@ class ModuleClass(SessionManager):
                                                  missing_treatment=self.missing_treatment,
                                                  input_data_project_folder=self.input_data_project_folder)
 
-        for col in self.params["columns_to_include"]:
+        for col in self.columns_to_include:
             if col not in self.loader.final_features[:]:
                 self.loader.final_features.append(col)
 
@@ -185,7 +185,7 @@ class ModuleClass(SessionManager):
                                                         input_data_project_folder=self.input_data_project_folder,
                                                         flag_matrix=None,
                                                         session_id_folder=None, model_corr='', flag_raw='',
-                                                        keep_cols=self.params["columns_to_include"])
+                                                        keep_cols=self.columns_to_include)
 
     def optimal_binning_procedure(self):
         binned_numerical = self.optimal_binning_columns
@@ -201,14 +201,14 @@ class ModuleClass(SessionManager):
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                               self.loader.final_features[:], self.params["columns_to_include"])
+                                                                               self.loader.final_features[:], self.columns_to_include)
 
         # Check correlation
         print_and_log(' Checking correlation one more time now with binned ', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, binned_numerical = remove_column_if_not_in_final_features(
             self.loader.final_features,
-            binned_numerical, self.params["columns_to_include"])
+            binned_numerical, self.columns_to_include)
 
     def merging_additional_files_procedure(self):
         count = 0

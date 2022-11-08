@@ -72,6 +72,7 @@ class SessionManager:
             self.under_sampling = self.params['under_sampling']
             self.optimal_binning_columns = self.params['optimal_binning_columns']
             self.main_table = self.params["main_table"]
+            self.columns_to_include = self.params["columns_to_include"]
         except Exception as e:
             print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
             print(e)

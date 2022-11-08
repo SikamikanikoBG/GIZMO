@@ -24,8 +24,20 @@ class ModuleClass(SessionManager):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
+        # Load models features
+        all_final_features = []
+        for model in self.models_list:
+            model_path = f"./implemented_models/{self.project_name}/{model}/model_train.pkl"
+            model_pkl = pickle.load(open(model_path, 'rb'))
+
+            for el in model_pkl.final_features:
+                if el not in all_final_features:
+                    all_final_features.append(el)
+
+
         # sys.stdout = open(os.devnull, 'w')  # forbid print
         # Prepare the input data
+        self.columns_to_include = all_final_features.copy()
         self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
                                    in_data_proj_folder=self.input_data_project_folder)
 
@@ -33,6 +45,7 @@ class ModuleClass(SessionManager):
         module_prep_lib = importlib.import_module(f'src.flows.data_prep_flows.{module_prep}')
 
         prep = module_prep_lib.ModuleClass(args=self.args)
+        prep.columns_to_include = self.columns_to_include
         prep.loader.in_df = self.loader.in_df.copy()
         prep.loader.additional_files_df_dict = self.loader.additional_files_df_dict
         # prep.predict_session_flag = 1
@@ -45,7 +58,7 @@ class ModuleClass(SessionManager):
             self.output_data_folder_name + self.input_data_project_folder + "/output_data_file.parquet")
 
         # all final features
-        all_final_features = []
+
 
         # Load models
         for model in self.models_list:
@@ -56,10 +69,6 @@ class ModuleClass(SessionManager):
             self.output_df[f"predict_{model}"] = model_pkl.model.predict_proba(
                 self.output_df[model_pkl.final_features])[:, 1]
             self.output_df[f"predict_{model}"] = self.output_df[f"predict_{model}"].round(5)
-
-            for el in model_pkl.final_features:
-                if el not in all_final_features:
-                    all_final_features.append(el)
 
         self.output_df["symbol"] = self.params["symbol"]
         self.output_df["direction"] = self.params["direction"]
