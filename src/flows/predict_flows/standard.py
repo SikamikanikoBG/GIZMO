@@ -103,7 +103,7 @@ class ModuleClass(SessionManager):
         predict_columns.append("mean_w_data_drift_top5")
 
         # other indicators
-        other_indicators_list = ['avg_criterion_last_1440', 'open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
+        other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
                                  'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'cci_240', 'atr_240',
                                  'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'cci_480', 'atr_480', 'close_10_sma',
                                  'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
