@@ -22,7 +22,14 @@ folders = ["ardi_audnzd_sell",
            "ardi_eurchf_sell",
            "ardi_eurchf_buy",
            "ardi_nzdusd_sell",
-           "ardi_nzdusd_buy"]
+           "ardi_nzdusd_buy",
+           "ardi_cadchf_sell",
+           "ardi_cadchf_buy",
+            "ardi_xauusd_buy",
+            "ardi_xauusd_sell",
+           "ardi_gbpusd_buy",
+            "ardi_gbpusd_sell"
+           ]
 
 for folder in folders:
     path = f'./input_data/{folder}'

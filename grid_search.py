@@ -85,5 +85,5 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     time_end = datetime.now()
     time = time_end - time_start
     time_remaining = (a - b) * time
-    print(f"Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. Combinations: {combination}. "
+    print(f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. Combinations: {combination}. "
           f"Elapsed time: {time} minutes. Time remaining: {time_remaining}")
