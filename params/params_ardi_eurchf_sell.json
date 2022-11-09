@@ -1,4 +1,5 @@
 {
+  "flag_trade": 0,
   "criterion_column": "criterion_sell",
   "model_version": "ardi_eurchf_sell_v20221029",
   "symbol" : "EURCHF",

@@ -11,10 +11,10 @@ nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_audnzd_sell --tp
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_audnzd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_nzdusd_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_nzdusd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
-nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_xauusd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
-nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_xauusd_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
-nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_gbpusd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
-nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_gbpusd_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
+#nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_xauusd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
+#nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_xauusd_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
+#nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_gbpusd_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
+#nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_gbpusd_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_cadchf_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_cadchf_buy --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
 

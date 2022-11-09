@@ -1,4 +1,5 @@
 {
+  "flag_trade": 0,
   "criterion_column": "criterion_buy",
   "model_version": "ardi_nzdusd_buy_v20221107",
   "symbol" : "NZDUSD",

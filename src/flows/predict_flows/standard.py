@@ -71,6 +71,7 @@ class ModuleClass(SessionManager):
         self.output_df["symbol"] = self.params["symbol"]
         self.output_df["direction"] = self.params["direction"]
         self.output_df["version"] = self.params["model_version"]
+        self.output_df["flag_trade"] = self.params["flag_trade"]
         self.output_df["tp"] = self.args.tp
         self.output_df["sl"] = self.args.sl
         self.output_df["period"] = self.args.period
