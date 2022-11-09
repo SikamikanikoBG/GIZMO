@@ -49,6 +49,9 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
         models_loop['time'] = datetime.now().strftime('%Y%m%d')
         if not winner:
             shutil.rmtree(latest_train_session_dir)
+        elif winner:
+            shutil.move(latest_train_session_dir, f"./implemented_models/{project}")
+
     except Exception as e:
         models_loop = pd.DataFrame()
         models_loop['combination'] = f"UNSUCCESSFUL: {tag}_{e}"

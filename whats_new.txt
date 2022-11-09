@@ -1,3 +1,4 @@
+3.17.4 - grid search winner model session auto moved to implemented models
 3.17.3 - columns_to_include moved to self in session manager
 3.17.2 - grid search - if sl < tp pass to speedup the simulations
 3.17.1 - remove last n rows where there is no enough time/periods to calculate the criterion

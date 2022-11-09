@@ -1,6 +1,6 @@
 {
   "criterion_column": "criterion_sell",
-  "model_version": "ardi_audnzd_sell_v20221029",
+  "model_version": "ardi_audnzd_sell_v20221109",
   "symbol" : "AUDNZD",
   "direction": "sell",
   "custom_calculations": "ardi_criterion_and_ratios",
@@ -48,7 +48,5 @@
     "rf": []
   },
   "under_sampling": "",
-  "columns_to_include": ["atr_480_agg_sum_daily_stock_data_month_EURAUD_div_ratio_rsi_480_agg_sum_daily_stock_data_month_GBPAUD", "rsi_480_agg_sum_daily_stock_data_month_GBPAUD_div_ratio_atr_480", "boll_ub_feat_div_ratio_atr_240", "atr_240_div_ratio_boll_ub_feat", "atr_480_RN1_daily_stock_data_month_EURAUD_div_ratio_close_10_sma", "atr_480_RN_1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN_1_daily_stock_data_month_GBPAUD", "boll_ub_feat_div_ratio_atr_480", "atr_240_RN_1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_agg_sum_daily_stock_data_month_GBPAUD", "atr_240_RN_1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN_1_daily_stock_data_month_GBPAUD", "atr_480_agg_sum_daily_stock_data_month_EURAUD_div_ratio_boll_ub_feat", "close_50_sma_div_ratio_atr_240", "atr_480_div_ratio_boll_ub_feat", "atr_480_div_ratio_boll_feat", "atr_240_div_ratio_atr_480", "high_div_ratio_atr_480", "atr_240_div_ratio_boll", "atr_480_div_ratio_rsi_480_RN_1_daily_stock_data_month_GBPAUD", "atr_240_div_ratio_rsi_480_RN_1_daily_stock_data_month_GBPAUD", "atr_480_div_ratio_rsi_480_agg_sum_daily_stock_data_month_GBPAUD", "close_div_ratio_atr_480", "atr_240_RN1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN1_daily_stock_data_month_GBPAUD", "atr_480_div_ratio_high", "atr_240_div_ratio_close_10_sma", "atr_240_div_ratio_rsi_480_RN1_daily_stock_data_month_GBPAUD", "wr_240_div_ratio_atr_240_RN1_daily_stock_data_month_EURAUD", "close_50_sma_div_ratio_atr_480", "wr_240_div_ratio_atr_240_agg_sum_daily_stock_data_month_EURAUD", "rsi_480_RN1_daily_stock_data_month_GBPAUD_div_ratio_atr_240", "atr_240_RN_1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN1_daily_stock_data_month_GBPAUD", "atr_480_RN1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN_1_daily_stock_data_month_GBPAUD", "wr_240_div_ratio_atr_240", "atr_480_RN1_daily_stock_data_month_EURAUD_div_ratio_rsi_480_RN1_daily_stock_data_month_GBPAUD", "close_10_sma_div_ratio_atr_240", "atr_480_div_ratio_boll",
-  "rsi_480_RN_1_daily_stock_data_month_GBPAUD_div_ratio_atr_240_agg_sum_daily_stock_data_month_GBPAUD", "atr_240_RN1_daily_stock_data_month_GBPAUD_div_ratio_atr_480_agg_sum_daily_stock_data_month_GBPAUD", "atr_240_RN1_daily_stock_data_month_EURAUD_div_ratio_rsi_240_RN_1_daily_stock_data_month_EURAUD", "atr_480_RN_1_daily_stock_data_month_GBPAUD_div_ratio_atr_240_agg_sum_daily_stock_data_month_GBPAUD",
-  "rsi_480_RN1_daily_stock_data_month_GBPAUD_div_ratio_atr_240_RN_1_daily_stock_data_month_GBPAUD", "atr_240_RN1_daily_stock_data_month_GBPAUD_div_ratio_atr_480_RN1_daily_stock_data_month_GBPAUD"]
+  "columns_to_include": []
 }

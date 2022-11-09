@@ -1,6 +1,6 @@
 {
   "criterion_column": "criterion_buy",
-  "model_version": "ardi_gbpusd_buy_v20221107",
+  "model_version": "ardi_gbpusd_buy_v20221109",
   "symbol" : "GBPUSD",
   "direction": "buy",
   "custom_calculations": "ardi_criterion_and_ratios",
