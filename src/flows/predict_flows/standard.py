@@ -79,7 +79,7 @@ class ModuleClass(SessionManager):
         self.output_df["time_stamp"] = str(self.start_time.strftime("%Y-%m-%d %H:%M:%S"))
 
         predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol",
-                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp"]
+                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade"]
         for col in self.output_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
