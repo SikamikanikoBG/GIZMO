@@ -1,7 +1,13 @@
 {
   "flag_trade": 0,
+  "signal_trade": {
+    "col1_name": "Predict_xgb",
+    "col1_value": 0.5,
+    "col2_name": "",
+    "col2_value": ""
+  },
   "criterion_column": "criterion_sell",
-  "model_version": "ardi_audnzd_sell_v20221109",
+  "model_version": "ardi_audnzd_sell_v20221110",
   "symbol" : "AUDNZD",
   "direction": "sell",
   "custom_calculations": "ardi_criterion_and_ratios",
