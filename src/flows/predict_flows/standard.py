@@ -84,10 +84,10 @@ class ModuleClass(SessionManager):
             col1_value = self.params["signal_trade"]["col1_value"]
             col2_value = self.params["signal_trade"]["col2_value"]
             if col2_name:
-                self.output_df["signal_trade"] = np.where((self.output_df[col1_name] == col1_value)
-                                                          & (self.output_df[col2_name] == col2_value), 1, 0)
+                self.output_df["signal_trade"] = np.where((self.output_df[col1_name] >= col1_value)
+                                                          & (self.output_df[col2_name] > col2_value), 1, 0)
             else:
-                self.output_df["signal_trade"] = np.where(self.output_df[col1_name] == col1_value, 1, 0)
+                self.output_df["signal_trade"] = np.where(self.output_df[col1_name] >= col1_value, 1, 0)
 
         predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol",
                            "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade", "signal_trade"]
