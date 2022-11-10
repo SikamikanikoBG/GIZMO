@@ -1,5 +1,6 @@
 import json
 
+import notify_run
 import requests
 import pandas as pd
 
@@ -22,5 +23,7 @@ def api_get(url, conditions):
         url = url + conditions
     response = requests.get(url)
     print(f"Response status: {response.status_code}")
+    if response.status_code != 200:
+        notify_run.Notify.send(f"ArDi ERROR: API: Response status code: {response.status_code}")
     df_received_data = pd.read_json(response.content)
     return df_received_data

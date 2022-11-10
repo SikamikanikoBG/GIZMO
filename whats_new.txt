@@ -1,3 +1,4 @@
+3.18.0 - Push notificats implemented for simulation and API calls
 3.17.5 - signal_trade
 3.17.4 - grid search winner model session auto moved to implemented models
 3.17.3 - columns_to_include moved to self in session manager

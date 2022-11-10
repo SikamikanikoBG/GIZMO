@@ -1,10 +1,10 @@
 import argparse
 from datetime import datetime
 import itertools
-
 import pandas as pd
-
 import definitions
+from notify_run import Notify
+notify = Notify()
 
 from src.functions import api_communication
 from src.functions.grid_search.grid_search_functions import load_train
@@ -85,6 +85,8 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     time_end = datetime.now()
     time = time_end - time_start
     time_remaining = (a - b) * time
-    print(
-        f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. Combinations: {combination}. "
-        f"Elapsed time: {time} minutes. Time remaining: {time_remaining}")
+    msg = f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. " \
+          f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}"
+    print(msg)
+notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
+

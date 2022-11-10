@@ -1,8 +1,8 @@
 import argparse
 import datetime
 import os
-
-import pandas as pd
+from notify_run import Notify
+notify = Notify()
 
 import definitions
 from src.functions import api_communication
@@ -75,3 +75,4 @@ try:
     print(f"API: {api_time_delta}, Cut: {cut_time_delta}, Total: {total_time_delta}")
 except Exception as e:
     print(e)
+    notify.send(f"ArDi ERROR: API: {e}")
