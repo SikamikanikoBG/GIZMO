@@ -1,7 +1,7 @@
 {
   "flag_trade": 0,
   "criterion_column": "criterion_buy",
-  "model_version": "ardi_eurcad_buy_v20221029",
+  "model_version": "ardi_eurcad_buy_v20221110",
   "symbol" : "EURCAD",
   "direction": "buy",
   "custom_calculations": "ardi_criterion_and_ratios",
@@ -49,6 +49,5 @@
     "rf": []
   },
   "under_sampling": "",
-  "columns_to_include": ["atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_boll_ub_feat", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_atr_480", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_rsi_480", "atr_14_RN_1_daily_stock_data_month_GBPUSD_div_ratio_atr_480", "atr_14_RN_1_daily_stock_data_month_GBPUSD_div_ratio_rsi_480", "vr_240_div_ratio_atr_14_RN1_daily_stock_data_month_GBPUSD", "atr_240_div_ratio_atr_14_RN1_daily_stock_data_month_GBPUSD", "atr_480_RN_1_daily_stock_data_month_EURUSD_div_ratio_atr_14_RN_1_daily_stock_data_month_GBPUSD", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_boll_ub", "atr_480_RN_1_daily_stock_data_month_EURUSD_div_ratio_atr_14_agg_sum_daily_stock_data_month_GBPUSD", "atr_480_RN_1_daily_stock_data_month_EURUSD_div_ratio_atr_14_RN1_daily_stock_data_month_GBPUSD", "atr_14_RN_1_daily_stock_data_month_GBPUSD_div_ratio_boll_lb_feat", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_open_480_ema", "open_480_ema_div_ratio_spread_RN1_daily_stock_data_month_EURUSD", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_atr_240", "atr_480_div_ratio_atr_14_RN_1_daily_stock_data_month_GBPUSD", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_rsi_480_RN1_daily_stock_data_month_EURUSD", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_boll_ub", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_atr_480", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_open", "atr_240_div_ratio_atr_14_agg_sum_daily_stock_data_month_GBPUSD", "atr_480_RN1_daily_stock_data_month_EURUSD_div_ratio_atr_14_agg_sum_daily_stock_data_month_GBPUSD", "atr_240_div_ratio_atr_14", "atr_14_agg_sum_daily_stock_data_month_GBPUSD_div_ratio_open_480_ema", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_atr_480_RN1_daily_stock_data_month_EURUSD", "atr_480_RN1_daily_stock_data_month_EURUSD_div_ratio_atr_14_RN1_daily_stock_data_month_GBPUSD", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_atr_240", "atr_14_RN1_daily_stock_data_month_GBPUSD_div_ratio_vr_240",
-  "volume_div_ratio_atr_240"]
+  "columns_to_include": []
 }

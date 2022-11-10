@@ -1,5 +1,5 @@
 DIR="$( cd "$( dirname "$0" )" && pwd )"
-# shellcheck disable=SC2164
+
 cd $DIR
 source activate gizmo
 nice -n 16 python3 -W ignore $DIR/load_data.py --session gridsearch --volumes 15000
