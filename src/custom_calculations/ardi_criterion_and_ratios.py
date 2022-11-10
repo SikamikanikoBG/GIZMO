@@ -75,7 +75,7 @@ def calculate_indicators(df):
         df['rsi_' + period] = stock_df['rsi_' + period]
         df['vr_' + period] = stock_df['vr_' + period]
         df['wr_' + period] = stock_df['wr_' + period]
-        df['cci_' + period] = stock_df['cci_' + period]
+        #df['cci_' + period] = stock_df['cci_' + period]
         df['atr_' + period] = stock_df['atr_' + period]
         #df['middle_' + period + '_trix'] = stock_df['middle_' + period + '_trix']
         #df['middle_' + period + '_tema'] = stock_df['middle_' + period + '_tema']
