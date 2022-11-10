@@ -2,6 +2,7 @@ import importlib
 import pickle
 import sys
 
+import numpy as np
 import pandas as pd
 
 import definitions
@@ -77,9 +78,19 @@ class ModuleClass(SessionManager):
         self.output_df["period"] = self.args.period
         self.output_df["nb_features"] = self.args.nb_tree_features
         self.output_df["time_stamp"] = str(self.start_time.strftime("%Y-%m-%d %H:%M:%S"))
+        if self.params["signal_trade"]:
+            col1_name = self.params["signal_trade"]["col1_name"]
+            col2_name = self.params["signal_trade"]["col2_name"]
+            col1_value = self.params["signal_trade"]["col1_value"]
+            col2_value = self.params["signal_trade"]["col2_value"]
+            if col2_name:
+                self.output_df["signal_trade"] = np.where((self.output_df[col1_name] == col1_value)
+                                                          & (self.output_df[col2_name] == col2_value), 1, 0)
+            else:
+                self.output_df["signal_trade"] = np.where(self.output_df[col1_name] == col1_value, 1, 0)
 
         predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol",
-                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade"]
+                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade", "signal_trade"]
         for col in self.output_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)
@@ -98,6 +109,8 @@ class ModuleClass(SessionManager):
         self.output_df["mean_w_data_drift"] = mean_w_data_drift
         self.output_df["mean_data_drift_top5"] = mean_data_drift_top5
         self.output_df["mean_w_data_drift_top5"] = mean_w_data_drift_top5
+
+
         predict_columns.append("mean_data_drift")
         predict_columns.append("mean_w_data_drift")
         predict_columns.append("mean_data_drift_top5")
