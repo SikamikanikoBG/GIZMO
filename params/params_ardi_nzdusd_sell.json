@@ -1,7 +1,7 @@
 {
   "flag_trade": 0,
   "signal_trade": {
-    "col1_name": "Predict_xgb",
+    "col1_name": "predict_xgb",
     "col1_value": 0.5,
     "col2_name": "",
     "col2_value": ""
