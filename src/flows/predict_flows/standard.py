@@ -85,7 +85,7 @@ class ModuleClass(SessionManager):
             col2_value = self.params["signal_trade"]["col2_value"]
             if col2_name:
                 self.output_df["signal_trade"] = np.where((self.output_df[col1_name] >= col1_value)
-                                                          & ((self.output_df[col2_name] * 10000) > col2_value), 1, 0)
+                                                          & ((self.output_df[col2_name] * 10000) > np.float(col2_value)), 1, 0)
             else:
                 self.output_df["signal_trade"] = np.where(self.output_df[col1_name] >= col1_value, 1, 0)
 
@@ -117,7 +117,7 @@ class ModuleClass(SessionManager):
         predict_columns.append("mean_w_data_drift_top5")
 
         # other indicators
-        """other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
+        other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
                                  'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'cci_240', 'atr_240',
                                  'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'cci_480', 'atr_480', 'close_10_sma',
                                  'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
@@ -126,7 +126,7 @@ class ModuleClass(SessionManager):
                                  'boll', 'boll_ub', 'boll_lb', 'boll_feat', 'boll_ub_feat', 'boll_lb_feat']
         for ind in other_indicators_list:
             if ind not in predict_columns:
-                predict_columns.append(ind)"""
+                predict_columns_data_drift.append(ind)
 
         # store results
         self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
