@@ -8,3 +8,6 @@
 /temp.csv
 *.feather
 *.csv
+/.ipynb_checkpoints/
+/.~lock.architecture.odp#
+/Untitled.ipynb
