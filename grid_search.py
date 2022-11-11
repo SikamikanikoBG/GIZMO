@@ -71,7 +71,7 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
         models_loop_df['currency'] = project
         results_df = results_df.append(models_loop_df)
 
-        results_df.to_csv(f"{definitions.ROOT_DIR}/sessions/grid_search_results_{project}.csv", index=False)
+        results_df.to_csv(f"{definitions.EXTERNAL_DIR}/sessions/grid_search_results_{project}.csv", index=False)
 
         if definitions.api_url_post_models_simulations and not winner:
             try:
@@ -88,5 +88,8 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     msg = f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. " \
           f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}"
     print(msg)
-notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
+if winner:
+    notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
+else:
+    notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
 

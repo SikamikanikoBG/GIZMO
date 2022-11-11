@@ -1,6 +1,7 @@
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 cd $DIR
+#conda init bash0
 source activate gizmo
 nice -n 16 python3 -W ignore $DIR/load_data.py --session gridsearch --volumes 15000
 nice -n 16 python3 -W ignore $DIR/grid_search.py --project ardi_eurchf_sell --tp 0.0025 --sl 0.006 --training_rows 7000 --period 480 --nb_features 50&
