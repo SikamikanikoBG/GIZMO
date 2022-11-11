@@ -117,15 +117,15 @@ class ModuleClass(SessionManager):
         predict_columns.append("mean_w_data_drift_top5")
 
         # other indicators
-        other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14', 'cci_14',
-                                 'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'cci_240', 'atr_240',
-                                 'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'cci_480', 'atr_480', 'close_10_sma',
+        other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14',
+                                 'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'atr_240',
+                                 'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'atr_480', 'close_10_sma',
                                  'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
                                  'pdm_14', 'pdi_14', 'pdi', 'mdm', 'mdm_14_ema', 'mdm_14', 'mdi_14', 'mdi', 'dx_14',
                                  'dx', 'adx', 'adxr', 'log-ret', 'macd', 'macds', 'macdh', 'macd_feat', 'macds_feat',
                                  'boll', 'boll_ub', 'boll_lb', 'boll_feat', 'boll_ub_feat', 'boll_lb_feat']
         for ind in other_indicators_list:
-            if ind not in predict_columns:
+            if ind not in predict_columns_data_drift:
                 predict_columns_data_drift.append(ind)
 
         # store results
