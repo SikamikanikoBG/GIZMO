@@ -50,7 +50,7 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
         if not winner:
             shutil.rmtree(latest_train_session_dir)
         elif winner:
-            shutil.move(latest_train_session_dir, f"./implemented_models/{project}")
+            shutil.move(latest_train_session_dir, f"{definitions.EXTERNAL_DIR}/implemented_models/{project}")
 
     except Exception as e:
         models_loop = pd.DataFrame()

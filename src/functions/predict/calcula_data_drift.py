@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 
+import definitions
+
 
 def calculate_data_drift(selected_proj):
     # load data
-    path = f"./implemented_models/{selected_proj}"
+    path = f"{definitions.EXTERNAL_DIR}/implemented_models/{selected_proj}"
     df_train = pd.read_feather(f"{path}/df_x_train.feather")
     df_feature_importance_xgb = pd.read_csv(f"{path}/xgb/feat_importance.csv")
     # df_feature_importance_rf = pd.read_csv(f"{path}/rf/feat_importance.csv")

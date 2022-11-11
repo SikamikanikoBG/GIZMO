@@ -1,3 +1,4 @@
+3.19.1 - definitions - external path - now params, logs, sessions, implemented models can be stored to external to the package path.
 3.18.1 - main - calling module.run() is in try:except enable logging of the error
 3.18.0 - Push notificats implemented for simulation and API calls
 3.17.5 - signal_trade

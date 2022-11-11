@@ -71,7 +71,7 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
         models_loop_df['currency'] = project
         results_df = results_df.append(models_loop_df)
 
-        results_df.to_csv(f"./sessions/grid_search_results_{project}.csv", index=False)
+        results_df.to_csv(f"{definitions.ROOT_DIR}/sessions/grid_search_results_{project}.csv", index=False)
 
         if definitions.api_url_post_models_simulations and not winner:
             try:

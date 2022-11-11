@@ -45,19 +45,19 @@ class SessionManager:
         elif self.args.predict_module:
             self.log_file_name = 'predict_' + self.args.predict_module + '_' + self.project_name + '_' + str(
                 self.start_time) + '_' + self.tag + ".log"
-        self.log_folder_name = definitions.ROOT_DIR + '/logs/'
-        self.session_folder_name = definitions.ROOT_DIR + '/sessions/'
+        self.log_folder_name = definitions.EXTERNAL_DIR + '/logs/'
+        self.session_folder_name = definitions.EXTERNAL_DIR + '/sessions/'
         self.session_id_folder = None
         self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
         self.input_data_project_folder = self.project_name
         self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'
         self.functions_folder_name = definitions.ROOT_DIR + '/src/'
-        self.params_folder_name = definitions.ROOT_DIR + '/params/'
-        self.implemented_folder = definitions.ROOT_DIR + '/implemented_models/'
+        self.params_folder_name = definitions.EXTERNAL_DIR + '/params/'
+        self.implemented_folder = definitions.EXTERNAL_DIR + '/implemented_models/'
 
         # Import parameters
         try:
-            with open(definitions.ROOT_DIR + '/params/params_' + self.project_name + '.json') as json_file:
+            with open(definitions.EXTERNAL_DIR + '/params/params_' + self.project_name + '.json') as json_file:
                 self.params = json.load(json_file)
             self.criterion_column = self.params['criterion_column']
             self.missing_treatment = self.params["missing_treatment"]
@@ -103,6 +103,8 @@ class SessionManager:
         Returns:
 
         """
+        if not os.path.isdir(definitions.EXTERNAL_DIR):
+            os.mkdir(definitions.EXTERNAL_DIR)
         if not os.path.isdir(self.log_folder_name):
             os.mkdir(self.log_folder_name)
         if not os.path.isdir(self.session_folder_name):

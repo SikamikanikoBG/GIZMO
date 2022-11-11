@@ -1,7 +1,19 @@
 import os
 
+
+EXTERNAL_DIR = "/home/anakin/Projects/gizmo_data"
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if EXTERNAL_DIR:
+    pass
+else:
+    EXTERNAL_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 args = None
+
+# folders and paths
+
 
 ngrok_prefix = "eb9d"
 api_url_prefix = "https://"+ngrok_prefix+"-95-43-20-41.eu.ngrok.io/"

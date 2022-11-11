@@ -28,7 +28,7 @@ class ModuleClass(SessionManager):
         # Load models features
         all_final_features = []
         for model in self.models_list:
-            model_path = f"./implemented_models/{self.project_name}/{model}/model_train.pkl"
+            model_path = f"{self.implemented_folder}/{self.project_name}/{model}/model_train.pkl"
             model_pkl = pickle.load(open(model_path, 'rb'))
 
             for el in model_pkl.final_features:
@@ -61,7 +61,7 @@ class ModuleClass(SessionManager):
 
         # Load models
         for model in self.models_list:
-            model_path = f"./implemented_models/{self.project_name}/{model}/model_train.pkl"
+            model_path = f"{self.implemented_folder}/{self.project_name}/{model}/model_train.pkl"
             model_pkl = pickle.load(open(model_path, 'rb'))
 
             # Predictions
@@ -101,7 +101,7 @@ class ModuleClass(SessionManager):
             predict_columns_data_drift.append(col)
 
         # get data drift
-        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
+        self.output_df[predict_columns_data_drift].to_csv(f"{self.implemented_folder}/{self.project_name}/predictions.csv",
                                                           index=False)
         mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(
             self.project_name)
@@ -129,7 +129,7 @@ class ModuleClass(SessionManager):
                 predict_columns_data_drift.append(ind)
 
         # store results
-        self.output_df[predict_columns_data_drift].to_csv(f"./implemented_models/{self.project_name}/predictions.csv",
+        self.output_df[predict_columns_data_drift].to_csv(f"{self.implemented_folder}/{self.project_name}/predictions.csv",
                                                           index=False)
         if definitions.api_url_post_results_predict:
             try:
