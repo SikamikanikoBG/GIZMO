@@ -62,6 +62,9 @@ if __name__ == '__main__':
     module = module_lib.ModuleClass(args=args)
     module.prepare()
     module.start_logging()
-    module.run()
+    try:
+        module.run()
+    except Exception as e:
+        print_and_log(e, "RED")
     module.run_time_calc()
     print_and_log(module.run_time, "")
