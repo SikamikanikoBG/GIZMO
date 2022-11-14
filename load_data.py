@@ -54,6 +54,7 @@ try:
     in_data = api_communication.api_get(url, None)
     if in_data.empty:
         notify.send(f"ArDi ERROR: API data load: the input dataframe is empty. Probably the API is not accessible...")
+        quit()
 
     # in_data["time"] = pd.datetime(in_data["time"])
     columns_reorder = ['time', 'open', 'high', 'low', 'close', 'volume', 'spread', 'real_volume', 'Currency']
