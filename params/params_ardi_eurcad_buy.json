@@ -4,7 +4,8 @@
     "col1_name": "predict_xgb",
     "col1_value": 0.5,
     "col2_name": "",
-    "col2_value": ""
+    "col2_value": "",
+    "col2_direction": ""
   },
   "criterion_column": "criterion_buy",
   "model_version": "ardi_eurcad_buy_v20221112",

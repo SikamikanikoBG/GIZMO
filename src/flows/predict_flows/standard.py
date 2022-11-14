@@ -83,9 +83,15 @@ class ModuleClass(SessionManager):
             col2_name = self.params["signal_trade"]["col2_name"]
             col1_value = self.params["signal_trade"]["col1_value"]
             col2_value = self.params["signal_trade"]["col2_value"]
+            col2_direction = self.params["signal_trade"]["col2_direction"]
             if col2_name:
-                self.output_df["signal_trade"] = np.where((self.output_df[col1_name] >= col1_value)
+                if "up" in col2_direction:
+                    self.output_df["signal_trade"] = np.where((self.output_df[col1_name] >= col1_value)
                                                           & ((self.output_df[col2_name] * 10000) > np.float(col2_value)), 1, 0)
+                else:
+                    self.output_df["signal_trade"] = np.where((self.output_df[col1_name] >= col1_value)
+                                                              & ((self.output_df[col2_name] * 10000) <= np.float(
+                        col2_value)), 1, 0)
             else:
                 self.output_df["signal_trade"] = np.where(self.output_df[col1_name] >= col1_value, 1, 0)
 

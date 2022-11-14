@@ -1,5 +1,12 @@
 {
   "flag_trade": 0,
+  "signal_trade": {
+    "col1_name": "predict_xgb",
+    "col1_value": 0.5,
+    "col2_name": "",
+    "col2_value": "",
+    "col2_direction": "down"
+  },
   "criterion_column": "criterion_buy",
   "model_version": "ardi_xauusd_buy_v20221107",
   "symbol" : "XAUUSD",
