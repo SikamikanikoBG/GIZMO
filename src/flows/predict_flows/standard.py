@@ -128,6 +128,11 @@ class ModuleClass(SessionManager):
             if ind not in predict_columns_data_drift:
                 predict_columns_data_drift.append(ind)
 
+        # remove last n rows that does not have enough performance period
+        rows_to_remove = self.output_df["time"].tail(self.args.period)
+        self.output_df = self.output_df[~self.output_df["time"].isin(rows_to_remove)].copy()
+
+
         # store results
         self.output_df[predict_columns_data_drift].to_csv(f"{self.implemented_folder}/{self.project_name}/predictions.csv",
                                                           index=False)
