@@ -129,7 +129,7 @@ class ModuleClass(SessionManager):
                 predict_columns_data_drift.append(ind)
 
         # remove last n rows that does not have enough performance period
-        rows_to_remove = self.output_df["time"].tail(int(self.args.period))
+        rows_to_remove = self.output_df["time"].head(int(self.args.period))
         self.output_df = self.output_df[~self.output_df["time"].isin(rows_to_remove)].copy()
 
 
