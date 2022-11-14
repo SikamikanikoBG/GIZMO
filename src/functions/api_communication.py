@@ -26,5 +26,7 @@ def api_get(url, conditions):
     if response.status_code != 200:
         notification = notify_run.Notify()
         notification.send(f"ArDi ERROR: API: Response status code: {response.status_code}")
-    df_received_data = pd.read_json(response.content)
+        df_received_data = pd.DataFrame()
+    else:
+        df_received_data = pd.read_json(response.content)
     return df_received_data
