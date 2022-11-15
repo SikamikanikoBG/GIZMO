@@ -79,4 +79,4 @@ try:
     print(f"API: {api_time_delta}, Cut: {cut_time_delta}, Total: {total_time_delta}")
 except Exception as e:
     print(e)
-    notify.send(f"ArDi ERROR: API: {e}")
+    notify.send(f"[ ArDi ERROR ] API: {e}")
