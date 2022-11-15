@@ -4,8 +4,8 @@
     "col1_name": "predict_xgb",
     "col1_value": 0.5,
     "col2_name": "atr_14",
-    "col2_value": "3.35",
-	"col2_direction": "down"
+    "col2_value": "2.7",
+	"col2_direction": "up"
   },
   "criterion_column": "criterion_buy",
   "model_version": "ardi_nzdusd_buy_v20221112",
