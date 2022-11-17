@@ -6,6 +6,14 @@
     "col2_name": "",
     "col2_value": ""
   },
+    "resistance_support":{
+    "r1" : "1.13171",
+    "r2" : "1.14240",
+    "r3" : "1.15970",
+    "s1" : "1.09712",
+    "s2" : "1.08643",
+    "s3" : "1.06914"
+  },
   "criterion_column": "criterion_sell",
   "model_version": "ardi_audnzd_sell_v20221110",
   "symbol" : "AUDNZD",

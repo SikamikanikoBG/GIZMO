@@ -7,6 +7,14 @@
     "col2_value": "",
     "col2_direction": "down"
   },
+    "resistance_support":{
+    "r1" : "",
+    "r2" : "",
+    "r3" : "",
+    "s1" : "",
+    "s2" : "",
+    "s3" : ""
+  },
   "criterion_column": "criterion_sell",
   "model_version": "ardi_eurchf_sell_v20221112",
   "symbol" : "EURCHF",

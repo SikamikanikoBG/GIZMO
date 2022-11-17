@@ -1,5 +1,13 @@
 {
   "flag_trade": 0,
+    "resistance_support":{
+    "r1" : "",
+    "r2" : "",
+    "r3" : "",
+    "s1" : "",
+    "s2" : "",
+    "s3" : ""
+  },
   "criterion_column": "criterion_buy",
   "model_version": "ardi_cadchf_buy_v20221107",
   "symbol" : "CADCHF",

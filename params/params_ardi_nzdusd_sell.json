@@ -7,6 +7,14 @@
     "col2_value": "",
     "col2_direction": "down"
   },
+  "resistance_support":{
+    "r1" : "0.58701",
+    "r2" : "0.59553",
+    "r3" : "0.60933",
+    "s1" : "0.55942",
+    "s2" : "0.55090",
+    "s3" : "0.53711"
+  },
   "criterion_column": "criterion_sell",
   "model_version": "ardi_nzdusd_sell_v20221110",
   "symbol" : "NZDUSD",

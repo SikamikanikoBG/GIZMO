@@ -1,11 +1,19 @@
 {
-  "flag_trade": 1,
+  "flag_trade": 0,
   "signal_trade": {
     "col1_name": "predict_xgb",
     "col1_value": 0.5,
     "col2_name": "atr_14",
     "col2_value": "3.9",
     "col2_direction": "up"
+  },
+    "resistance_support":{
+    "r1" : "1.36365",
+    "r2" : "1.37315",
+    "r3" : "1.38852",
+    "s1" : "1.33290",
+    "s2" : "1.32340",
+    "s3" : "1.30802"
   },
   "criterion_column": "criterion_buy",
   "model_version": "ardi_eurcad_buy_v20221112",
