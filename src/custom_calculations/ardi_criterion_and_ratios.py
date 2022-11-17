@@ -39,6 +39,22 @@ def calculate_criterion(df, predict_module):
     print_and_log(f"Criterion BUY: {criterion_buy}, "
           f"Criterion SELL: {criterion_sell}", "")
 
+    if definitions.params:
+        if definitions.params["resistance_support"]:
+            r1 = float(definitions.params["resistance_support"]["r1"])
+            r2 = float(definitions.params["resistance_support"]["r2"])
+            r3 = float(definitions.params["resistance_support"]["r3"])
+            s1 = float(definitions.params["resistance_support"]["s1"])
+            s2 = float(definitions.params["resistance_support"]["s2"])
+            s3 = float(definitions.params["resistance_support"]["s3"])
+
+            df["open_to_r1"] = df["open"] / r1
+            df["open_to_r2"] = df["open"] / r2
+            df["open_to_r3"] = df["open"] / r3
+            df["open_to_s1"] = df["open"] / s1
+            df["open_to_s2"] = df["open"] / s2
+            df["open_to_s3"] = df["open"] / s3
+
     if predict_module:
         pass
     elif df['criterion_buy'].sum() == 0 or df['criterion_sell'].sum()==0 or df['criterion_buy'].sum() == 1 or df['criterion_sell'].sum()==1:

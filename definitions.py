@@ -11,11 +11,12 @@ else:
 
 
 args = None
+params = None
 
 # folders and paths
 
 
-ngrok_prefix = "ede3"
+ngrok_prefix = "e482"
 api_url_prefix = "https://"+ngrok_prefix+"-95-43-20-41.eu.ngrok.io/"
 api_url_post_results_models = api_url_prefix + "bulk_upload_new_raw_data"
 api_url_post_results_predict = api_url_prefix + "upload_models_predict"

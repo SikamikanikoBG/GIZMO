@@ -59,6 +59,7 @@ class SessionManager:
         try:
             with open(definitions.EXTERNAL_DIR + '/params/params_' + self.project_name + '.json') as json_file:
                 self.params = json.load(json_file)
+                definitions.params = self.params
             self.criterion_column = self.params['criterion_column']
             self.missing_treatment = self.params["missing_treatment"]
             self.observation_date_column = self.params["observation_date_column"]
