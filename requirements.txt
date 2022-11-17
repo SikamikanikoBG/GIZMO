@@ -12,7 +12,7 @@ matplotlib==3.3.4
 seaborn==0.11.1
 docxtpl==0.12.0
 docx-mailmerge==0.5.0
-requests==2.27.1
+requests==2.28.1
 stockstats==0.4.1
 psutil==5.9.1
 notify_run==0.0.15
