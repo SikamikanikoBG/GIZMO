@@ -45,7 +45,7 @@ if __name__ == '__main__':
         print_and_log(parser.parse_known_args(), "RED")
         sys.exit()
 
-    if psutil.virtual_memory()[4] / 1e9 < 50:
+    if psutil.virtual_memory()[4] / 1e9 < 5:
         print_and_log('[ RAM MEMORY CHECK ] Free RAM memory < 50GB. Program aborted...', '')
         sys.exit()
 
