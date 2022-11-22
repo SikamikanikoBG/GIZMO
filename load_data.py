@@ -80,6 +80,7 @@ try:
     total_time_delta = cutting_time - start_time
 
     print(f"API: {api_time_delta}, Cut: {cut_time_delta}, Total: {total_time_delta}")
+    #notify.send(f"laksjdlaksdlkjasldjas")
 except Exception as e:
     print(e)
     notify.send(f"[ ArDi ERROR ] API: {e}")
