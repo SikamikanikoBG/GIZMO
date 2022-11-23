@@ -28,3 +28,8 @@ api_url_get_history_data = api_url_prefix + "get_history_data"
 notifications_url_prefix = "https://notify.run/"
 notifications_url_grid = f"{notifications_url_prefix}QcLwLsIj07xKPxH81Eys"
 
+# GUI
+selected_project = None
+selected_param_file = None
+input_df = None
+

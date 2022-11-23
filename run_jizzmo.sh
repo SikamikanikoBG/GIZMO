@@ -1,0 +1,7 @@
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+cd $DIR
+
+source /home/ardi/anaconda3/etc/profile.d/conda.sh
+conda activate jizzmo
+
+streamlit run start.py

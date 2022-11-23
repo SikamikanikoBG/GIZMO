@@ -18,3 +18,4 @@ psutil==5.9.1
 notify_run
 streamlit
 matplotlib
+sweetviz
