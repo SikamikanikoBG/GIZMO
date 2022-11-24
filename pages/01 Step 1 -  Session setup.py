@@ -1,6 +1,7 @@
 import codecs
 import json
 import os
+import subprocess
 
 import pandas as pd
 import streamlit as st
@@ -10,28 +11,45 @@ import sweetviz as sv
 import definitions
 
 st.set_page_config(
-    page_title="ArDi Reports",
+    page_title="GIZMO - Setup",
     page_icon="✅",
     layout="wide",
 )
 
-
-
-tab_settings, tab_sample_data = st.tabs(["Settings", "Sample data"])
+tab_sample_data, tab_settings, tab_run_data_prep  = st.tabs(["Sample data", "Settings", "Run data preparation"])
 
 with tab_sample_data:
-    data_file = st.file_uploader("Load sample data from the main table.")
-    input_df = pd.read_parquet(data_file).sample(n=10000)
-    #definitions.input_df = input_df
+    data_file = st.file_uploader("Load 10000 rows sample data from the main table. Upload here the project dataset."
+                                 "Supported filetypes: csv, txt, parquet, feather, pickle.")
 
+    if data_file:
+        if "parquet" in str(data_file):
+            input_df = pd.read_parquet(data_file)
+            if len(input_df) > 10000: input_df = input_df.sample(n=10000)
+        elif "csv" in str(data_file):
+            input_df = pd.read_csv(data_file)
+            if len(input_df) > 10000: input_df = input_df.sample(n=10000)
+        elif "txt" in str(data_file):
+            input_df = pd.read_csv(data_file)
+            if len(input_df) > 10000: input_df = input_df.sample(n=10000)
+        elif "feather" in str(data_file):
+            input_df = pd.read_feather(data_file)
+            if len(input_df) > 10000: input_df = input_df.sample(n=10000)
+        else:
+            input_df = pd.read_pickle(data_file)
+            if len(input_df) > 10000: input_df = input_df.sample(n=10000)
 
+        target_feature = st.selectbox("Select which column is used for predictions: ", input_df.columns)
+        if st.button("Use this column"):
+            my_report = sv.analyze(input_df, target_feat=target_feature)
+        else:
+            my_report = sv.analyze(input_df)
 
-    my_report = sv.analyze(input_df)
-    my_report.show_html(filepath= "./pages/EDA.html", open_browser=False, layout="vertical", scale=1.0)
+        my_report.show_html(filepath= "./pages/EDA.html", open_browser=False, layout="vertical", scale=1.0)
 
-    report_file = codecs.open("./pages/EDA.html", 'r')
-    page = report_file.read()
-    components.html(page, width=1200, height=1000, scrolling=True)
+        report_file = codecs.open("./pages/EDA.html", 'r')
+        page = report_file.read()
+        components.html(page, width=1200, height=1000, scrolling=True)
 
 with tab_settings:
 
@@ -159,12 +177,11 @@ with tab_settings:
                     new_param_file_name = f"params_{new_project_name}.json"
                     with open(os.path.join(params_path + new_param_file_name), 'w', encoding='utf-8') as output_param_file:
                         json.dump(json_object, output_param_file)
-
-
-
-
-
-
-
+                definitions.params = json_object
     except Exception as e:
         st.write(f"ERROR: Issue with {file}: {e}")
+
+with tab_run_data_prep:
+    if st.button("Run GIZMO data preparation"):
+        subprocess.call(["python", "main.py", "--project", f"{selected_project}", "--data_prep_module", "standard"],
+                        stdout=open(f"{definitions.EXTERNAL_DIR}/logs/data_prep_{selected_project}.txt", "a"))
