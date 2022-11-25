@@ -60,7 +60,8 @@
     "rf": [0,0.102,0.263,0.586,1]
   },
   "under_sampling": 1,
-  "optimal_binning_columns": ["AGE",
+  "optimal_binning_columns": [],
+  "_optimal_binning_columns": ["AGE",
  "SALARY",
  "INCOME_OTHER",
  "INTEREST_RATE_CARD",
@@ -82,5 +83,6 @@
  "AMOUNT_TOTAL_MONTHLY_INTEREST",
  "AMOUNT_TOTAL_MONTHLY_INSURANCE",
  "AMOUNT_LAST_PAYMENT"
-  ]
+  ],
+  "columns_to_include": []
 }

@@ -4,6 +4,7 @@ This is a shorter flow in order to speed up the developments.
 from pickle import dump
 
 import pandas as pd
+from datetime import datetime
 
 import src.functions.data_prep.dates_manipulation as date_funcs
 from src.classes.DfAggregator import DfAggregator
@@ -26,13 +27,16 @@ class ModuleClass(SessionManager):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
+        self.check1_time = datetime.now()
         self.prepare()
         print_load()
         print_and_log(f'Starting the session for: {self.input_data_project_folder}', 'GREEN')
 
         self.merging_additional_files_procedure()
+        self.check2_time = datetime.now()
 
         self.data_cleaning()
+        self.check3_time = datetime.now()
 
         # Saving processed data
         self.loader.in_df.to_parquet(
@@ -43,6 +47,7 @@ class ModuleClass(SessionManager):
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'wb') as f:
             dump(self.loader.final_features, f)
+        self.check4_time = datetime.now()
         print_end()
 
     def data_cleaning(self):  # start data cleaning
@@ -110,13 +115,13 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            numerical_cols)
+                                                                                            numerical_cols, self.columns_to_include)
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
-        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols)
+        self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.columns_to_include)
         if self.under_sampling:
-            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols)
+            self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.columns_to_include)
 
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
@@ -125,7 +130,7 @@ class ModuleClass(SessionManager):
         print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                                            ratios_cols)
+                                                                                            ratios_cols, self.columns_to_include)
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         if self.optimal_binning_columns:
@@ -138,6 +143,10 @@ class ModuleClass(SessionManager):
             self.loader.in_df_f = missing_values(df=self.loader.in_df_f,
                                                  missing_treatment=self.missing_treatment,
                                                  input_data_project_folder=self.input_data_project_folder)
+
+        for col in self.columns_to_include:
+            if col not in self.loader.final_features[:]:
+                self.loader.final_features.append(col)
 
         # check if some final features were deleted
         for el in self.loader.final_features[:]:
@@ -161,12 +170,20 @@ class ModuleClass(SessionManager):
         if self.under_sampling:
             self.loader.in_df_f = self.loader.in_df_f[all_columns].copy()
 
+        # remove duplicated features
+        results_check = []
+        for el in self.loader.final_features:
+            if el not in results_check:
+                results_check.append(el)
+        self.loader.final_features = results_check.copy()
+
     def remove_final_features_with_low_correlation(self):
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],
                                                         y=self.loader.in_df[self.criterion_column],
                                                         input_data_project_folder=self.input_data_project_folder,
                                                         flag_matrix=None,
-                                                        session_id_folder=None, model_corr='', flag_raw='')
+                                                        session_id_folder=None, model_corr='', flag_raw='',
+                                                        keep_cols=self.columns_to_include)
 
     def optimal_binning_procedure(self):
         binned_numerical = self.optimal_binning_columns
@@ -182,14 +199,14 @@ class ModuleClass(SessionManager):
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                               self.loader.final_features[:])
+                                                                               self.loader.final_features[:], self.columns_to_include)
 
         # Check correlation
         print_and_log(' Checking correlation one more time now with binned ', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, binned_numerical = remove_column_if_not_in_final_features(
             self.loader.final_features,
-            binned_numerical)
+            binned_numerical, self.columns_to_include)
 
     def merging_additional_files_procedure(self):
         count = 0
