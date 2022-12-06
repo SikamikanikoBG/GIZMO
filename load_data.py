@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 from notify_run import Notify
+
 notify = Notify()
 
 import definitions
@@ -17,23 +18,36 @@ session = args.session.lower()
 
 folders = ["ardi_audnzd_sell",
            "ardi_audnzd_buy",
-"ardi_audnzd_buy_20221117",
            "ardi_eurcad_buy",
-"ardi_eurcad_buy_20221117",
            "ardi_eurcad_sell",
            "ardi_eurchf_sell",
            "ardi_eurchf_buy",
            "ardi_eurusd_buy",
-"ardi_eurusd_sell",
+           "ardi_eurusd_sell",
            "ardi_nzdusd_sell",
-                "ardi_nzdusd_buy",
-           "ardi_nzdusd_buy_20221117",
+           "ardi_nzdusd_buy",
            "ardi_cadchf_sell",
            "ardi_cadchf_buy",
-            "ardi_xauusd_buy",
-            "ardi_xauusd_sell",
+           "ardi_xauusd_buy",
+           "ardi_xauusd_sell",
            "ardi_gbpusd_buy",
-            "ardi_gbpusd_sell"
+           "ardi_gbpusd_sell",
+           "ardi_audcad_buy",
+           "ardi_audcad_sell",
+           "ardi_audchf_buy",
+           "ardi_audchf_sell",
+           "ardi_audjpy_buy",
+           "ardi_audjpy_sell",
+           "ardi_audusd_buy",
+           "ardi_audusd_sell",
+           "ardi_cadjpy_buy",
+           "ardi_cadjpy_sell",
+           "ardi_chfjpy_buy",
+           "ardi_chfjpy_sell",
+           "ardi_eurgbp_buy",
+           "ardi_eurgbp_sell",
+           "ardi_eurnzd_buy",
+           "ardi_eurnzd_sell"
            ]
 
 for folder in folders:
@@ -82,7 +96,7 @@ try:
     total_time_delta = cutting_time - start_time
 
     print(f"API: {api_time_delta}, Cut: {cut_time_delta}, Total: {total_time_delta}")
-    #notify.send(f"laksjdlaksdlkjasldjas")
+    # notify.send(f"laksjdlaksdlkjasldjas")
 except Exception as e:
     print(e)
     notify.send(f"[ ArDi ERROR ] API: {e}")
