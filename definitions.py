@@ -1,7 +1,7 @@
 import os
 
 
-EXTERNAL_DIR = "/srv/share/jizzmo_data"
+EXTERNAL_DIR = None
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if EXTERNAL_DIR:
