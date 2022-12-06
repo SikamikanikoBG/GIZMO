@@ -4,15 +4,8 @@ import os
 
 import pandas as pd
 import streamlit as st
-from pandas_profiling import ProfileReport
 import streamlit.components.v1 as components
 import sweetviz as sv
-import pandas as pd
-import pandas_profiling
-import streamlit as st
-
-from streamlit_pandas_profiling import st_profile_report
-
 
 import definitions
 
@@ -41,37 +34,70 @@ for file in file_list:
         with open(os.path.join(params_path + file), 'r', encoding='utf-8') as param_file:
             json_object = json.load(param_file)
             criterion_column = json_object["criterion_column"]
+            st.caption(f"Target column: {criterion_column}")
 
 with st.spinner("Loading output data"):
     try:
         input_df = pd.read_parquet(f"{output_data_path}/output_data_file_full.parquet")
     except:
         input_df = pd.read_parquet(f"{output_data_path}/output_data_file.parquet")
-st.success("Data loaded")
 
 final_features = pd.read_pickle(f"{output_data_path}/final_features.pkl")
-final_features = final_features[0:10]
-final_features.append(criterion_column)
-# final_features.append(definitions.params["criterion_column"])
-# st.write(final_features)
+final_features = final_features
+final_features_criterion = final_features
+final_features_criterion.append(criterion_column)
 
-if st.sidebar.button("Generate EDA"):
-    input_df = input_df[final_features].copy()
+input_df = input_df[final_features_criterion].copy()
 
-    with st.spinner("Generating graphs"):
-        # pr = input_df.profile_report()
-        # st_profile_report(pr)
-        # components.html(profile, width=1400, height=1000, scrolling=True)
+tab_eda, tab_segmentation = st.tabs(['Exploratory Data Analysis', 'Quick segmentation'])
+with tab_eda:
+    if st.button("Generate EDA"):
+        with st.spinner("Generating graphs"):
+            my_report = sv.analyze(input_df, target_feat=criterion_column)
+            my_report.show_html(filepath=f"{output_data_path}/EDA.html", open_browser=False, layout="vertical", scale=1.0)
+        st.success("Graphs generated!")
 
-        my_report = sv.analyze(input_df, target_feat=criterion_column)
-        my_report.show_html(filepath=f"{output_data_path}/EDA.html", open_browser=False, layout="vertical", scale=1.0)
-    st.success("Graphs generated!")
+        report_file = codecs.open(f"{output_data_path}/EDA.html", 'r')
+        page = report_file.read()
+        components.html(page, width=1400, height=1000, scrolling=True)
 
-    report_file = codecs.open(f"{output_data_path}/EDA.html", 'r')
-    page = report_file.read()
-    components.html(page, width=1400, height=1000, scrolling=True)
+    if st.button("Load existing EDA"):
+        with st.spinner("Generating EDA graphs"):
+            report_file = codecs.open(f"{output_data_path}/EDA.html", 'r')
+            page = report_file.read()
+            components.html(page, width=1400, height=1000, scrolling=True)
 
-if st.sidebar.button("Load existing EDA"):
-    report_file = codecs.open(f"{output_data_path}/EDA.html", 'r')
-    page = report_file.read()
-    components.html(page, width=1400, height=1000, scrolling=True)
+with tab_segmentation:
+    from matplotlib import pyplot as plt
+    from sklearn import datasets
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn import tree
+
+    # Prepare the data data
+    #iris = datasets.load_iris()
+    X = input_df[final_features]
+    y = input_df[criterion_column]
+    # Fit the classifier with default hyper-parameters
+    clf = DecisionTreeClassifier(max_depth=4, max_features=10,random_state=1234)
+    model = clf.fit(X, y)
+
+    fig = plt.figure(figsize=(25, 20))
+    _ = tree.plot_tree(clf,
+                       feature_names=final_features,
+                       #class_names=criterion_column,
+                       filled=True
+                       )
+
+    st.pyplot(fig)
+
+    # ---------------------------------------------------
+
+"""    from dtreeviz.trees import dtreeviz  # remember to load the package
+
+    viz = dtreeviz(clf, X, y,
+                   target_name="target",
+                   feature_names=final_features,
+                   class_names=list(criterion_column))
+    st.pyplot(viz)"""
+
+

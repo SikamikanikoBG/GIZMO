@@ -21,3 +21,4 @@ matplotlib
 sweetviz
 flask
 flask_cors
+pyodbc
