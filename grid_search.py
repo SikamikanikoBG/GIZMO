@@ -45,12 +45,12 @@ if winner:
                   "nb_features": [nb_features]
                   }
 else:
-    grid_param = {"tp": [0.0025, 0.0040],
-                  "sl": [0.0060, 0.0080, 0.0100],
+    grid_param = {"tp": [0.0025],
+                  "sl": [0.0150],
                   "period": [240, 480],
                   "t_val_size_per_period": [1300],
                   "training_rows": [4000, 7000, 10000],
-                  "nb_features": [30, 50]
+                  "nb_features": [15, 30, 50, 100]
                   }
 
 a, b = 0, 0
