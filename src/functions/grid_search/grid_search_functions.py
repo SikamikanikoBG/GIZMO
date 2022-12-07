@@ -33,6 +33,7 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
                      "--data_prep_module", "ardi", "--tp", str(tp), "--sl", str(sl), "--period", str(period)],
                     stdout=open(f"{definitions.EXTERNAL_DIR}/logs/grid_results_{project}.txt", "a"))
 
+    # Create temporal validation periods
     before_train_dedicate_temp_validation_periods(t_val_size_per_period, training_rows, project)
 
     tag = f"{str(tp)}_{str(sl)}_{str(period)}_{str(t_val_size_per_period)}_{str(training_rows)}_{str(nb_tree_features)}"
@@ -42,6 +43,14 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
 
     all_subdirs = [f"{definitions.EXTERNAL_DIR}/sessions/{d}" for d in os.listdir(definitions.EXTERNAL_DIR + '/sessions') if
                    os.path.isdir(definitions.EXTERNAL_DIR + '/sessions/' + d)]
+
+    # avoid obtaining wrong directory, that belongs to other project. This is caused when there are several grid searches
+    # ran in parallel
+    for dir in all_subdirs[:]:
+        if project not in dir:
+            all_subdirs.remove(dir)
+
+    # Obtain the results of the session
     latest_train_session_dir = max(all_subdirs, key=os.path.getmtime)
 
     try:
