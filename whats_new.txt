@@ -1,3 +1,4 @@
+5.02.0 - API for error logging
 5.01.0 - GUI - stable steps 0, 1, 2 with decision trees and settings
 5.00.0 - API server, updated requirements
 4.00.0 - first GUI

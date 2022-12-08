@@ -24,6 +24,7 @@ api_url_post_results_predict = api_url_prefix + "upload_models_predict"
 api_url_post_models_simulations = api_url_prefix + "upload_models_simulations"
 api_url_get_input_data = api_url_prefix + "get_all_raw_data"
 api_url_get_history_data = api_url_prefix + "get_history_data"
+api_url_post_error = api_url_prefix + "post_error_log"
 
 notifications_url_prefix = "https://notify.run/"
 notifications_url_grid = f"{notifications_url_prefix}QcLwLsIj07xKPxH81Eys"

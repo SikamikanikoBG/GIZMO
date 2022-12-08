@@ -3,6 +3,9 @@ import logging
 from colorama import Fore
 from colorama import Style
 
+import definitions
+from src.functions.api_communication import api_post_string
+
 
 def print_and_log(text, colour):
     text = str(text)
@@ -10,6 +13,12 @@ def print_and_log(text, colour):
         print(getattr(Fore, colour) + text + Style.RESET_ALL)
         if colour == 'RED':
             logging.error(text)
+            try:
+                request = api_post_string(url=definitions.api_url_post_error, string=text)
+                print(request)
+            except Exception as e:
+                logging.error(f"API log not possible: {e}")
+                pass
         else:
             logging.info(text)
     else:

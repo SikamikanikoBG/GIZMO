@@ -16,6 +16,15 @@ def api_post(url, data):
         return e
 
 
+def api_post_string(url, string):
+    try:
+        response = requests.post(url=url, data=string)
+        return response
+    except Exception as e:
+        print(e)
+        return e
+
+
 
 
 def api_get(url, conditions):

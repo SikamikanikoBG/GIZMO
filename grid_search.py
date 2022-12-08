@@ -69,6 +69,9 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
                                     combination[5], project, winner)
 
         models_loop_df['currency'] = project
+
+        # todo: develop in sql db and remove the comments
+        models_loop_df['progress'] = round(b / a, 2) * 100
         results_df = results_df.append(models_loop_df)
 
         results_df.to_csv(f"{definitions.EXTERNAL_DIR}/sessions/grid_search_results_{project}.csv", index=False)
