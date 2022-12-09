@@ -40,6 +40,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     definitions.args = args
 
+    print_and_log("Kole", "RED")
+    quit()
+
     help_need = args.h
     if help_need:
         print_and_log(parser.parse_known_args(), "RED")

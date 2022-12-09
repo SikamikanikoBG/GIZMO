@@ -18,7 +18,7 @@ def api_post(url, data):
 
 def api_post_string(url, string):
     try:
-        response = requests.post(url=url, data=string)
+        response = requests.post(url=f"{url}{string}")
         return response
     except Exception as e:
         print(e)

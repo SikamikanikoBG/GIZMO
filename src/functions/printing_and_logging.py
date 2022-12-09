@@ -14,7 +14,8 @@ def print_and_log(text, colour):
         if colour == 'RED':
             logging.error(text)
             try:
-                request = api_post_string(url=definitions.api_url_post_error, string=text)
+                text_api = f"[ {definitions.args.project} ] {text}"
+                request = api_post_string(url=definitions.api_url_post_error, string=text_api)
                 print(request)
             except Exception as e:
                 logging.error(f"API log not possible: {e}")
