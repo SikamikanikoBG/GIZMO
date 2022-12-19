@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 from datetime import datetime
 import itertools
 import pandas as pd
@@ -64,8 +65,9 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
                                      grid_param["nb_features"]):
     b += 1
     time_start = datetime.now()
+
     if combination[1] > combination[0]:
-        models_loop_df = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
+        models_loop_df, times_list = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
                                     combination[5], project, winner)
 
         models_loop_df['currency'] = project
@@ -83,16 +85,21 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
             except:
                 pass
     else:
+        times_list = []
         pass
 
     time_end = datetime.now()
     time = time_end - time_start
     time_remaining = (a - b) * time
     msg = f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. " \
-          f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}"
+          f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}. Subtimes: {times_list}"
     print(msg)
 if winner:
-    notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
+    msg = f"[ {project} ] Winner ready and saved in implementation folder."
+    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
+    #notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
 else:
-    notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
+    msg = f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)"
+    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
+    #notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
 

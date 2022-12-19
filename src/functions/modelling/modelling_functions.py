@@ -24,7 +24,7 @@ def get_metrics(y_true, y_pred, y_pred_prob):
         volumes = len(y_true)
     except Exception as e:
         print_and_log(
-            f"Metrics error: {e}. All metrics' values will be set to 0.5. May be the issue is that you have included "
+            f"Metrics error: {e}. All metrics' values will be set to 0. May be the issue is that you have included "
             f"an observation period that has no full performance period and therefore no real cases to be predicted?",
             'RED')
         accuracy_score_val = 0

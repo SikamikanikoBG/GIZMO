@@ -28,10 +28,12 @@ def before_train_dedicate_temp_validation_periods(t_val_size_per_period, trainin
 
 
 def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_features, project, winner):
+    time_start = datetime.now()
     file = open(f"{definitions.EXTERNAL_DIR}/logs/grid_results_{project}.txt", mode="w+")
     subprocess.call(["python", "main.py", "--project", f"{project}",
                      "--data_prep_module", "ardi", "--tp", str(tp), "--sl", str(sl), "--period", str(period)],
                     stdout=open(f"{definitions.EXTERNAL_DIR}/logs/grid_results_{project}.txt", "a"))
+    time_prep = datetime.now()
 
     # Create temporal validation periods
     before_train_dedicate_temp_validation_periods(t_val_size_per_period, training_rows, project)
@@ -40,6 +42,7 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
     subprocess.call(["python", "main.py", "--project", f"{project}",
                      "--train_module", "standard", "--tag", tag, "--nb_tree_features", str(nb_tree_features)],
                     stdout=open(f"{definitions.EXTERNAL_DIR}/logs/grid_results_{project}.txt", "a"))
+    time_train = datetime.now()
 
     all_subdirs = [f"{definitions.EXTERNAL_DIR}/sessions/{d}" for d in os.listdir(definitions.EXTERNAL_DIR + '/sessions') if
                    os.path.isdir(definitions.EXTERNAL_DIR + '/sessions/' + d)]
@@ -50,10 +53,9 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
         if project not in dir:
             all_subdirs.remove(dir)
 
-    # Obtain the results of the session
-    latest_train_session_dir = max(all_subdirs, key=os.path.getmtime)
-
     try:
+        # Obtain the results of the session
+        latest_train_session_dir = max(all_subdirs, key=os.path.getmtime)
         models_loop = pd.read_csv(f"{latest_train_session_dir}/models.csv")
         models_loop['combination'] = tag
         models_loop['time'] = datetime.now().strftime('%Y%m%d')
@@ -61,9 +63,21 @@ def load_train(tp, sl, period, t_val_size_per_period, training_rows, nb_tree_fea
             shutil.rmtree(latest_train_session_dir)
         elif winner:
             shutil.move(latest_train_session_dir, f"{definitions.EXTERNAL_DIR}/implemented_models/{project}")
+        time_folders = datetime.now()
+
+        prep_time = time_prep - time_start
+        training_time = time_train - time_prep
+        folders_time = time_folders - time_train
 
     except Exception as e:
         models_loop = pd.DataFrame()
         models_loop['combination'] = f"UNSUCCESSFUL: {tag}_{e}"
+        training_time = 0
+        prep_time = 0
+        folders_time = 0
 
-    return models_loop
+
+    times_list = [prep_time, training_time, folders_time]
+
+
+    return models_loop, times_list
