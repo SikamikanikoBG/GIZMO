@@ -10,9 +10,9 @@ import definitions
 
 
 def before_train_dedicate_temp_validation_periods(t_val_size_per_period, training_rows, project):
-    t1 = "2023-08-01 00:00:00"
-    t2 = "2023-08-06 00:00:00"
-    t3 = "2023-08-12 00:00:00"
+    t1 = "2022-08-01 00:00:00"
+    t2 = "2022-08-06 00:00:00"
+    t3 = "2022-08-12 00:00:00"
 
     df = pd.read_parquet(f'{definitions.ROOT_DIR}/output_data/{project}/output_data_file.parquet')
 
