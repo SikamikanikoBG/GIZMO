@@ -5,10 +5,11 @@ import itertools
 import pandas as pd
 import definitions
 from notify_run import Notify
-notify = Notify()
 
 from src.functions import api_communication
 from src.functions.grid_search.grid_search_functions import load_train
+
+notify = Notify()
 
 results_df = pd.DataFrame()
 
@@ -67,8 +68,9 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     time_start = datetime.now()
 
     if combination[1] > combination[0]:
-        models_loop_df, times_list = load_train(combination[0], combination[1], combination[2], combination[3], combination[4],
-                                    combination[5], project, winner)
+        models_loop_df, times_list = load_train(combination[0], combination[1], combination[2], combination[3],
+                                                combination[4],
+                                                combination[5], project, winner)
 
         models_loop_df['currency'] = project
 
@@ -97,9 +99,8 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
 if winner:
     msg = f"[ {project} ] Winner ready and saved in implementation folder."
     subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
-    #notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
+    # notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
 else:
     msg = f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)"
     subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
-    #notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
-
+    # notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
