@@ -1,3 +1,4 @@
+5.3.1 - BUG - page 00 input_df_org is now frozen as of data load and not impacted by sample sizing
 5.3.0 - API logging fixed, Notify fixed, Parallel run on  grid search
 5.02.1 - bug fix error logging
 5.02.0 - API for error logging

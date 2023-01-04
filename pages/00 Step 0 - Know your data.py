@@ -17,8 +17,8 @@ st.set_page_config(
 
 st.write("Load from Data and Analytics data server:")
 
-if "input_df" not in st.session_state:
-    st.session_state["input_df"] = pd.DataFrame()
+if "input_df_org" not in st.session_state:
+    st.session_state["input_df_org"] = pd.DataFrame()
 if "my_notes" not in st.session_state:
     st.session_state["my_notes"] = ""
 
@@ -45,7 +45,7 @@ if data_file:
     else:
         input_df = pd.read_pickle(data_file)
 
-    st.session_state['input_df'] = input_df
+    st.session_state['input_df_org'] = input_df
 
 st.header("Load from D&A SQL db:")
 with st.form("SQL connection"):
@@ -72,7 +72,7 @@ with st.form("SQL connection"):
     if submitted:
         try:
             input_df = pd.read_sql(query, connection)
-            st.session_state['input_df'] = input_df
+            st.session_state['input_df_org'] = input_df
         except Exception as e:
             st.warning(e)
             st.warning("These db and table exist??? The Custom query is OK??? Gledai gi malko tiya raboti, de...")
@@ -80,8 +80,8 @@ with st.form("SQL connection"):
             cur.close()
             connection.close()
 
-st.info(f"Data loaded with {len(st.session_state['input_df'])} records.")
-st.session_state['input_df_org'] = st.session_state['input_df'].copy()
+st.info(f"Data loaded with {len(st.session_state['input_df_org'])} records.")
+#st.session_state['input_df_org'] = st.session_state['input_df'].copy()
 st.session_state['input_df'] = st.session_state['input_df_org'].sample(frac=(sample_size/100)).copy()
 st.info(f"Random sampled data {len(st.session_state['input_df'])} records based on the chosen sample size {sample_size}%.")
 
