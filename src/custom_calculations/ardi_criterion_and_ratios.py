@@ -21,6 +21,21 @@ def calculate_criterion(df, predict_module):
     loss_pips = float(definitions.args.sl) #.0050
     period = int(definitions.args.period) #480
 
+    if "jpy" in definitions.args.project.lower():
+        profit_pips = profit_pips * 100
+        loss_pips = loss_pips * 100
+    elif "us30" in definitions.args.project.lower():
+        profit_pips = profit_pips * 1000
+        loss_pips = loss_pips * 1000
+    elif "xau" in definitions.args.project.lower():
+        profit_pips = profit_pips * 1000
+        loss_pips = loss_pips * 1000
+    elif "xag" in definitions.args.project.lower():
+        profit_pips = profit_pips * 100
+        loss_pips = loss_pips * 100
+    else:
+        pass
+
     df['check_ROLL_min'] = df['low'][::-1].rolling(window=period).min()
     df['check_ROLL_max'] = df['high'][::-1].rolling(window=period).max()
     df['check_pips'] = df['open'] + profit_pips

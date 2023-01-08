@@ -7,6 +7,7 @@ notify = Notify()
 
 import definitions
 from src.functions import api_communication
+from src.functions.printing_and_logging import print_and_log
 
 # Instantiate the parser
 parser = argparse.ArgumentParser(description='Optional app description')
@@ -97,6 +98,7 @@ try:
     in_data = api_communication.api_get(url, None)
     if in_data.empty:
         notify.send(f"ArDi ERROR: API data load: the input dataframe is empty. Probably the API is not accessible...")
+        print_and_log(f"[ DATA LOAD ]: the input dataframe is empty. Probably the API is not accessible...", "RED")
         quit()
 
     # in_data["time"] = pd.datetime(in_data["time"])

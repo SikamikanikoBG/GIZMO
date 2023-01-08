@@ -24,6 +24,9 @@ wait
 # delete the temp flag file
 rm simulations.running
 
+# notify for ready simulations
+curl https://notify.run/QcLwLsIj07xKPxH81Eys -d "Simulations are ready! Go and check them on www.snastroenie.com!"
+
 # Remove all unnecessary files
 #rm -rf $DIR/input_data/*
 #rm -rf $DIR/output_data/*

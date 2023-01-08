@@ -93,14 +93,14 @@ for combination in itertools.product(grid_param["tp"], grid_param["sl"], grid_pa
     time_end = datetime.now()
     time = time_end - time_start
     time_remaining = (a - b) * time
-    msg = f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. " \
-          f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}. Subtimes: {times_list}"
-    print(msg)
-if winner:
-    msg = f"[ {project} ] Winner ready and saved in implementation folder."
-    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
-    # notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
-else:
-    msg = f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)"
-    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
-    # notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
+#    msg = f"[ {project} ] Loop ready {round(b / a, 2) * 100}%: {b} from total {a} combinations. " \
+#          f"Combinations: {combination}. Elapsed time: {time} minutes. Time remaining: {time_remaining}. Subtimes: {times_list}"
+#    print(msg)
+#if winner:
+#    msg = f"[ {project} ] Winner ready and saved in implementation folder."
+#    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
+#    # notify.send(message=f"[ {project} ] Winner ready and saved in implementation folder.")
+#else:
+#    msg = f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)"
+#    subprocess.call(["curl", definitions.notifications_url_grid, "-d", f'"{msg}"'])
+#    # notify.send(message=f"[ {project} ] Simulation ready. Go and check it on ArDi Report! :)")
