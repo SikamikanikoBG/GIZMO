@@ -18,7 +18,7 @@ params = None
 
 #ngrok_prefix = "e482"
 #api_url_prefix = "https://"+ngrok_prefix+"-95-43-20-41.eu.ngrok.io/"
-api_url_prefix = "http://192.168.50.106:5000/"
+api_url_prefix = "http://192.168.1.106:5000/"
 api_url_post_results_models = api_url_prefix + "bulk_upload_new_raw_data"
 api_url_post_results_predict = api_url_prefix + "upload_models_predict"
 api_url_post_models_simulations = api_url_prefix + "upload_models_simulations"
