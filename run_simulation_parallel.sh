@@ -16,11 +16,15 @@ nice -n 16 python3 -W ignore $DIR/load_data.py --session gridsearch --volumes 15
 # --load 100% - specify % of system load
 #--memfree 1G check if there is a free memory
 
-#cat $DIR/run_simulation_parallel|/home/ardi/apps/parallel/bin/parallel --progress --bar --load 80% --colsep ' ' nice -n 16 python3 -W ignore $DIR/grid_search.py  --project {1} --tp {2} --sl {3} --training_rows {4} --period {5} --#nb_features 50 
-
-cat $DIR/run_simulation_parallel|/home/ardi/apps/parallel/bin/parallel --progress --bar --load 80% --memfree 1G --colsep ' ' -j 30 nice -n 16 python3 -W ignore $DIR/grid_search.py  --project {1} --tp {2} --sl {3} --training_rows {4} --period {5} --nb_features 50 
+cat $DIR/run_simulation_parallel_1|/home/ardi/apps/parallel/bin/parallel --progress --bar --load 80% --memfree 1G --colsep ' ' -j 0 nice -n 16 python3 -W ignore $DIR/grid_search.py  --project {1} --tp {2} --sl {3} --training_rows {4} --period {5} --nb_features 50
+curl https://notify.run/QcLwLsIj07xKPxH81Eys -d "Simu priority 1 are ready! Go and check them on www.snastroenie.com!"
+cat $DIR/run_simulation_parallel_2|/home/ardi/apps/parallel/bin/parallel --progress --bar --load 80% --memfree 1G --colsep ' ' -j 0 nice -n 16 python3 -W ignore $DIR/grid_search.py  --project {1} --tp {2} --sl {3} --training_rows {4} --period {5} --nb_features 50
+curl https://notify.run/QcLwLsIj07xKPxH81Eys -d "Simu priority 2 are ready! Go and check them on www.snastroenie.com!"
+cat $DIR/run_simulation_parallel_3|/home/ardi/apps/parallel/bin/parallel --progress --bar --load 80% --memfree 1G --colsep ' ' -j 0 nice -n 16 python3 -W ignore $DIR/grid_search.py  --project {1} --tp {2} --sl {3} --training_rows {4} --period {5} --nb_features 50
+curl https://notify.run/QcLwLsIj07xKPxH81Eys -d "Simu priority 3 are ready! Go and check them on www.snastroenie.com!"
 
 # Wait until previous command  finishes before proceeding further
+ls ./
 wait
 
 # delete the temp flag file

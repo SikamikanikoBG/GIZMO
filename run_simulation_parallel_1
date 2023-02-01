@@ -2,8 +2,6 @@ ardi_eurcad_sell 0.0025 0.006 7000 480
 ardi_eurcad_buy 0.0025 0.006 7000 480
 ardi_audnzd_sell 0.0025 0.006 7000 480
 ardi_audnzd_buy 0.0025 0.006 7000 480
-ardi_nzdusd_sell 0.0025 0.006 7000 480
-ardi_nzdusd_buy 0.0025 0.006 7000 480
 ardi_audcad_buy 0.0025 0.006 7000 480
 ardi_audcad_sell 0.0025 0.006 7000 480
 ardi_audusd_buy 0.0025 0.006 7000 480
@@ -20,5 +18,3 @@ ardi_gbpcad_buy 0.0025 0.006 7000 480
 ardi_gbpcad_sell 0.0025 0.006 7000 480
 ardi_gbpnzd_buy 0.0025 0.006 7000 480
 ardi_gbpnzd_sell 0.0025 0.006 7000 480
-ardi_usdcad_buy 0.0025 0.006 7000 480
-ardi_usdcad_sell 0.0025 0.006 7000 480
