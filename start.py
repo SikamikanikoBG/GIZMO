@@ -13,7 +13,7 @@ st.set_page_config(
 global selected_project
 
 st.image("gizmo_logo.png")
-st.header("Welcome to Jizzmo!")
+st.header("Welcome to Gizzmo!")
 st.write("The data driven business decisions made simple")
 
 

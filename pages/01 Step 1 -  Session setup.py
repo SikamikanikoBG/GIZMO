@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 
+import pandas as pd
 import streamlit as st
 
 import definitions
@@ -13,6 +14,12 @@ st.set_page_config(
     layout="wide",
 )
 
+if "my_notes" not in st.session_state:
+    st.session_state["my_notes"] = ""
+if "input_df" not in st.session_state:
+    st.session_state['input_df'] = pd.DataFrame()
+if "selected_param_file" not in st.session_state:
+    st.session_state["selected_param_file"] = None
 st.session_state["my_notes"] = st.sidebar.text_area("My notes", value=st.session_state["my_notes"])
 
 tab_settings, tab_log = st.tabs(["Settings - Step 1", "Settings - Step 2"])
@@ -30,42 +37,62 @@ with tab_settings:
     col1, col2, col3 = st.columns(3)
 
     input_dir = './input_data/'
-    dir_list = next(os.walk(input_dir))[1]
+    dir_list = sorted(next(os.walk(input_dir))[1])
+    dir_list.append("None")
+    default_select = dir_list.index("None")
 
-    selected_project = st.sidebar.selectbox("Select existing project:", sorted(dir_list))
+    project_selected_properly = False
+
+    selected_project = st.selectbox(f"Select existing project:", dir_list, index=default_select)
+
     input_data_path = f"{definitions.ROOT_DIR}/input_data/{selected_project}"
 
-    file_list_input_folder = os.listdir(input_data_path)
-
-    st.header(f"Settings for: {selected_project}")
-    selected_param_file = str()
-    for file in file_list:
-        if selected_project in file:
-            selected_param_file = file
-    if not selected_param_file:
-        shutil.copyfile(f"{params_path}params_new_project.json", f"{params_path}params_{selected_project}.json")
-    else:
-        st.caption(selected_param_file)
-
-    definitions.selected_project = selected_project
-    definitions.selected_param_file = selected_param_file
-
-    # Display and edit json param file
     try:
-        with open(os.path.join(params_path + definitions.selected_param_file), 'r', encoding='utf-8') as param_file:
+        file_list_input_folder = os.listdir(input_data_path)
+        project_selected_properly = True
+    except Exception as e:
+        st.warning(f"Dude, this project has no directory in our input folder... ERROR: {e}")
+        st.stop()
+    selected_project_input_data = st.selectbox("Select the input data:", file_list_input_folder)
+
+    if st.button("Load settings and data"):
+
+        if len(st.session_state["input_df"]) == 0:
+            if ".csv" in selected_project_input_data:
+                st.session_state['input_df'] = pd.read_csv(f"{input_data_path}/{selected_project_input_data}")
+            elif ".parquet" in selected_project_input_data:
+                st.session_state['input_df'] = pd.read_parquet(f"{input_data_path}/{selected_project_input_data}")
+
+        st.header(f"Settings for: {selected_project}")
+        selected_param_file = str()
+        for file in file_list:
+            if selected_project in file:
+                selected_param_file = file
+        if not selected_param_file:
+            shutil.copyfile(f"{params_path}params_new_project.json", f"{params_path}params_{selected_project}.json")
+        else:
+            st.caption(selected_param_file)
+
+        st.session_state["selected_project"] = selected_project
+        st.session_state["selected_param_file"] = selected_param_file
+        # Display and edit json param file
+    try:
+        with open(os.path.join(params_path + st.session_state.selected_param_file), 'r', encoding='utf-8') as param_file:
             json_object = json.load(param_file)
             col1, col2 = st.columns(2)
 
             with st.form("Settings"):
                 with col1:
                     st.subheader("Data processing settings")
+                    tolist = st.session_state['input_df'].columns.tolist()
+                    tolist.append("")
                     try:
-                        default_ix = st.session_state['input_df'].columns.tolist().index(json_object['criterion_column'])
+                        default_ix = tolist.index(json_object['criterion_column'])
                     except:
                         default_ix = 0
                     new_value_criterion_column = st.selectbox(
                         f"[ criterion_column ] Current value: {json_object['criterion_column']}",
-                        st.session_state['input_df'].columns.tolist(), index=default_ix)
+                        tolist, index=default_ix)
                     new_value_custom_calculations = st.text_input(
                         label=f"[ custom_calculations ]. Current value: {json_object['custom_calculations']}",
                         value=json_object['custom_calculations'], disabled=True)
@@ -73,16 +100,15 @@ with tab_settings:
                         f"[ main_table ]. Well, the name of the main data file for the project. Current value: {json_object['main_table']}",
                         file_list_input_folder)
                     new_value_additional_tables = st.text_input(
-                        label=f"[ additional_tables ]. Jizzmo will left join them to the main table based on keys that you are specifying here.",
+                        label=f"[ additional_tables ]. Gizzmo will left join them to the main table based on keys that you are specifying here.",
                         value=json_object['additional_tables'], disabled=True)
 
                     try:
-                        default_ix = st.session_state['input_df'].columns.tolist().index(json_object['observation_date_column'])
+                        default_ix = tolist.index(json_object['observation_date_column'])
                     except:
                         default_ix = 0
                     new_value_observation_date_column = st.selectbox(label=f"[ observation_date_column ] Current value: {json_object['observation_date_column']}",
-                                                                     options=st.session_state[
-                                                                         'input_df'].columns.tolist(), index=default_ix)
+                                                                     options=tolist, index=default_ix)
                     new_value_periods_to_exclude = st.multiselect(
                         label=f"[ periods_to_exclude ]. Example - no full performance period, or bad nb of cases etc. Current value: {json_object['periods_to_exclude']}",
                         options=sorted(st.session_state['input_df'][new_value_observation_date_column].unique()))
@@ -96,19 +122,33 @@ with tab_settings:
                         value=1.0)
                     new_value_optimal_binning_columns = st.multiselect(
                         label=f"[ Optimal Binning ] Which NUMERICAL! columns you would like GIZMO to cut into bins for the analysis? Current value: {json_object['optimal_binning_columns']}",
-                        options=st.session_state['input_df'].columns.tolist(), default=json_object['optimal_binning_columns'])
+                        options=tolist, default=json_object['optimal_binning_columns'])
                     new_value_missing_treatment = st.text_input(label=f"{'missing_treatment'}",
                                                                 value=json_object['missing_treatment'],
                                                                 disabled=True)
-                    new_value_columns_to_include = st.multiselect(
-                        label=f"[ Columns to include ] If some columns are excluded by GIZMO due to low correlation or other reason - select them here if you want to force GIZMO to include them. {'columns_to_include'}. Current value: {json_object['columns_to_include']}",
-                        options=st.session_state['input_df'].columns.tolist(),
-                        default=json_object['columns_to_include'])
+                    default_col_incl = json_object['columns_to_include']
 
-                    new_value_columns_to_exclude = st.multiselect(
-                        label=f"[ Columns to EXCLUDE ] Which columns to be excluded from the analysis? Example - ID, Phone or others. {'columns_to_include'}. Current value: {json_object['columns_to_exclude']}",
-                        options=st.session_state['input_df'].columns.tolist(),
-                        default=json_object['columns_to_exclude'])
+                    label = f"[ Columns to include ] If some columns are excluded by GIZMO due to low correlation or other reason - select them here if you want to force GIZMO to include them. {'columns_to_include'}. Current value: {json_object['columns_to_include']}"
+                    if len(json_object['columns_to_include']) == 0:
+                        new_value_columns_to_include = st.multiselect(label=label, options=tolist)
+                    else:
+                        for el in json_object['columns_to_include']:
+                            if el not in tolist:
+                                json_object['columns_to_include'].remove(el)
+                                st.warning(f"Warning: {el} was specified in the param, but was not found in the columns of the dataset.")
+                        new_value_columns_to_include = st.multiselect(label=label, options=tolist, default=json_object['columns_to_include'])
+
+                    label = f"[ Columns to EXCLUDE ] Which columns to be excluded from the analysis? Example - ID, Phone or others. {'columns_to_include'}. Current value: {json_object['columns_to_exclude']}"
+                    if len(json_object['columns_to_exclude']) == 0:
+                        st.warning("YES")
+                        new_value_columns_to_exclude = st.multiselect(label=label, options=tolist)
+                    else:
+                        for el in json_object['columns_to_exclude']:
+                            if el not in tolist:
+                                json_object['columns_to_exclude'].remove(el)
+                                st.warning(
+                                    f"Warning: {el} was specified in the param, but was not found in the columns of the dataset.")
+                        new_value_columns_to_exclude = st.multiselect(label=label, options=tolist, default=json_object['columns_to_exclude'])
                 with col2:
                     st.subheader("Models training settings")
                     new_value_t1df = st.selectbox(
@@ -162,15 +202,18 @@ with tab_settings:
                 json_object["columns_to_include"] = new_value_columns_to_include
 
                 submitted = st.form_submit_button(f"Update {selected_project} settings")
+                st.write(json_object)
+
                 if submitted:
-                    with open(os.path.join(params_path + selected_param_file), 'w',
+                    st.warning(st.session_state.selected_param_file)
+                    with open(os.path.join(f"{params_path}2{st.session_state.selected_param_file}"), 'w',
                               encoding='utf-8') as output_param_file:
                         json.dump(json_object, output_param_file)
                         st.success("Settings are updated successfully")
 
-                definitions.params = json_object
+                # definitions.params = json_object
     except Exception as e:
-        st.write(f"ERROR: Issue with {file}: {e}")
+        st.write(f"ERROR: {e}")
 
 with tab_log:
     if st.button("Run GIZMO data preparation"):

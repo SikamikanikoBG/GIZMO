@@ -1,1 +1,26 @@
-{"criterion_column": "PL_REQUEST_2M_FLG", "missing_treatment": "{'Info': 'Missing'}", "main_table": "CZ_PL_ACTIVES.csv", "custom_calculations": "", "additional_tables": "{}", "observation_date_column": "OBSERVATIONDATE", "secondary_criterion_columns": "['NB_ACTIVE_VAT', 'OBSERVATIONDATE']", "t1df": "2022-06-30", "t2df": "2022-06-30", "t3df": "2022-06-30", "periods_to_exclude": [], "columns_to_exclude": "['CON_CCIF', 'FLAG_ACTIVE_INACTIVECUSTOMER', 'MONTHS_INACTIVE', 'OBSERVATIONDATE', 'const']", "lr_features": "[]", "_lr_features_auc70PS0": ["AMOUNT_TOTAL_MONTHLY_INTEREST_binned_dummie_from_incl_312.68_to_1698.97_excl_", "OUTSTANDING_CUSTOMER_div_ratio_INSTALLMENTS_PL_binned_dummie_from_incl_41.63_to_61.25_excl_", "INSTALLMENTS_PL_div_ratio_AMOUNT_LAST_PAYMENT_binned_dummie_from_excl_-inf_to_0.00_excl_", "INSTALLMENTS_CARD_div_ratio_MONTHS_SINCELASTFINANCED_CARD_binned_dummie_from_incl_1.45_to_239.23_excl_", "OUTSTANDING_CARD_div_ratio_MONTHS_SINCELASTFINANCED_VAT_binned_dummie_from_excl_-inf_to_521.37_excl_", "EMAIL_FLAG_dummie_0", "OUTSTANDING_CARD_div_ratio_MONTHS_SINCELASTFINANCED_VAT_binned_dummie_from_incl_2497.61_to_inf_excl_", "YEARS_CURRENT_EMPLOYMENT_div_ratio_INSTALLMENTS_PL_binned_dummie_from_excl_-inf_to_0.00_excl_", "INSTALLMENTS_CARD_div_ratio_AMOUNT_TOTAL_MONTHLY_INSURANCE_binned_dummie_from_incl_0.03_to_11.70_excl_", "INSTALLMENTS_CARD_div_ratio_MONTHS_SINCELASTFINANCED_PL_binned_dummie_from_incl_97.69_to_inf_excl_", "OUTSTANDING_CUSTOMER_div_ratio_MONTHS_SINCELASTFINANCED_VAT_binned_dummie_from_incl_801.41_to_4985.77_excl_"], "lr_features_to_include": "[]", "trees_features_to_include": [], "trees_features_to_exclude": "[]", "cut_offs": "{'xgb': [0, 0.117, 0.302, 0.473, 1], '_lr': [0, 0.123, 0.297, 0.7, 1], 'lr': [0, 0.255, 0.4, 0.7, 1], 'dt': [0, 0.102, 0.263, 0.586, 1], 'rf': [0, 0.102, 0.263, 0.586, 1]}", "under_sampling": 1.0, "optimal_binning_columns": ["SALARY", "AGE"], "_optimal_binning_columns": ["AGE", "SALARY", "INCOME_OTHER", "INTEREST_RATE_CARD", "NB_ACTIVE_PL", "NB_ACTIVE_VAT", "NB_ACTIVE_CARD", "NB_FIN_PL_24M", "NB_FIN_VAT_24M", "OUTSTANDING_PL", "OUTSTANDING_VAT", "OUTSTANDING_CARD", "OUTSTANDING_CUSTOMER", "INSTALLMENTS_PL", "INSTALLMENTS_VAT", "INSTALLMENTS_CARD", "MONTHS_SINCELASTFINANCED_PL", "MONTHS_SINCELASTFINANCED_VAT", "MONTHS_SINCELASTFINANCED_CARD", "AMOUNT_TOTAL_MONTHLY_INTEREST", "AMOUNT_TOTAL_MONTHLY_INSURANCE", "AMOUNT_LAST_PAYMENT"], "columns_to_include": []}
+{
+  "criterion_column": "PL_REQUEST_2M_FLG",
+  "missing_treatment": {"Info": "Missing"},
+  "main_table": "CZ_PL_ACTIVES.csv",
+  "custom_calculations": "",
+  "additional_tables": {},
+  "observation_date_column": "OBSERVATIONDATE",
+  "secondary_criterion_columns": ["NB_ACTIVE_VAT", "OBSERVATIONDATE"],
+  "t1df": "2022-06-30",
+  "t2df": "2022-06-30",
+  "t3df": "2022-06-30",
+  "periods_to_exclude": [],
+  "columns_to_exclude": ["CON_CCIF", "FLAG_ACTIVE_INACTIVECUSTOMER", "MONTHS_INACTIVE", "OBSERVATIONDATE", "const"],
+  "lr_features": [],
+
+  "lr_features_to_include": [],
+  "trees_features_to_include": [],
+  "trees_features_to_exclude": [],
+  "cut_offs": {"xgb": [0, 0.117, 0.302, 0.473, 1], "_lr": [0, 0.123, 0.297, 0.7, 1], "lr": [0, 0.255, 0.4, 0.7, 1], "dt": [0, 0.102, 0.263, 0.586, 1], "rf": [0, 0.102, 0.263, 0.586, 1]},
+  "under_sampling": 1.0,
+  "optimal_binning_columns": [
+    "SALARY",
+    "AGE"
+  ],
+  "columns_to_include": []
+}
