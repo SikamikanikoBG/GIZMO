@@ -206,7 +206,7 @@ with tab_settings:
 
                 if submitted:
                     st.warning(st.session_state.selected_param_file)
-                    with open(os.path.join(f"{params_path}2{st.session_state.selected_param_file}"), 'w',
+                    with open(os.path.join(f"{params_path}{st.session_state.selected_param_file}"), 'w',
                               encoding='utf-8') as output_param_file:
                         json.dump(json_object, output_param_file)
                         st.success("Settings are updated successfully")
