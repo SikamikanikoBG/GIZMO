@@ -12,14 +12,42 @@ def run(df):
     column_names_to_forex_rename(df)
     df.sort_values(by=['Time'], inplace=True)
     calculate_indicators(df)
-    #df['time'] = df['time'].astype("O")
+    # df['time'] = df['time'].astype("O")
+    return df
+
+
+def calculate_flag_trade(df):
+    # Aggregate 1M to 15M df
+
+    df15 = df.iloc[::-15, :].copy()
+    df15.sort_values(by=['Time'], inplace=True)
+    stock_df15 = Sdf.retype(df15)
+    stock_df = Sdf.retype(df)
+
+    # Calculate flag for trends
+    open_31M_smma = stock_df['open_3_sma'].iloc[-1]
+    open_315M_smma = stock_df15['open_3_sma'].iloc[-1]
+    open_915M_smma = stock_df15['open_9_sma'].iloc[-1]
+    abs_diff_pips = abs(open_315M_smma - open_915M_smma)
+
+    # trends
+    flag_trend = 0
+    if "buy" in definitions.args.project.lower():
+        if (open_31M_smma > open_915M_smma) and (open_315M_smma > open_915M_smma) and (abs_diff_pips > 0.0004):
+            flag_trend = 1
+    elif "sell" in definitions.args.project.lower():
+        if (open_31M_smma < open_915M_smma) and (open_315M_smma < open_915M_smma) and (abs_diff_pips > 0.0004):
+            flag_trend = 1
+
+    df['flag_trend'] = flag_trend
+    del stock_df15
     return df
 
 
 def calculate_criterion(df, predict_module):
     profit_pips = float(definitions.args.tp)
-    loss_pips = float(definitions.args.sl) #.0050
-    period = int(definitions.args.period) #480
+    loss_pips = float(definitions.args.sl)  # .0050
+    period = int(definitions.args.period)  # 480
 
     if "jpy" in definitions.args.project.lower():
         profit_pips = profit_pips * 100
@@ -52,7 +80,7 @@ def calculate_criterion(df, predict_module):
     criterion_sell = df['criterion_sell'].sum() / df['criterion_sell'].count()
 
     print_and_log(f"Criterion BUY: {criterion_buy}, "
-          f"Criterion SELL: {criterion_sell}", "")
+                  f"Criterion SELL: {criterion_sell}", "")
 
     if definitions.params:
         if definitions.params["resistance_support"]:
@@ -72,11 +100,15 @@ def calculate_criterion(df, predict_module):
 
     if predict_module:
         pass
-    elif df['criterion_buy'].sum() == 0 or df['criterion_sell'].sum()==0 or df['criterion_buy'].sum() == 1 or df['criterion_sell'].sum()==1:
+    elif df['criterion_buy'].sum() == 0 or df['criterion_sell'].sum() == 0 or df['criterion_buy'].sum() == 1 or df[
+        'criterion_sell'].sum() == 1:
         print_and_log(f"ERROR: Only one value in Criterion. Quitting!", "RED")
         quit()
     else:
         pass
+
+    df = calculate_flag_trade(df)
+
     return df
 
 
@@ -91,21 +123,8 @@ def columns_to_lower_case_names(df):
 
 
 def calculate_indicators(df):
-    # TODO: aggregate df on 15minutes
-    # TODO: Calculate MA 3 and MA 9 on 15M and MA 3 on 1M
-    # TODO: Calculate trend 1 = uptrend, 0 abs pips < 5, -1 = downtrend
-    # Todo: check in args proj name
-    # TODO: create flag trend - if buy in proj and trend = 1 and MA31M > MA915M => 1, elif sell in proj and trend== -1 => 1 else 0
-
-    # Aggregate 1M to 15M df
-    print(f"Keep every 15th row start")
-
-    df15 = df.iloc[::-15, :].copy()
-    df15.sort_values(by=['Time'], inplace=True)
-
     # Retype df
     stock_df = Sdf.retype(df)
-    stock_df15 = Sdf.retype(df15)
 
     # periods = ["14", "60", "240", "480"]
     periods = ["14", "240", "480"]
@@ -114,19 +133,19 @@ def calculate_indicators(df):
     for period in periods:
         for col in columns:
             df[col + '_' + period + '_ema'] = stock_df[col + '_' + period + '_ema']
-            #df[col + '_' + period + '_delta'] = stock_df[col + '_-' + period + '_d']
-            #df[col + '_' + period + '_smma'] = stock_df[col + '_' + period + '_smma']
-            #df[col + '_' + period + '_ups_c'] = stock_df['ups_' + period + '_c']
-            #df[col + '_' + period + '_downs_c'] = stock_df['downs_' + period + '_c']
+            # df[col + '_' + period + '_delta'] = stock_df[col + '_-' + period + '_d']
+            # df[col + '_' + period + '_smma'] = stock_df[col + '_' + period + '_smma']
+            # df[col + '_' + period + '_ups_c'] = stock_df['ups_' + period + '_c']
+            # df[col + '_' + period + '_downs_c'] = stock_df['downs_' + period + '_c']
         df['rsi_' + period] = stock_df['rsi_' + period]
         df['vr_' + period] = stock_df['vr_' + period]
         df['wr_' + period] = stock_df['wr_' + period]
-        #df['cci_' + period] = stock_df['cci_' + period]
+        # df['cci_' + period] = stock_df['cci_' + period]
         df['atr_' + period] = stock_df['atr_' + period]
-        #df['middle_' + period + '_trix'] = stock_df['middle_' + period + '_trix']
-        #df['middle_' + period + '_tema'] = stock_df['middle_' + period + '_tema']
-        #df['kdjk_' + period] = stock_df['kdjk_' + period]
-        #df['vwma_' + period] = stock_df['vwma_' + period]
+        # df['middle_' + period + '_trix'] = stock_df['middle_' + period + '_trix']
+        # df['middle_' + period + '_tema'] = stock_df['middle_' + period + '_tema']
+        # df['kdjk_' + period] = stock_df['kdjk_' + period]
+        # df['vwma_' + period] = stock_df['vwma_' + period]
 
     df['dma'] = stock_df['dma']
     df['pdi'] = stock_df['pdi']
@@ -135,8 +154,8 @@ def calculate_indicators(df):
     df['adx'] = stock_df['adx']
     df['adxr'] = stock_df['adxr']
 
-    #df['cr'] = stock_df['cr']
-    #df['ppo'] = stock_df['ppo']
+    # df['cr'] = stock_df['cr']
+    # df['ppo'] = stock_df['ppo']
     df['log-ret'] = stock_df['log-ret']
     df['macd_feat'] = stock_df['macd']
     df['macds_feat'] = stock_df['macds']
@@ -144,25 +163,6 @@ def calculate_indicators(df):
     df['boll_ub_feat'] = stock_df['boll_ub']
     df['boll_lb_feat'] = stock_df['boll_lb']
 
-    # Calculate flag for trends
-    open_31M_smma = stock_df['open_3_sma'].iloc[-1]
-    open_315M_smma = stock_df15['open_3_sma'].iloc[-1]
-    open_915M_smma = stock_df15['open_9_sma'].iloc[-1]
-    abs_diff_pips = abs(open_315M_smma - open_915M_smma)
-
-    # trends
-    #
-    flag_trend = 0
-    if "buy" in definitions.args.project.lower():
-        if (open_31M_smma > open_915M_smma) and (open_315M_smma > open_915M_smma) and (abs_diff_pips > 0.0004):
-            flag_trend = 1
-    elif "sell" in definitions.args.project.lower():
-        if (open_31M_smma < open_915M_smma) and (open_315M_smma < open_915M_smma) and (abs_diff_pips > 0.0004):
-            flag_trend = 1
-
-
-    df['flag_trend'] = flag_trend
-
     del stock_df
-    del stock_df15
+
     return df
