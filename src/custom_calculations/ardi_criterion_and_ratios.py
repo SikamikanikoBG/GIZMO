@@ -20,7 +20,8 @@ def calculate_flag_trade(df):
     # Aggregate 1M to 15M df
 
     df15 = df.iloc[::-15, :].copy()
-    df15.sort_values(by=['Time'], inplace=True)
+    df15 = df15.iloc[::-1].copy()
+    #df15.sort_values(by=['Time'], inplace=True)
     stock_df15 = Sdf.retype(df15)
     stock_df = Sdf.retype(df)
 
