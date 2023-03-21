@@ -91,7 +91,19 @@ def columns_to_lower_case_names(df):
 
 
 def calculate_indicators(df):
+    # TODO: aggregate df on 15minutes
+    # TODO: Calculate MA 3 and MA 9 on 15M and MA 3 on 1M
+    # TODO: Calculate trend 1 = uptrend, 0 abs pips < 5, -1 = downtrend
+    # Todo: check in args proj name
+    # TODO: create flag trend - if buy in proj and trend = 1 and MA31M > MA915M => 1, elif sell in proj and trend== -1 => 1 else 0
+
+    # Aggregate 1M to 15M df
+    df15 = df.iloc[::-15, :].copy()
+
+    # Retype df
     stock_df = Sdf.retype(df)
+    stock_df15 = Sdf.retype(df15)
+
     # periods = ["14", "60", "240", "480"]
     periods = ["14", "240", "480"]
     columns = ['open']
@@ -128,5 +140,19 @@ def calculate_indicators(df):
     df['boll_feat'] = stock_df['boll']
     df['boll_ub_feat'] = stock_df['boll_ub']
     df['boll_lb_feat'] = stock_df['boll_lb']
+
+    # Calculate flag for trends
+    open_31M_smma = stock_df['open_3_smma'].iloc[-1]
+    open_315M_smma = stock_df15['open_3_smma'].iloc[-1]
+    open_915M_smma = stock_df15['open_9_smma'].iloc[-1]
+    abs_diff_pips = abs(open_315M_smma - open_915M_smma)
+
+    # trends
+    if "buy" in definitions.args.project.lower():
+        df['flag_trend'] = np.where((open_31M_smma > open_915M_smma) and (open_315M_smma > open_915M_smma) and (abs_diff_pips > 4), 1, 0)
+    elif "sell" in definitions.args.project.lower():
+        df['flag_trend'] = np.where((open_31M_smma < open_915M_smma) and (open_315M_smma < open_915M_smma) and (abs_diff_pips > 4), 1, 0)
+    else:
+        df['flag_trend'] = 0
     del stock_df
     return df

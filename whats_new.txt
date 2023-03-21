@@ -1,3 +1,4 @@
+6.4.0 - custom calcs ardi
 6.3.0 - create ratios now in parallel
 5.3.2 - GUI bugs and features.
 5.3.1 - BUG - page 00 input_df_org is now frozen as of data load and not impacted by sample sizing

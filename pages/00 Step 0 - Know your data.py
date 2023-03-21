@@ -52,6 +52,7 @@ with st.form("SQL connection"):
     sql_db = st.selectbox("Database", ["DWH", "DWH_Stage", "DWH_temp"], index=1)
     sql_table = st.text_input("Table")
     sql_query = st.text_input(f"Custom query, default: select * from {sql_table}")
+    st.info(f"Will run custom query: {sql_query}")
     # Load tables from SQL + additional modifications
     config = configparser.ConfigParser()
     # Define the connection using variables pulled from secret
