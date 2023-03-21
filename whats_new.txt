@@ -1,3 +1,4 @@
+6.4.1 - custom calcs ardi BUG fix
 6.4.0 - custom calcs ardi
 6.3.0 - create ratios now in parallel
 5.3.2 - GUI bugs and features.
