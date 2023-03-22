@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import pandas as pd
 from scipy import stats
-import multiprocessing
 
 import definitions
 from src.functions.modelling.modelling_functions import cut_into_bands
@@ -149,40 +148,6 @@ def create_ratios(df, columns, columns_to_include):
                     if col not in shortlist:
                         shortlist.append(col)
 
-        with multiprocessing.Pool() as pool:
-            for col in shortlist:
-                pool.map(create_ratios_divide_columns, [(df, col, col2) for col2 in shortlist])
-    else:
-        with multiprocessing.Pool() as pool:
-            for col in columns:
-                temp.append(col)
-                for col2 in columns:
-                    if col2 in temp:
-                        pass
-                    else:
-                        pool.map(create_ratios_divide_columns, [(df, col, col2)])
-
-    print_and_log(f'[ RATIOS ] Feat eng: Ratios created:', '')
-    return df
-
-
-def create_ratios_divide_columns(args):
-    df, col, col2 = args
-    df[col + '_div_ratio_' + col2] = df[col] / df[col2]
-    df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf], np.nan)
-
-
-def create_ratios_original(df, columns, columns_to_include):
-    shortlist = []
-    temp = []
-
-    if columns_to_include:
-        for col in columns:
-            for col_keep in columns_to_include:
-                if col == col_keep or col in col_keep:
-                    if col not in shortlist:
-                        shortlist.append(col)
-
         for col in shortlist:
             for col2 in shortlist:
                 df[col + '_div_ratio_' + col2] = df[col] / df[col2]
@@ -211,19 +176,17 @@ def create_tree_feats(df, columns, criterion):
             class0_val = str(round(df[df[col + '_tree'] == 0][col].max(), 4))
             df = df.rename(columns={col + "_tree": col + "_tree_" + class0_val})
             print_and_log(
-                '[ FEATURE ENGINEERING ] Feature engineering: New feature added with Decision Tree {}'.format(
-                    col + "_tree_" + class0_val), '')
+                '[ FEATURE ENGINEERING ] Feature engineering: New feature added with Decision Tree {}'.format(col + "_tree_" + class0_val), '')
     print_and_log('[ RATIOS ] Feat eng: trees created', 'GREEN')
     return df
 
 
-def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_folder, model_corr, flag_raw,
-                       keep_cols):
+def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_folder, model_corr, flag_raw, keep_cols):
     corr_cols = []
     if flag_matrix != 'all':
         a = X.corrwith(y)
 
-        a.to_csv(definitions.ROOT_DIR + '/output_data/' + input_data_project_folder + '/correl.csv')
+        a.to_csv(definitions.ROOT_DIR  + '/output_data/' + input_data_project_folder + '/correl.csv')
         a = abs(a)
         b = a[a <= 0.05]
         c = a[a >= 0.4]
@@ -252,8 +215,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
                 elif col in col2:
                     corr_cols.append(col)
 
-        print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {len(corr_cols)} columns',
-                      '')
+        print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {len(corr_cols)} columns', '')
     else:
         a = X.corr()
         if flag_raw == 'yes':
@@ -265,20 +227,19 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
 
 
 def remove_periods_from_df(input_df, params):
-    print_and_log(
-        f'[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods to exclude: {params["periods_to_exclude"]}', '')
+    print_and_log(f'[ PERIODS ] LOAD: DataFrame len: {len(input_df)}, periods to exclude: {params["periods_to_exclude"]}', '')
     for el in params['periods_to_exclude']:
         input_df = input_df[input_df[params['observation_date_column']] != el]
     return input_df
 
 
 def treating_outliers(input_df, secondary_input_df):
-    thres = 3  # threshold for zscore outliers
+    thres = 3 # threshold for zscore outliers
 
     for col in input_df.columns:
         input_df["zscore"] = stats.zscore(input_df[col])
         if len(secondary_input_df) > 0:
-            secondary_input_df["zscore"] = stats.zscore(secondary_input_df[col])
+            secondary_input_df["zscore"]=stats.zscore(secondary_input_df[col])
 
         outlier_percentage = round(len(input_df[input_df["zscore"].abs() >= thres]) / len(input_df) * 100, 1)
 
@@ -291,8 +252,7 @@ def treating_outliers(input_df, secondary_input_df):
             print_and_log(f'[ OUTLIER ]: {col}: {outlier_percentage}. Converting outliers to missing.', '')
             input_df[col] = np.where(input_df["zscore"].abs() >= thres, np.nan, input_df[col])
             if len(secondary_input_df) > 0:
-                secondary_input_df[col] = np.where(secondary_input_df["zscore"].abs() >= 3, np.nan,
-                                                   secondary_input_df[col])
+                secondary_input_df[col] = np.where(secondary_input_df["zscore"].abs() >= 3, np.nan, secondary_input_df[col])
         else:
             pass
 
