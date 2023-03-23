@@ -26,18 +26,18 @@ def calculate_flag_trade(df):
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
-    open_31M_smma = stock_df['open_3_sma'].iloc[-1]
+    open_21M_smma = stock_df['open_2_sma'].iloc[-1]
     open_315M_smma = stock_df15['open_3_sma'].iloc[-1]
     open_415M_smma = stock_df15['open_4_sma'].iloc[-1]
-    abs_diff_pips = abs(open_31M_smma - open_415M_smma)
+    abs_diff_pips = abs(open_21M_smma - open_415M_smma)
 
     # trends
     flag_trend = 0
     if "buy" in definitions.args.project.lower():
-        if (open_31M_smma > open_415M_smma) and (open_315M_smma > open_415M_smma) and (abs_diff_pips > 0.0004):
+        if (open_21M_smma > open_415M_smma) and (open_315M_smma > open_415M_smma) and (abs_diff_pips > 0.0004):
             flag_trend = 1
     elif "sell" in definitions.args.project.lower():
-        if (open_31M_smma < open_415M_smma) and (open_315M_smma < open_415M_smma) and (abs_diff_pips > 0.0004):
+        if (open_21M_smma < open_415M_smma) and (open_315M_smma < open_415M_smma) and (abs_diff_pips > 0.0004):
             flag_trend = 1
 
     df['flag_trend'] = flag_trend
