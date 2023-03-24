@@ -34,10 +34,10 @@ def calculate_flag_trend(df):
     # trends
     flag_trend = 0
     if "buy" in definitions.args.project.lower():
-        if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > 0.0002):
+        if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > 0.0001):
             flag_trend = 1
     elif "sell" in definitions.args.project.lower():
-        if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > 0.0002):
+        if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > 0.0001):
             flag_trend = 1
 
     df['flag_trend'] = flag_trend
