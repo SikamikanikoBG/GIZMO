@@ -96,7 +96,7 @@ class ModuleClass(SessionManager):
                 self.output_df["signal_trade"] = np.where(self.output_df[col1_name] >= col1_value, 1, 0)
 
         predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol",
-                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade", "signal_trade"]
+                           "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade", "signal_trade", "flag_trend"]
         for col in self.output_df.columns.tolist():
             if 'predict' in col:
                 predict_columns.append(col)

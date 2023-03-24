@@ -16,28 +16,28 @@ def run(df):
     return df
 
 
-def calculate_flag_trade(df):
+def calculate_flag_trend(df):
     # Aggregate 1M to 15M df
 
-    df15 = df.iloc[::-15, :].copy()
-    df15 = df15.iloc[::-1].copy()
+    df7 = df.iloc[::-7, :].copy()
+    df7 = df7.iloc[::-1].copy()
     #df15.sort_values(by=['Time'], inplace=True)
-    stock_df15 = Sdf.retype(df15)
+    stock_df15 = Sdf.retype(df7)
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
     open_21M_smma = stock_df['open_2_sma'].iloc[-1]
-    open_315M_smma = stock_df15['open_3_sma'].iloc[-1]
-    open_415M_smma = stock_df15['open_4_sma'].iloc[-1]
-    abs_diff_pips = abs(open_21M_smma - open_415M_smma)
+    open_27M_smma = df7['open_2_sma'].iloc[-1]
+    open_47M_smma = df7['open_4_sma'].iloc[-1]
+    abs_diff_pips = abs(open_21M_smma - open_47M_smma)
 
     # trends
     flag_trend = 0
     if "buy" in definitions.args.project.lower():
-        if (open_21M_smma > open_415M_smma) and (open_315M_smma > open_415M_smma) and (abs_diff_pips > 0.0004):
+        if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > 0.0002):
             flag_trend = 1
     elif "sell" in definitions.args.project.lower():
-        if (open_21M_smma < open_415M_smma) and (open_315M_smma < open_415M_smma) and (abs_diff_pips > 0.0004):
+        if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > 0.0002):
             flag_trend = 1
 
     df['flag_trend'] = flag_trend
@@ -108,7 +108,7 @@ def calculate_criterion(df, predict_module):
     else:
         pass
 
-    df = calculate_flag_trade(df)
+    df = calculate_flag_trend(df)
 
     return df
 
