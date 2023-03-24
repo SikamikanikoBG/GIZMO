@@ -22,13 +22,13 @@ def calculate_flag_trend(df):
     df7 = df.iloc[::-7, :].copy()
     df7 = df7.iloc[::-1].copy()
     #df15.sort_values(by=['Time'], inplace=True)
-    stock_df15 = Sdf.retype(df7)
+    stock_df7 = Sdf.retype(df7)
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
     open_21M_smma = stock_df['open_2_sma'].iloc[-1]
-    open_27M_smma = df7['open_2_sma'].iloc[-1]
-    open_47M_smma = df7['open_4_sma'].iloc[-1]
+    open_27M_smma = stock_df7['open_2_sma'].iloc[-1]
+    open_47M_smma = stock_df7['open_4_sma'].iloc[-1]
     abs_diff_pips = abs(open_21M_smma - open_47M_smma)
 
     # trends
