@@ -41,7 +41,7 @@ def calculate_flag_trend(df):
             flag_trend = 1
 
     df['flag_trend'] = flag_trend
-    del stock_df15
+    del stock_df7
     return df
 
 
