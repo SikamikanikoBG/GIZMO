@@ -10,6 +10,7 @@
 5.3.0 - API logging fixed, Notify fixed, Parallel run on  grid search
 5.02.1 - bug fix error logging
 5.02.0 - API for error logging
+5.01.1 - prediction flow - print and logs added. check for nans in final features added
 5.01.0 - GUI - stable steps 0, 1, 2 with decision trees and settings
 5.00.0 - API server, updated requirements
 4.00.0 - first GUI
