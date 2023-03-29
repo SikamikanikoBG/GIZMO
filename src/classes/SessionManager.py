@@ -45,6 +45,10 @@ class SessionManager:
         elif self.args.predict_module:
             self.log_file_name = 'predict_' + self.args.predict_module + '_' + self.project_name + '_' + str(
                 self.start_time) + '_' + self.tag + ".log"
+        elif self.args.eval_module:
+            self.log_file_name = 'eval_' + self.args.eval_module + '_' + self.project_name + '_' + str(
+                self.start_time) + '_' + self.tag + ".log"
+
         self.log_folder_name = definitions.EXTERNAL_DIR + '/logs/'
         self.session_folder_name = definitions.EXTERNAL_DIR + '/sessions/'
         self.session_id_folder = None

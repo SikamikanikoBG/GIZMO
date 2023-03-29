@@ -2,21 +2,23 @@ from __future__ import print_function
 
 import logging
 import os
+import shutil
 import sys
 from os import listdir
 from os.path import join, isfile
 
 import dataframe_image as dfi
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pyarrow.parquet as pq
 import seaborn as sns
 from docxtpl import DocxTemplate
 from mailmerge import MailMerge
+from optbinning.scorecard import plot_cap
 from sklearn import metrics
-from optbinning.scorecard import plot_auc_roc, plot_cap, plot_ks
-import shutil
+
+from src import print_and_log
 
 
 def merge_word(input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
@@ -29,11 +31,12 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
                t3df_period,
                model_arg,
                missing_treatment, params):
+
     # Load train session data
     onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
                  isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
     if len(onlyfiles) == 0:
-        logging.error('ERROR: No files in input folder. Aborting the program.')
+        print_and_log('ERROR: No files in input folder. Aborting the program.', "RED")
         sys.exit()
 
     if 'dict' in onlyfiles[0]:
@@ -43,32 +46,33 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
         input_file = onlyfiles[0]
 
     _, _, extention = str(input_file).partition('.')
-    if 'csv' not in extention:
-        logging.error('ERROR: input data not a csv file.')
-        sys.exit()
+    #if 'csv' not in extention:
+    #
+    #    print_and_log('ERROR: input data not a csv file.', "RED")
+    #    sys.exit()
 
-    df_total = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file)
-    if len(df_total.columns.to_list()) == 1:
+    try:
+        df_total = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file)
+    except:
+        df_total = pd.read_parquet(input_data_folder_name + input_data_project_folder + '/' + input_file)
+
+    """if len(df_total.columns.to_list()) == 1:
         df_total = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + input_file, sep=';')
         if len(df_total.columns.to_list()) == 1:
-            logging.error('ERROR: input data separator not any of the following ,;')
-            sys.exit()
+            print_and_log('ERROR: input data separator not any of the following ,;', "RED")
+            sys.exit()"""
 
-    df_train_X = pq.read_table(session_folder_name + session_to_eval + '/df_x_train.parquet')
-    df_train_X = df_train_X.to_pandas()
-    df_test_X = pq.read_table(session_folder_name + session_to_eval + '/df_x_test.parquet')
-    df_test_X = df_test_X.to_pandas()
-    df_t1df = pq.read_table(session_folder_name + session_to_eval + '/df_t1df.parquet')
-    df_t1df = df_t1df.to_pandas()
-    df_t2df = pq.read_table(session_folder_name + session_to_eval + '/df_t2df.parquet')
-    df_t2df = df_t2df.to_pandas()
-    df_t3df = pq.read_table(session_folder_name + session_to_eval + '/df_t3df.parquet')
-    df_t3df = df_t3df.to_pandas()
+    df_train_X = pd.read_feather(session_folder_name + session_to_eval + '/df_x_train.feather')
+    df_test_X = pd.read_feather(session_folder_name + session_to_eval + '/df_x_test.feather')
+    df_t1df = pd.read_feather(session_folder_name + session_to_eval + '/df_t1df.feather')
+    df_t2df = pd.read_feather(session_folder_name + session_to_eval + '/df_t2df.feather')
+    df_t3df = pd.read_feather(session_folder_name + session_to_eval + '/df_t3df.feather')
 
     df_total_scope = df_train_X.append(df_test_X, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t1df, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t2df, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t3df, ignore_index=True)
+    print("[ EVAL ] Data loaded")
 
     keys = ['Train', 'Test']
     dfs = [df_train_X, df_test_X]
@@ -134,24 +138,27 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl = DocxTemplate(output_file_name)
     DEST_FILE = output_file_name
 
+    print("[ EVAL ] Starting graphs")
     # Graph 0 ---------------------------------------------------------------------------------------------------
-    graph0 = 'graph0'
+    graph = 'graph0'
 
-    dfi.export(models[models['Method'] == model_arg], session_id_folder + '/' + graph0 + '.png', max_rows=-1,
+    dfi.export(models[models['Method'] == model_arg], session_id_folder + '/' + graph + '.png', max_rows=-1,
                max_cols=-1, table_conversion="matplotlib")
 
     # Insert graphs
 
     context = {}
-    old_im = graph0
-    new_im = session_id_folder + '/' + graph0 + '.png'
+    old_im = graph
+    new_im = session_id_folder + '/' + graph + '.png'
 
     tpl.replace_pic(old_im, new_im)
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 1 ---------------------------------------------------------------------------------------------------
+    graph = "graph1"
     plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
         kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
     fig = plot.get_figure()
@@ -167,8 +174,10 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 2 ---------------------------------------------------------------------------------------------------
+    graph = "graph2"
     plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
         kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
     fig = plot.get_figure()
@@ -184,6 +193,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 3 ---------------------------------------------------------------------------------------------------
     graph = 'graph3'
@@ -202,6 +212,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 1.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph1.1'
@@ -220,6 +231,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 2.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph2.1'
@@ -238,6 +250,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 3.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph3.1'
@@ -256,6 +269,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 4 ---------------------------------------------------------------------------------------------------
     graph = 'graph4'
@@ -279,6 +293,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 5 ---------------------------------------------------------------------------------------------------
     graph = 'graph5'
@@ -302,6 +317,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 5.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph5.1'
@@ -324,9 +340,10 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 6.0 ---------------------------------------------------------------------------------------------------
-    graph0 = 'graph6.0'
+    graph = 'graph6.0'
     pd.set_option('display.max_colwidth', None)
     pd.set_option('display.max_rows', 1000)
     pd.set_option('display.max_columns', 500)
@@ -355,7 +372,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
             sufix = '> ' + sufix
         else:
             sufix = ''
-            prefix = 'const'
+            prefix = el
         if '_binned' in prefix:
             prefix = prefix.replace('_binned', '')
         if '_div_ratio_' in prefix:
@@ -416,18 +433,26 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     except Exception as e:
         print(e)
         logging.info('No dictionary found. Columns wont be described in the grid!')
-    dfi.export(grid, session_id_folder + '/' + graph0 + '.png', table_conversion="matplotlib")
 
-    # Insert graphs
+    print(grid)
+    try:
+        dfi.export(grid, session_id_folder + '/' + graph + '.png', table_conversion="matplotlib")
 
-    context = {}
-    old_im = graph0
-    new_im = session_id_folder + '/' + graph0 + '.png'
+        # Insert graphs
 
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
+        context = {}
+        old_im = graph
+        new_im = session_id_folder + '/' + graph + '.png'
+
+        tpl.replace_pic(old_im, new_im)
+        tpl.render(context)
+        tpl.save(DEST_FILE)
+        plt.clf()
+    except Exception as e:
+        print(e)
+        print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
+        pass
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 6 ---------------------------------------------------------------------------------------------------
     graph = 'graph6'
@@ -482,6 +507,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 6.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph6.1'
@@ -501,6 +527,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 7 ---------------------------------------------------------------------------------------------------
     graph = 'graph7'
@@ -518,6 +545,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 8 ---------------------------------------------------------------------------------------------------
     graph = 'graph8'
@@ -541,6 +569,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 8.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.1'
@@ -563,6 +592,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 8.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.2'
@@ -585,6 +615,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 9 ---------------------------------------------------------------------------------------------------
     graph = 'graph9'
@@ -605,6 +636,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 9.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.1'
@@ -636,6 +668,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 9.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.2'
@@ -667,6 +700,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 9.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.3'
@@ -687,6 +721,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 9.4 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.4'
@@ -707,6 +742,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 10 ---------------------------------------------------------------------------------------------------
     graph = 'graph10'
@@ -731,6 +767,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 10.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.1'
@@ -755,6 +792,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 10.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.2'
@@ -779,6 +817,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 10.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.3'
@@ -801,6 +840,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11'
@@ -860,6 +900,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11.1'
@@ -919,6 +960,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 12 ---------------------------------------------------------------------------------------------------
     graph = 'graph12'
@@ -975,6 +1017,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph 13 ---------------------------------------------------------------------------------------------------
     graph = 'graph13'
@@ -994,8 +1037,13 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     tpl.render(context)
     tpl.save(DEST_FILE)
     plt.clf()
+    print(f"[ EVAL ] Graph {graph} ready")
 
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
+
+    # todo: fix. Const something
+
+    """
     i = 1
 
     for el in features:
@@ -1191,6 +1239,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
             tpl.render(context)
             tpl.save(DEST_FILE)
             plt.clf()
+    """
 
     for file in os.listdir(session_id_folder):
         if file.endswith('.png'):
