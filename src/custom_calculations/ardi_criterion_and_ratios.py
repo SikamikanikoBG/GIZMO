@@ -19,29 +19,45 @@ def run(df):
 def calculate_flag_trend(df):
     # Aggregate 1M to 15M df
 
-    df7 = df.iloc[::-7, :].copy()
+    df7 = df.iloc[::-15, :].copy()
     df7 = df7.iloc[::-1].copy()
     #df15.sort_values(by=['Time'], inplace=True)
     stock_df7 = Sdf.retype(df7)
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
-    open_21M_smma = stock_df['open_2_sma'].iloc[-1]
-    open_27M_smma = stock_df7['open_2_sma'].iloc[-1]
-    open_47M_smma = stock_df7['open_4_sma'].iloc[-1]
+    open_2M_smma = stock_df['open_2_sma'].iloc[-1]
+    open_21M_smma = stock_df['open_10_sma'].iloc[-1]
+    open_27M_smma = stock_df7['open_10_sma'].iloc[-1]
+    open_47M_smma = stock_df7['open_60_sma'].iloc[-1]
     abs_diff_pips = abs(open_21M_smma - open_47M_smma)
+    abs_diff_pips_fast = open_21M_smma - open_27M_smma
 
     # trends
     flag_trend = 0
     if "buy" in definitions.args.project.lower():
-        if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > 0.0001):
+        if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > 0.0005) and (abs_diff_pips_fast > -0.0005):
             flag_trend = 1
     elif "sell" in definitions.args.project.lower():
-        if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > 0.0001):
+        if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > 0.0005) and (abs_diff_pips_fast < 0.0005):
             flag_trend = 1
 
     df['flag_trend'] = flag_trend
     del stock_df7
+
+    # todo: check for errors, remove after not used
+    import pandas as pd
+    test = pd.DataFrame(columns=['proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag'])
+    test = test.append({'proj':definitions.args.project,
+                        'mafast':open_21M_smma,
+                        'mafastbig':open_27M_smma,
+                        'maslowbig':open_47M_smma,
+                        'diff':abs_diff_pips,
+                        'diff_fast': abs_diff_pips_fast,
+                        'flag': flag_trend}, ignore_index=True)
+    test.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/test_{definitions.args.project}.csv", index=False)
+
+
     return df
 
 
@@ -195,6 +211,7 @@ def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast
 
     stock_df['abs_diff_pips'] = stock_df['open_21m_smma'] - stock_df['open_47m_smma']
     stock_df['abs_diff_pips'] = abs(stock_df['abs_diff_pips'])
+    stock_df['abs_diff_pips_fast'] = stock_df['open_21m_smma'] - stock_df['open_27m_smma']
 
     # trends
     stock_df['flag_trend'] = 0
@@ -203,14 +220,16 @@ def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast
         stock_df['flag_trend'] = np.where(
             ((stock_df['open_21m_smma'] > stock_df['open_47m_smma'])
              & (stock_df['open_27m_smma'] > stock_df['open_47m_smma'])
-             & (stock_df['abs_diff_pips'] > diff_pips)), 1, 0)
+             & (stock_df['abs_diff_pips'] > diff_pips)
+             & (stock_df['abs_diff_pips_fast'] > -diff_pips)), 1, 0)
         # if (open_21M_smma > open_47M_smma) and (open_27M_smma > open_47M_smma) and (abs_diff_pips > diff_pips):
         #    flag_trend = 1
     elif "sell" in direction.lower():
         stock_df['flag_trend'] = np.where(
             ((stock_df['open_21m_smma'] < stock_df['open_47m_smma'])
              & (stock_df['open_27m_smma'] < stock_df['open_47m_smma'])
-             & (stock_df['abs_diff_pips'] > diff_pips)), 1, 0)
+             & (stock_df['abs_diff_pips'] > diff_pips)
+             & (stock_df['abs_diff_pips_fast'] < diff_pips)), 1, 0)
         # if (open_21M_smma < open_47M_smma) and (open_27M_smma < open_47M_smma) and (abs_diff_pips > diff_pips):
         #    flag_trend = 1
 
