@@ -4,6 +4,7 @@ import definitions
 from src.functions.printing_and_logging import print_and_log
 import pandas as pd
 import warnings
+from datetime import datetime
 
 warnings.filterwarnings("ignore")
 
@@ -26,17 +27,16 @@ def calculate_flag_trend(df):
     project = definitions.args.project.lower()
     _, currency, direction = project.split("_")
 
-    ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['currency'] == currency.lower()].copy()
-    ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['direction'] == direction.lower()].copy()
+    ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['currency'] == currency.upper()].copy()
+    ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['direction'] == direction].copy()
 
-    timeframe_fast = ma_best_simu_results[ma_best_simu_results['timeframe_fast']].iloc[-1]
-    timeframe_slow = ma_best_simu_results[ma_best_simu_results['timeframe_slow']].iloc[-1]
-    period_fast = ma_best_simu_results[ma_best_simu_results['period_fast']].iloc[-1]
-    period_slow = ma_best_simu_results[ma_best_simu_results['period_slow']].iloc[-1]
-    diff_pips = ma_best_simu_results[ma_best_simu_results['diff_pips']].iloc[-1]
+    timeframe_fast = ma_best_simu_results['timeframe_fast'].iloc[-1]
+    timeframe_slow = ma_best_simu_results['timeframe_slow'].iloc[-1]
+    period_fast = ma_best_simu_results['period_fast'].iloc[-1]
+    period_slow = ma_best_simu_results['period_slow'].iloc[-1]
+    diff_pips = ma_best_simu_results['diff_pips'].iloc[-1]
 
     # Aggregate 1M to 15M df
-
     df7 = df.iloc[::-timeframe_slow, :].copy()
     df7 = df7.iloc[::-1].copy()
     # df15.sort_values(by=['Time'], inplace=True)
@@ -67,8 +67,9 @@ def calculate_flag_trend(df):
 
     # todo: check for errors, remove after not used
 
-    test = pd.DataFrame(columns=['proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag'])
-    test = test.append({'proj': definitions.args.project,
+    test = pd.DataFrame(columns=['time','proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag'])
+    test = test.append({'time':datetime.now(),
+        'proj': definitions.args.project,
                         'mafast': open_21M_smma,
                         'mafastbig': open_27M_smma,
                         'maslowbig': open_47M_smma,
