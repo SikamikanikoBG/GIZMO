@@ -44,7 +44,7 @@ def calculate_flag_trend(df):
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
-    #open_2M_smma = stock_df['open_2_sma'].iloc[-1]
+    # open_2M_smma = stock_df['open_2_sma'].iloc[-1]
     open_21M_smma = stock_df[f'open_{period_fast}_sma'].iloc[-1]
     open_27M_smma = stock_df7[f'open_{period_fast}_sma'].iloc[-1]
     open_47M_smma = stock_df7[f'open_{period_slow}_sma'].iloc[-1]
@@ -67,15 +67,21 @@ def calculate_flag_trend(df):
 
     # todo: check for errors, remove after not used
 
-    test = pd.DataFrame(columns=['time','proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag'])
-    test = test.append({'time':datetime.now(),
-        'proj': definitions.args.project,
+    test = pd.DataFrame(
+        columns=['time', 'proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag', 'timeframe_slow',
+                 'period_fast', 'period_slow'])
+    test = test.append({'time': datetime.now(),
+                        'proj': definitions.args.project,
                         'mafast': open_21M_smma,
                         'mafastbig': open_27M_smma,
                         'maslowbig': open_47M_smma,
                         'diff': abs_diff_pips,
                         'diff_fast': abs_diff_pips_fast,
-                        'flag': flag_trend}, ignore_index=True)
+                        'flag': flag_trend,
+                        'timeframe_slow': timeframe_slow,
+                        'period_fast': period_fast,
+                        'period_slow': period_slow
+                        }, ignore_index=True)
     test.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/test_{definitions.args.project}.csv", index=False)
 
     return df
@@ -371,10 +377,10 @@ def ma_simulation(source_df):
         # test_all.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/test_{currency_list_el}.csv", index=False)
 
         best_buy_results = result[result['direction'] == 'buy'].copy()
-        best_buy_results = best_buy_results[best_buy_results['profit_buy'] == best_buy_results['profit_buy'].max()]
+        best_buy_results = best_buy_results[best_buy_results['profit_buy'] == best_buy_results['profit_buy'].max()].copy()
         best_sell_results = result[result['direction'] == 'sell'].copy()
         best_sell_results = best_sell_results[
-            best_sell_results['profit_sell'] == best_sell_results['profit_sell'].max()]
+            best_sell_results['profit_sell'] == best_sell_results['profit_sell'].max()].copy()
         ma_best_simu_results = ma_best_simu_results.append(best_buy_results, ignore_index=True)
         ma_best_simu_results = ma_best_simu_results.append(best_sell_results, ignore_index=True)
     ma_best_simu_results.drop_duplicates(subset=['currency', 'direction'])
