@@ -44,7 +44,7 @@ def calculate_flag_trend(df):
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
-    open_2M_smma = stock_df['open_2_sma'].iloc[-1]
+    #open_2M_smma = stock_df['open_2_sma'].iloc[-1]
     open_21M_smma = stock_df[f'open_{period_fast}_sma'].iloc[-1]
     open_27M_smma = stock_df7[f'open_{period_fast}_sma'].iloc[-1]
     open_47M_smma = stock_df7[f'open_{period_slow}_sma'].iloc[-1]
