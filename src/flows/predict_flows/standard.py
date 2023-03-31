@@ -27,6 +27,7 @@ class ModuleClass(SessionManager):
         """
         # Load models features
         all_final_features = []
+        missing_features_all = []
         for model in self.models_list:
             model_path = f"{self.implemented_folder}{self.project_name}/{model}/model_train.pkl"
             model_pkl = pickle.load(open(model_path, 'rb'))
@@ -72,9 +73,10 @@ class ModuleClass(SessionManager):
                     for feat in model_pkl.final_features:
                         if feat not in self.output_df.columns.tolist():
                             missing_features.append(feat)
+                            missing_features_all.append(feat)
                     if len(missing_features) > 0:
                         print_and_log(f"[ PREDICT ] Missing features for model {model}: {missing_features}", "RED")
-                        quit()
+                        self.output_df[f"predict_{model}"] = 0
                     else:
                         self.output_df[f"predict_{model}"] = model_pkl.model.predict_proba(
                             self.output_df[model_pkl.final_features])[:, 1]
@@ -82,7 +84,6 @@ class ModuleClass(SessionManager):
                 except Exception as model_error:
                     print_and_log(f"[ PREDICT ] ERROR for {model}: {model_error}", "RED")
                     self.output_df[f"predict_{model}"] = 0
-
 
             print_and_log("[ PREDICT ] Model predictions added", "")
             self.output_df["symbol"] = self.params["symbol"]
@@ -118,19 +119,23 @@ class ModuleClass(SessionManager):
             predict_columns = ['time', "criterion_buy", "criterion_sell", "open", "high", "low", "close", "symbol",
                                "direction", "version", "tp", "sl", "period", "nb_features", "time_stamp", "flag_trade",
                                "signal_trade", "flag_trend"]
+            predict_columns_minimum = predict_columns.copy()
             for col in self.output_df.columns.tolist():
                 if 'predict' in col:
                     predict_columns.append(col)
 
             # columns with features to be used for data drift detection
             predict_columns_data_drift = predict_columns.copy()
+
             for col in all_final_features:
-                predict_columns_data_drift.append(col)
+                if col not in missing_features_all:
+                    predict_columns_data_drift.append(col)
 
             # get data drift
             self.output_df[predict_columns_data_drift].to_csv(
                 f"{self.implemented_folder}{self.project_name}/predictions.csv",
                 index=False)
+
             print_and_log("[ PREDICT ] Predictions csv saved", "")
 
             mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(
@@ -164,20 +169,36 @@ class ModuleClass(SessionManager):
             rows_to_remove = self.output_df["time"].head(int(self.args.period))
             self.output_df = self.output_df[~self.output_df["time"].isin(rows_to_remove)].copy()
 
-            # store results
-            self.output_df[predict_columns_data_drift].to_csv(
-                f"{self.implemented_folder}/{self.project_name}/predictions.csv",
-                index=False)
-            print_and_log("[ PREDICT ] Predictions saved as csv, second time", "")
+            try:
+                # store results
+                self.output_df[predict_columns_data_drift].to_csv(
+                    f"{self.implemented_folder}/{self.project_name}/predictions.csv",
+                    index=False)
+                print_and_log("[ PREDICT ] Predictions saved as csv, second time", "")
 
-            if definitions.api_url_post_results_predict:
-                try:
-                    api_communication.api_post(definitions.api_url_post_results_predict,
-                                               self.output_df[predict_columns])
-                except Exception as e:
-                    print(f"ERROR API: {e}")
-                    pass
-                print_and_log("[ PREDICT ] Predictions posted to API", "")
+                if definitions.api_url_post_results_predict:
+                    try:
+                        api_communication.api_post(definitions.api_url_post_results_predict,
+                                                   self.output_df[predict_columns])
+                    except Exception as e:
+                        print(f"ERROR API: {e}")
+                        pass
+                    print_and_log("[ PREDICT ] Predictions posted to API", "")
+            except:
+                # store results
+                self.output_df[predict_columns_minimum].to_csv(
+                    f"{self.implemented_folder}/{self.project_name}/predictions.csv",
+                    index=False)
+                print_and_log("[ PREDICT ] Predictions saved as csv, second time", "")
+
+                if definitions.api_url_post_results_predict:
+                    try:
+                        api_communication.api_post(definitions.api_url_post_results_predict,
+                                                   self.output_df[predict_columns_minimum])
+                    except Exception as e:
+                        print(f"ERROR API: {e}")
+                        pass
+                    print_and_log("[ PREDICT ] Predictions posted to API", "")
 
             print_end()
             print_and_log(f"{self.output_df.time.max(), self.output_df.time.dtype}", "")
