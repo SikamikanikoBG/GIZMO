@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_module', type=str, help='Training module to run')
     parser.add_argument('--predict_module', type=str, help='Training module to run')
     parser.add_argument('--pred_data_prep', type=str, help='Which data prep to be used for predict')
+    parser.add_argument('--eval_module', type=str, help='Which data prep to be used for predict')
 
     parser.add_argument('--tp', type=str, help='Which data prep to be used for predict')
     parser.add_argument('--sl', type=str, help='Which data prep to be used for predict')
@@ -59,6 +60,9 @@ if __name__ == '__main__':
     elif args.predict_module:
         module = args.predict_module.lower()
         module_lib = import_module(f'src.flows.predict_flows.{module}')
+    elif args.eval_module.lower():
+        module = args.eval_module.lower()
+        module_lib = import_module(f'src.flows.eval_flows.{module}')
 
     module = module_lib.ModuleClass(args=args)
     module.prepare()
