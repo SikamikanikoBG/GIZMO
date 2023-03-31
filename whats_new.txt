@@ -1,4 +1,5 @@
 7.0.0 - eval is back
+6.5.0 - ardi custom calcs + dataload - ma simulation added
 6.4.5 - flag trend new rules + predict flow upload flag trend
 6.4.4 - adapted flag trend rules
 6.4.3 - adapted flag trend rules
