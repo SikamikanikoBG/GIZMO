@@ -3,6 +3,8 @@ import datetime
 import os
 from notify_run import Notify
 
+from src.custom_calculations.ardi_criterion_and_ratios import ma_simulation
+
 notify = Notify()
 
 import definitions
@@ -115,13 +117,20 @@ try:
                 print(e)
                 pass
 
+
+
     cutting_time = datetime.datetime.now()
 
+    if session == 'gridsearch':
+        ma_simulation(in_data.sort_values(by='time', ascending=True))
+
+    ma_simu_time = datetime.datetime.now()
     api_time_delta = api_time - start_time
     cut_time_delta = cutting_time - api_time
-    total_time_delta = cutting_time - start_time
+    ma_simu_time_delta = ma_simu_time - cutting_time
+    total_time_delta = ma_simu_time - start_time
 
-    print(f"API: {api_time_delta}, Cut: {cut_time_delta}, Total: {total_time_delta}")
+    print(f"API: {api_time_delta}, Cut: {cut_time_delta}, ma simu: {ma_simu_time_delta}, Total: {total_time_delta}")
     # notify.send(f"laksjdlaksdlkjasldjas")
 except Exception as e:
     print(e)
