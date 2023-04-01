@@ -322,8 +322,8 @@ def calculate_criterion_ma_simu(df, predict_module, currency, tp, sl, period):
 
 def ma_simulation(source_df):
     timeframe_fast = [1]
-    timeframe_slow = [1, 2, 15]
-    period_fast_small = [5, 10, 20, 30]
+    timeframe_slow = [5, 15]
+    period_fast_small = [5, 10, 15]
     period_fast_big = period_fast_small.copy() # The idea is to use the same values on different timeframes separately
     period_slow = [5, 15, 30, 60]
     diff_pips = [0.0005, 0.0010]
