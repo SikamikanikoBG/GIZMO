@@ -138,38 +138,39 @@ class ModuleClass(SessionManager):
 
             print_and_log("[ PREDICT ] Predictions csv saved", "")
 
-            mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(
-                self.project_name)
-            self.output_df["mean_data_drift"] = mean_data_drift
-            self.output_df["mean_w_data_drift"] = mean_w_data_drift
-            self.output_df["mean_data_drift_top5"] = mean_data_drift_top5
-            self.output_df["mean_w_data_drift_top5"] = mean_w_data_drift_top5
-
-            predict_columns.append("mean_data_drift")
-            predict_columns.append("mean_w_data_drift")
-            predict_columns.append("mean_data_drift_top5")
-            predict_columns.append("mean_w_data_drift_top5")
-
-            print_and_log("[ PREDICT ] Data drift calculated", "")
-
-            # other indicators
-            other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14',
-                                     'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'atr_240',
-                                     'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'atr_480', 'close_10_sma',
-                                     'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
-                                     'pdm_14', 'pdi_14', 'pdi', 'mdm', 'mdm_14_ema', 'mdm_14', 'mdi_14', 'mdi', 'dx_14',
-                                     'dx', 'adx', 'adxr', 'log-ret', 'macd', 'macds', 'macdh', 'macd_feat',
-                                     'macds_feat',
-                                     'boll', 'boll_ub', 'boll_lb', 'boll_feat', 'boll_ub_feat', 'boll_lb_feat']
-            for ind in other_indicators_list:
-                if ind not in predict_columns_data_drift:
-                    predict_columns_data_drift.append(ind)
-
-            # remove last n rows that does not have enough performance period
-            rows_to_remove = self.output_df["time"].head(int(self.args.period))
-            self.output_df = self.output_df[~self.output_df["time"].isin(rows_to_remove)].copy()
-
             try:
+                mean_data_drift, mean_w_data_drift, mean_data_drift_top5, mean_w_data_drift_top5 = calculate_data_drift(
+                    self.project_name)
+                self.output_df["mean_data_drift"] = mean_data_drift
+                self.output_df["mean_w_data_drift"] = mean_w_data_drift
+                self.output_df["mean_data_drift_top5"] = mean_data_drift_top5
+                self.output_df["mean_w_data_drift_top5"] = mean_w_data_drift_top5
+
+                predict_columns.append("mean_data_drift")
+                predict_columns.append("mean_w_data_drift")
+                predict_columns.append("mean_data_drift_top5")
+                predict_columns.append("mean_w_data_drift_top5")
+
+                print_and_log("[ PREDICT ] Data drift calculated", "")
+
+                # other indicators
+                other_indicators_list = ['open_14_ema', 'rs_14', 'rsi_14', 'wr_14',
+                                         'atr_14', 'open_240_ema', 'rs_240', 'rsi_240', 'wr_240', 'atr_240',
+                                         'open_480_ema', 'rs_480', 'rsi_480', 'wr_480', 'atr_480', 'close_10_sma',
+                                         'close_50_sma', 'dma', 'high_delta', 'um', 'low_delta', 'dm', 'pdm', 'pdm_14_ema',
+                                         'pdm_14', 'pdi_14', 'pdi', 'mdm', 'mdm_14_ema', 'mdm_14', 'mdi_14', 'mdi', 'dx_14',
+                                         'dx', 'adx', 'adxr', 'log-ret', 'macd', 'macds', 'macdh', 'macd_feat',
+                                         'macds_feat',
+                                         'boll', 'boll_ub', 'boll_lb', 'boll_feat', 'boll_ub_feat', 'boll_lb_feat']
+                for ind in other_indicators_list:
+                    if ind not in predict_columns_data_drift:
+                        predict_columns_data_drift.append(ind)
+
+                # remove last n rows that does not have enough performance period
+                rows_to_remove = self.output_df["time"].head(int(self.args.period))
+                self.output_df = self.output_df[~self.output_df["time"].isin(rows_to_remove)].copy()
+
+
                 # store results
                 self.output_df[predict_columns_data_drift].to_csv(
                     f"{self.implemented_folder}/{self.project_name}/predictions.csv",

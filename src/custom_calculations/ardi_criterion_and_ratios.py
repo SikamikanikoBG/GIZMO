@@ -32,7 +32,8 @@ def calculate_flag_trend(df):
 
     timeframe_fast = ma_best_simu_results['timeframe_fast'].iloc[-1]
     timeframe_slow = ma_best_simu_results['timeframe_slow'].iloc[-1]
-    period_fast = ma_best_simu_results['period_fast'].iloc[-1]
+    period_fast_small = ma_best_simu_results['period_fast_small'].iloc[-1]
+    period_fast_big = ma_best_simu_results['period_fast_big'].iloc[-1]
     period_slow = ma_best_simu_results['period_slow'].iloc[-1]
     diff_pips = ma_best_simu_results['diff_pips'].iloc[-1]
 
@@ -45,8 +46,8 @@ def calculate_flag_trend(df):
 
     # Calculate flag for trends
     # open_2M_smma = stock_df['open_2_sma'].iloc[-1]
-    open_21M_smma = stock_df[f'open_{period_fast}_sma'].iloc[-1]
-    open_27M_smma = stock_df7[f'open_{period_fast}_sma'].iloc[-1]
+    open_21M_smma = stock_df[f'open_{period_fast_small}_sma'].iloc[-1]
+    open_27M_smma = stock_df7[f'open_{period_fast_big}_sma'].iloc[-1]
     open_47M_smma = stock_df7[f'open_{period_slow}_sma'].iloc[-1]
     abs_diff_pips = abs(open_21M_smma - open_47M_smma)
     abs_diff_pips_fast = open_21M_smma - open_27M_smma
@@ -69,7 +70,7 @@ def calculate_flag_trend(df):
 
     test = pd.DataFrame(
         columns=['time', 'proj', 'mafast', 'mafastbig', 'maslowbig', 'diff', 'diff_fast', 'flag', 'timeframe_slow',
-                 'period_fast', 'period_slow'])
+                 'period_fast_small', 'period_slow'])
     test = test.append({'time': datetime.now(),
                         'proj': definitions.args.project,
                         'mafast': open_21M_smma,
@@ -79,7 +80,8 @@ def calculate_flag_trend(df):
                         'diff_fast': abs_diff_pips_fast,
                         'flag': flag_trend,
                         'timeframe_slow': timeframe_slow,
-                        'period_fast': period_fast,
+                        'period_fast_small': period_fast_small,
+                        'period_fast_big': period_fast_big,
                         'period_slow': period_slow
                         }, ignore_index=True)
     test.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/test_{definitions.args.project}.csv", index=False)
@@ -213,7 +215,7 @@ def calculate_indicators(df):
 
 # Calculations for MA simulation
 
-def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast, period_slow, diff_pips, direction):
+def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast_small, period_fast_big, period_slow, diff_pips, direction):
     # Aggregate 1M to 15M df
     df['direction'] = direction
     df_org = df.copy()
@@ -227,8 +229,8 @@ def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast
     stock_df = Sdf.retype(df)
 
     # Calculate flag for trends
-    stock_df['open_21m_smma'] = stock_df[f'open_{period_fast}_sma']
-    stock_df_slow['open_27m_smma'] = stock_df_slow[f'open_{period_fast}_sma']
+    stock_df['open_21m_smma'] = stock_df[f'open_{period_fast_small}_sma']
+    stock_df_slow['open_27m_smma'] = stock_df_slow[f'open_{period_fast_big}_sma']
     stock_df_slow['open_47m_smma'] = stock_df_slow[f'open_{period_slow}_sma']
 
     stock_df = stock_df.merge(stock_df_slow[['time', 'open_27m_smma', 'open_47m_smma']], on='time', how='left')
@@ -321,7 +323,8 @@ def calculate_criterion_ma_simu(df, predict_module, currency, tp, sl, period):
 def ma_simulation(source_df):
     timeframe_fast = [1]
     timeframe_slow = [1, 2, 15]
-    period_fast = [5, 10, 20, 30]
+    period_fast_small = [5, 10, 20, 30]
+    period_fast_big = period_fast_small.copy() # The idea is to use the same values on different timeframes separately
     period_slow = [5, 15, 30, 60]
     diff_pips = [0.0005, 0.0010]
     direction = ['buy', 'sell']
@@ -336,52 +339,55 @@ def ma_simulation(source_df):
 
     for currency_list_el in currency_list:
         result = pd.DataFrame(
-            columns=['currency', 'time_min', 'time_max', 'timeframe_fast', 'timeframe_slow', 'period_fast',
-                     'period_slow', 'diff_pips',
-                     'direction', 'sl', 'profit_buy', 'profit_sell'])
+            columns=['currency', 'time_min', 'time_max', 'timeframe_fast', 'timeframe_slow', 'period_fast_small', 'period_fast_big',
+                     'period_slow', 'diff_pips','direction', 'sl', 'profit_buy', 'profit_sell'])
         for timeframe_fast_el in timeframe_fast:
             for timeframe_slow_el in timeframe_slow:
-                for period_fast_el in period_fast:
-                    for period_slow_el in period_slow:
-                        for diff_pips_el in diff_pips:
-                            for direction_el in direction:
-                                for sl_el in sl:
-                                    test = source_df[source_df['Currency'] == currency_list_el].tail(3000).copy()
-                                    test = calculate_flag_trend_ma_simu(df=test, timeframe_fast=timeframe_fast_el,
-                                                                        timeframe_slow=timeframe_slow_el,
-                                                                        period_fast=period_fast_el,
-                                                                        period_slow=period_slow_el,
-                                                                        diff_pips=diff_pips_el,
-                                                                        direction=direction_el)
-                                    test = calculate_criterion_ma_simu(test, "", currency_list_el, 0.0010, sl_el, 480)
-                                    test = test.tail(2000).copy()
-                                    test = test.head(1440).copy()
-                                    result = result.append({'currency': currency_list_el,
-                                                            'time_min': test['time'].min(),
-                                                            'time_max': test['time'].max(),
-                                                            'timeframe_fast': timeframe_fast_el,
-                                                            'timeframe_slow': timeframe_slow_el,
-                                                            'period_fast': period_fast_el,
-                                                            'period_slow': period_slow_el,
-                                                            'diff_pips': diff_pips_el,
-                                                            'direction': direction_el,
-                                                            'sl': sl_el,
-                                                            'profit_buy': test['profit_buy'].sum(),
-                                                            'profit_sell': test['profit_sell'].sum()},
-                                                           ignore_index=True)
-                                    # test['ver'] = f"{currency_list_el} + {timeframe_fast_el} + {timeframe_slow_el} +\
-                                    #              {period_fast_el} + {period_slow_el} + {diff_pips_el} + \
-                                    #              {direction_el} + {sl_el}"
-                                    # test_all = test_all.append(test, ignore_index=True)
+                for period_fast_el in period_fast_small:
+                    for period_fast_big_el in period_fast_big:
+                        for period_slow_el in period_slow:
+                            if period_fast_big_el < period_slow_el: # in order on bigger timeframes the faster to be faster than the slower :)
+                                for diff_pips_el in diff_pips:
+                                    for direction_el in direction:
+                                        for sl_el in sl:
+                                            test = source_df[source_df['Currency'] == currency_list_el].tail(3000).copy()
+                                            test = calculate_flag_trend_ma_simu(df=test, timeframe_fast=timeframe_fast_el,
+                                                                                timeframe_slow=timeframe_slow_el,
+                                                                                period_fast_small=period_fast_el,
+                                                                                period_fast_big = period_fast_big_el,
+                                                                                period_slow=period_slow_el,
+                                                                                diff_pips=diff_pips_el,
+                                                                                direction=direction_el)
+                                            test = calculate_criterion_ma_simu(test, "", currency_list_el, 0.0010, sl_el,
+                                                                               480)
+                                            test = test.tail(2000).copy()
+                                            test = test.head(1440).copy()
+                                            result = result.append({'currency': currency_list_el,
+                                                                    'time_min': test['time'].min(),
+                                                                    'time_max': test['time'].max(),
+                                                                    'timeframe_fast': timeframe_fast_el,
+                                                                    'timeframe_slow': timeframe_slow_el,
+                                                                    'period_fast_small': period_fast_el,
+                                                                    'period_fast_big': period_fast_big_el,
+                                                                    'period_slow': period_slow_el,
+                                                                    'diff_pips': diff_pips_el,
+                                                                    'direction': direction_el,
+                                                                    'sl': sl_el,
+                                                                    'profit_buy': test['profit_buy'].sum(),
+                                                                    'profit_sell': test['profit_sell'].sum()},
+                                                                   ignore_index=True)
+                            else:
+                                pass
         result.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/result_{currency_list_el}.csv", index=False)
         # test_all.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/test_{currency_list_el}.csv", index=False)
 
         best_buy_results = result[result['direction'] == 'buy'].copy()
-        best_buy_results = best_buy_results[best_buy_results['profit_buy'] == best_buy_results['profit_buy'].max()].copy()
+        best_buy_results = best_buy_results[
+            best_buy_results['profit_buy'] == best_buy_results['profit_buy'].max()].copy()
         best_sell_results = result[result['direction'] == 'sell'].copy()
         best_sell_results = best_sell_results[
             best_sell_results['profit_sell'] == best_sell_results['profit_sell'].max()].copy()
         ma_best_simu_results = ma_best_simu_results.append(best_buy_results, ignore_index=True)
         ma_best_simu_results = ma_best_simu_results.append(best_sell_results, ignore_index=True)
-    ma_best_simu_results.drop_duplicates(subset=['currency', 'direction'])
+    ma_best_simu_results.drop_duplicates(subset=['currency', 'direction'], keep='first', inplace=True)
     ma_best_simu_results.to_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/ma_best_simu_results.csv", index=False)

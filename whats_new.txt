@@ -1,3 +1,4 @@
+7.1.1 - ardi custom calc - ma simulation - created new logic for ma
 7.1.0 - ma simulation export and after calculate flag trend with dynamic parameters based on this file
 7.0.0 - eval is back
 6.5.0 - ardi custom calcs + dataload - ma simulation added
