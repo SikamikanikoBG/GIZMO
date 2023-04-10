@@ -31,7 +31,6 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
                t3df_period,
                model_arg,
                missing_treatment, params):
-
     # Load train session data
     onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
                  isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
@@ -46,7 +45,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
         input_file = onlyfiles[0]
 
     _, _, extention = str(input_file).partition('.')
-    #if 'csv' not in extention:
+    # if 'csv' not in extention:
     #
     #    print_and_log('ERROR: input data not a csv file.', "RED")
     #    sys.exit()
@@ -1043,203 +1042,208 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
 
     # todo: fix. Const something
 
-    """
     i = 1
 
     for el in features:
-        if 'const' in el:
-            pass
-        else:
-            graph = 'graph_a_' + str(i)
-            i += 1
-
-            # ----------------------------------------
-            plt.rc('xtick', labelsize=7)
-            plt.rc('ytick', labelsize=7)
-            plt.xticks(rotation=70)
-
-            ax_left_1 = plt.subplot(5, 2, 1)
-            ax_right_1 = plt.subplot(5, 2, 2)
-            ax_left_2 = plt.subplot(5, 2, 3)
-            ax_right_2 = plt.subplot(5, 2, 4)
-            ax_left_3 = plt.subplot(5, 2, 5)
-            ax_right_3 = plt.subplot(5, 2, 6)
-            ax_left_4 = plt.subplot(5, 2, 7)
-            ax_right_4 = plt.subplot(5, 2, 8)
-            ax_left_5 = plt.subplot(5, 2, 9)
-            ax_right_5 = plt.subplot(5, 2, 10)
-
-            col_x = observation_date_column
-            col_y1 = el
-            col_y2 = criterion_column
-
-            mouchard_names = grid_raw[grid_raw['feature'] == el]['mouchard_name'].iloc[0]
-            try:
-                descriptions = grid_raw[grid_raw['feature'] == el]['Description'].iloc[0]
-            except:
-                pass
-
-            if '/' in mouchard_names:
-                raw_col1, _, raw_col2 = str(mouchard_names).partition(' / ')
-                try:
-                    raw_col1_desc, _, raw_col2_desc = str(descriptions).partition(' / ')
-                except:
-                    pass
-            else:
-                raw_col1 = mouchard_names
-                try:
-                    raw_col1_desc = descriptions
-                except:
-                    pass
-                raw_col2 = ''
-                raw_col2_desc = ''
-
-            temp_df = df_total_scope.copy()
-            if temp_df[raw_col1].dtype == object:
-
+        try:
+            if 'const' in el:
                 pass
             else:
-                temp_df['deciles_raw1'] = pd.qcut(temp_df[raw_col1], 10, duplicates='drop')
+                graph = 'graph_a_' + str(i)
+                i += 1
 
-            # temp_df.set_index(col_x, inplace=True)
-            x = temp_df[col_x]
-            y1 = temp_df[col_y1]
-            y2 = temp_df[col_y2]
+                # ----------------------------------------
+                plt.rc('xtick', labelsize=7)
+                plt.rc('ytick', labelsize=7)
+                plt.xticks(rotation=70)
 
-            plt.subplot(5, 2, 1)
-            pd.crosstab(x, y1, normalize='index').plot(kind='bar', figsize=(5, 10), linewidth=0.1, stacked=True,
-                                                       ax=ax_left_1,
-                                                       sharey=False)
-            plt.legend(shadow=True)
-            plt.ylabel('Share of modality')
-            try:
-                plt.title(
-                    f'Feature: {el} \n Raw columns: {raw_col1}, {raw_col2} \n Description: {raw_col1_desc}, {raw_col2_desc}')
-            except:
-                plt.title(
-                    f'Feature: {el} \n Raw columns: {raw_col1}, {raw_col2}')
-            plt.xlabel(f'Graph 1 - Evolution of modalities')
+                ax_left_1 = plt.subplot(5, 2, 1)
+                ax_right_1 = plt.subplot(5, 2, 2)
+                ax_left_2 = plt.subplot(5, 2, 3)
+                ax_right_2 = plt.subplot(5, 2, 4)
+                ax_left_3 = plt.subplot(5, 2, 5)
+                ax_right_3 = plt.subplot(5, 2, 6)
+                ax_left_4 = plt.subplot(5, 2, 7)
+                ax_right_4 = plt.subplot(5, 2, 8)
+                ax_left_5 = plt.subplot(5, 2, 9)
+                ax_right_5 = plt.subplot(5, 2, 10)
 
-            plt.subplot(5, 2, 2)
-            (pd.crosstab(x, y1, aggfunc='sum', values=y2) / pd.crosstab(x, y1, aggfunc='count', values=y2)).plot(
-                kind='bar',
-                ax=ax_right_1)
-            plt.xlabel(f'Graph 2 - Evolution of Criterion rate by modalities \n {col_x}')
+                col_x = observation_date_column
+                col_y1 = el
+                col_y2 = criterion_column
 
-            plt.legend(shadow=True)
-            plt.ylabel('Criterion rate')
+                mouchard_names = grid_raw[grid_raw['feature'] == el]['mouchard_name'].iloc[0]
+                try:
+                    descriptions = grid_raw[grid_raw['feature'] == el]['Description'].iloc[0]
+                except:
+                    pass
 
-            plt.subplot(5, 2, 3)
+                if '/' in mouchard_names:
+                    raw_col1, _, raw_col2 = str(mouchard_names).partition(' / ')
+                    try:
+                        raw_col1_desc, _, raw_col2_desc = str(descriptions).partition(' / ')
+                    except:
+                        pass
+                else:
+                    raw_col1 = mouchard_names
+                    try:
+                        raw_col1_desc = descriptions
+                    except:
+                        pass
+                    raw_col2 = ''
+                    raw_col2_desc = ''
 
-            if temp_df[raw_col1].dtype == object:
+                temp_df = df_total_scope.copy()
+                if temp_df[raw_col1].dtype == object:
 
-                temp_df[[col_y2, raw_col1]].groupby(raw_col1).mean().plot(kind='bar', figsize=(15, 20),
-                                                                          linewidth=0.1,
-                                                                          ax=ax_left_2)
-            else:
-                temp_df[[col_y2, 'deciles_raw1']].groupby('deciles_raw1').mean().plot(kind='bar', figsize=(15, 20),
-                                                                                      linewidth=0.1,
-                                                                                      ax=ax_left_2)
-            plt.legend(shadow=True)
-            plt.xlabel(f'Graph 3 - Mean Criterion rate by Deciles \n {raw_col1}')
+                    pass
+                else:
+                    temp_df['deciles_raw1'] = pd.qcut(temp_df[raw_col1], 10, duplicates='drop')
 
-            plt.ylabel('Criterion rate')
+                # temp_df.set_index(col_x, inplace=True)
+                x = temp_df[col_x]
+                y1 = temp_df[col_y1]
+                y2 = temp_df[col_y2]
 
-            plt.subplot(5, 2, 4)
-            if temp_df[raw_col1].dtype == object:
-                #
-                temp_df[[col_y2, raw_col1]].groupby(raw_col1).count().plot(kind='bar', figsize=(15, 20),
-                                                                           linewidth=0.1,
-                                                                           ax=ax_right_2)
-            else:
-                temp_df[[col_y2, 'deciles_raw1']].groupby('deciles_raw1').count().plot(kind='bar', figsize=(15, 20),
-                                                                                       linewidth=0.1,
-                                                                                       ax=ax_right_2, legend=None)
-            plt.xlabel(f'Graph 4 - Nb of cases by Deciles \n {raw_col1}')
+                plt.subplot(5, 2, 1)
+                pd.crosstab(x, y1, normalize='index').plot(kind='bar', figsize=(5, 10), linewidth=0.1, stacked=True,
+                                                           ax=ax_left_1,
+                                                           sharey=False)
+                plt.legend(shadow=True)
+                plt.ylabel('Share of modality')
+                try:
+                    plt.title(
+                        f'Feature: {el} \n Raw columns: {raw_col1}, {raw_col2} \n Description: {raw_col1_desc}, {raw_col2_desc}')
+                except:
+                    plt.title(
+                        f'Feature: {el} \n Raw columns: {raw_col1}, {raw_col2}')
+                plt.xlabel(f'Graph 1 - Evolution of modalities')
 
-            plt.ylabel('Nb of cases')
+                plt.subplot(5, 2, 2)
+                (pd.crosstab(x, y1, aggfunc='sum', values=y2) / pd.crosstab(x, y1, aggfunc='count', values=y2)).plot(
+                    kind='bar',
+                    ax=ax_right_1)
+                plt.xlabel(f'Graph 2 - Evolution of Criterion rate by modalities \n {col_x}')
 
-            if raw_col2:
+                plt.legend(shadow=True)
+                plt.ylabel('Criterion rate')
 
-                temp_df['deciles_raw2'] = pd.qcut(temp_df[raw_col2], 10, duplicates='drop')
-                temp_df['ratio'] = temp_df[raw_col1] / temp_df[raw_col2]
+                plt.subplot(5, 2, 3)
 
-                temp_df['ratio'] = temp_df['ratio'].replace([np.inf, -np.inf], 0)
+                if temp_df[raw_col1].dtype == object:
 
-                temp_df['deciles_ratio'] = pd.qcut(temp_df['ratio'], 20, duplicates='drop')
-
-                plt.subplot(5, 2, 5)
-                temp_df[[col_y2, 'deciles_raw2']].groupby('deciles_raw2').mean().plot(kind='bar', figsize=(15, 20),
-                                                                                      linewidth=0.1,
-                                                                                      ax=ax_left_3)
-                plt.xlabel(f'Graph 5 - Mean Criterion rate by Deciles \n {raw_col2}')
+                    temp_df[[col_y2, raw_col1]].groupby(raw_col1).mean().plot(kind='bar', figsize=(15, 20),
+                                                                              linewidth=0.1,
+                                                                              ax=ax_left_2)
+                else:
+                    temp_df[[col_y2, 'deciles_raw1']].groupby('deciles_raw1').mean().plot(kind='bar', figsize=(15, 20),
+                                                                                          linewidth=0.1,
+                                                                                          ax=ax_left_2)
+                plt.legend(shadow=True)
+                plt.xlabel(f'Graph 3 - Mean Criterion rate by Deciles \n {raw_col1}')
 
                 plt.ylabel('Criterion rate')
 
-                plt.subplot(5, 2, 6)
-                temp_df[[col_y2, 'deciles_raw2']].groupby('deciles_raw2').count().plot(kind='bar', figsize=(15, 20),
-                                                                                       linewidth=0.1,
-                                                                                       ax=ax_right_3, legend=None)
-                plt.xlabel(f'Graph 6 - Nb of cases by Deciles \n {raw_col2}')
+                plt.subplot(5, 2, 4)
+                if temp_df[raw_col1].dtype == object:
+                    #
+                    temp_df[[col_y2, raw_col1]].groupby(raw_col1).count().plot(kind='bar', figsize=(15, 20),
+                                                                               linewidth=0.1,
+                                                                               ax=ax_right_2)
+                else:
+                    temp_df[[col_y2, 'deciles_raw1']].groupby('deciles_raw1').count().plot(kind='bar', figsize=(15, 20),
+                                                                                           linewidth=0.1,
+                                                                                           ax=ax_right_2, legend=None)
+                plt.xlabel(f'Graph 4 - Nb of cases by Deciles \n {raw_col1}')
 
                 plt.ylabel('Nb of cases')
 
-                plt.subplot(5, 2, 7)
-                temp_df[['ratio', 'deciles_raw1']].groupby('deciles_raw1').mean().plot(kind='bar', figsize=(15, 20),
-                                                                                       linewidth=0.1,
-                                                                                       ax=ax_left_4)
-                plt.xlabel(f'Graph 7 - Mean ratio by Deciles \n {raw_col1}')
+                if raw_col2:
 
-                plt.ylabel('Average ratio')
+                    temp_df['deciles_raw2'] = pd.qcut(temp_df[raw_col2], 10, duplicates='drop')
+                    temp_df['ratio'] = temp_df[raw_col1] / temp_df[raw_col2]
 
-                plt.subplot(5, 2, 8)
-                temp_df[['ratio', 'deciles_raw2']].groupby('deciles_raw2').mean().plot(kind='bar', figsize=(15, 20),
-                                                                                       linewidth=0.1,
-                                                                                       ax=ax_right_4)
-                plt.xlabel(f'Graph 8 - Mean ratio by Deciles \n {raw_col2}')
+                    temp_df['ratio'] = temp_df['ratio'].replace([np.inf, -np.inf], 0)
 
-                plt.ylabel('Average ratio')
+                    temp_df['deciles_ratio'] = pd.qcut(temp_df['ratio'], 20, duplicates='drop')
 
-                plt.subplot(5, 2, 9)
-                temp_df[['deciles_ratio', col_y2]].groupby('deciles_ratio').mean().plot(kind='bar', figsize=(15, 20),
-                                                                                        linewidth=0.1,
-                                                                                        ax=ax_left_5)
-                plt.xlabel(f'Graph 9 - Mean Criterion rate Deciles based on the ratio')
+                    plt.subplot(5, 2, 5)
+                    temp_df[[col_y2, 'deciles_raw2']].groupby('deciles_raw2').mean().plot(kind='bar', figsize=(15, 20),
+                                                                                          linewidth=0.1,
+                                                                                          ax=ax_left_3)
+                    plt.xlabel(f'Graph 5 - Mean Criterion rate by Deciles \n {raw_col2}')
 
-                plt.ylabel('Criterion rate')
+                    plt.ylabel('Criterion rate')
 
-                plt.subplot(5, 2, 10)
-                temp_df[['deciles_ratio', col_y2]].groupby('deciles_ratio').count().plot(kind='bar', figsize=(15, 20),
-                                                                                         linewidth=0.1,
-                                                                                         ax=ax_right_5)
-                plt.xlabel(f'Graph 10 - NB cases of the ratio')
+                    plt.subplot(5, 2, 6)
+                    temp_df[[col_y2, 'deciles_raw2']].groupby('deciles_raw2').count().plot(kind='bar', figsize=(15, 20),
+                                                                                           linewidth=0.1,
+                                                                                           ax=ax_right_3, legend=None)
+                    plt.xlabel(f'Graph 6 - Nb of cases by Deciles \n {raw_col2}')
 
-                plt.ylabel('Criterion rate')
-            else:
-                plt.subplot(5, 2, 5)
-                plt.subplot(5, 2, 6)
-                plt.subplot(5, 2, 7)
-                plt.subplot(5, 2, 8)
-                plt.subplot(5, 2, 9)
-                plt.subplot(5, 2, 10)
+                    plt.ylabel('Nb of cases')
 
-            plt.subplots_adjust(wspace=0.15, hspace=0.7)
+                    plt.subplot(5, 2, 7)
+                    temp_df[['ratio', 'deciles_raw1']].groupby('deciles_raw1').mean().plot(kind='bar', figsize=(15, 20),
+                                                                                           linewidth=0.1,
+                                                                                           ax=ax_left_4)
+                    plt.xlabel(f'Graph 7 - Mean ratio by Deciles \n {raw_col1}')
 
-            # ----------------------------------------
-            fig = plot.get_figure()
-            fig.savefig(session_id_folder + '/' + graph + '.png')
+                    plt.ylabel('Average ratio')
 
-            # Insert graphs
+                    plt.subplot(5, 2, 8)
+                    temp_df[['ratio', 'deciles_raw2']].groupby('deciles_raw2').mean().plot(kind='bar', figsize=(15, 20),
+                                                                                           linewidth=0.1,
+                                                                                           ax=ax_right_4)
+                    plt.xlabel(f'Graph 8 - Mean ratio by Deciles \n {raw_col2}')
 
-            context = {}
-            old_im = graph
-            new_im = session_id_folder + '/' + graph + '.png'
+                    plt.ylabel('Average ratio')
 
-            tpl.replace_pic(old_im, new_im)
-            tpl.render(context)
-            tpl.save(DEST_FILE)
-            plt.clf()
-    """
+                    plt.subplot(5, 2, 9)
+                    temp_df[['deciles_ratio', col_y2]].groupby('deciles_ratio').mean().plot(kind='bar',
+                                                                                            figsize=(15, 20),
+                                                                                            linewidth=0.1,
+                                                                                            ax=ax_left_5)
+                    plt.xlabel(f'Graph 9 - Mean Criterion rate Deciles based on the ratio')
+
+                    plt.ylabel('Criterion rate')
+
+                    plt.subplot(5, 2, 10)
+                    temp_df[['deciles_ratio', col_y2]].groupby('deciles_ratio').count().plot(kind='bar',
+                                                                                             figsize=(15, 20),
+                                                                                             linewidth=0.1,
+                                                                                             ax=ax_right_5)
+                    plt.xlabel(f'Graph 10 - NB cases of the ratio')
+
+                    plt.ylabel('Criterion rate')
+                else:
+                    plt.subplot(5, 2, 5)
+                    plt.subplot(5, 2, 6)
+                    plt.subplot(5, 2, 7)
+                    plt.subplot(5, 2, 8)
+                    plt.subplot(5, 2, 9)
+                    plt.subplot(5, 2, 10)
+
+                plt.subplots_adjust(wspace=0.15, hspace=0.7)
+
+                # ----------------------------------------
+                fig = plot.get_figure()
+                fig.savefig(session_id_folder + '/' + graph + '.png')
+
+                # Insert graphs
+
+                context = {}
+                old_im = graph
+                new_im = session_id_folder + '/' + graph + '.png'
+
+                tpl.replace_pic(old_im, new_im)
+                tpl.render(context)
+                tpl.save(DEST_FILE)
+                plt.clf()
+                print(f"[ EVAL ] Graph {graph} ready")
+        except Exception as e:
+            print(f"[ Graphs error ] {e}")
+            pass
 
     for file in os.listdir(session_id_folder):
         if file.endswith('.png'):
