@@ -177,6 +177,15 @@ class ModuleClass(SessionManager):
                 results_check.append(el)
         self.loader.final_features = results_check.copy()
 
+        # remove single value columns from final features
+        for el in self.loader.final_features[:]:
+            try:
+                if len(self.loader.in_df[el].nunique()) == 0:
+                    self.loader.final_features.remove(el)
+                    print_and_log(f"[ DATA LOAD ] Removing {el} from final features due to single value.", "YELLOW")
+            except:
+                pass
+
     def remove_final_features_with_low_correlation(self):
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],
                                                         y=self.loader.in_df[self.criterion_column],

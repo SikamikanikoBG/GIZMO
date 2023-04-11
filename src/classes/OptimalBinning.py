@@ -18,47 +18,52 @@ class OptimaBinning:
         self.params = params
 
     def optimal_binning_procedure(self, col):
-        # creating binned dummie features from all numeric ones
-        temp_df = self.df.copy()
-        temp_df2 = self.df.copy()
-        temp_df_full = self.df_full.copy()
+        try:
+            print_and_log(f'[ OPTIMAL BINNING ] Starting for {col}', '')
+            # creating binned dummie features from all numeric ones
+            temp_df = self.df.copy()
+            temp_df2 = self.df.copy()
+            temp_df_full = self.df_full.copy()
 
-        # Removing all periods before splitting train and test
-        temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t1df']]
-        temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t2df']]
-        temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t3df']]
+            # Removing all periods before splitting train and test
+            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t1df']]
+            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t2df']]
+            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t3df']]
 
-        x_train, _, y_train, _ = train_test_split(
-            temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
-        x_train = x_train.dropna(subset=[col])
+            x_train, _, y_train, _ = train_test_split(
+                temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
+            x_train = x_train.dropna(subset=[col])
 
-        x = x_train[col].values
-        y = x_train[self.criterion_column].values
-        optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
-        optb.fit(x, y)
+            x = x_train[col].values
+            y = x_train[self.criterion_column].values
+            optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+            optb.fit(x, y)
 
-        temp_df = temp_df.dropna(subset=[col])
-        binned_col_name = col + '_binned'
-        temp_df[binned_col_name] = optb.transform(temp_df[col], metric='bins')
-
-        dummies = pd.get_dummies(temp_df[binned_col_name], prefix=binned_col_name + '_dummie')
-        print_and_log(f'[ OPTIMAL BINNING ] {col} is with the following splits: {optb.splits} and '
-                      f'dummie columns: {list(dummies.columns)}', '')
-        temp_df[dummies.columns] = dummies
-
-        if self.params['under_sampling']:
-            temp_df_full = temp_df_full.dropna(subset=[col])
+            temp_df = temp_df.dropna(subset=[col])
             binned_col_name = col + '_binned'
-            temp_df_full[binned_col_name] = optb.transform(temp_df_full[col], metric='bins')
+            temp_df[binned_col_name] = optb.transform(temp_df[col], metric='bins')
 
-            dummies = pd.get_dummies(temp_df_full[binned_col_name], prefix=binned_col_name + '_dummie')
-            temp_df_full[dummies.columns] = dummies
-        else:
-            for col in list(dummies.columns):
-                temp_df_full[col] = 1
+            dummies = pd.get_dummies(temp_df[binned_col_name], prefix=binned_col_name + '_dummie')
+            print_and_log(f'[ OPTIMAL BINNING ] {col} is with the following splits: {optb.splits} and '
+                          f'dummie columns: {list(dummies.columns)}', 'GREEN')
+            temp_df[dummies.columns] = dummies
 
-        dummies_list = list(dummies.columns)
-        return temp_df[list(dummies.columns)], temp_df_full[list(dummies.columns)], dummies_list
+            if self.params['under_sampling']:
+                temp_df_full = temp_df_full.dropna(subset=[col])
+                binned_col_name = col + '_binned'
+                temp_df_full[binned_col_name] = optb.transform(temp_df_full[col], metric='bins')
+
+                dummies = pd.get_dummies(temp_df_full[binned_col_name], prefix=binned_col_name + '_dummie')
+                temp_df_full[dummies.columns] = dummies
+            else:
+                for col in list(dummies.columns):
+                    temp_df_full[col] = 1
+
+            dummies_list = list(dummies.columns)
+            return temp_df[list(dummies.columns)], temp_df_full[list(dummies.columns)], dummies_list
+        except Exception as e:
+            print_and_log(f'[ OPTIMAL BINNING ] ERROR {e}. Skipping this column {col}', 'RED')
+            return pd.DataFrame(), pd.DataFrame(), []
 
     def rename_strings_cols_opt_bin(self):
         # Recoding strings
@@ -107,10 +112,12 @@ class OptimaBinning:
 
     def run_optimal_binning_multiprocess(self):
         df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
-        pool = Pool(20)
+        pool = Pool(30)
         # install_mp_handler()
 
         arguments = self.columns
+        progress_total = len(arguments)
+        progress_counter = 1
 
         for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
 
@@ -119,16 +126,19 @@ class OptimaBinning:
                 if self.params["under_sampling"]: self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
 
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
-                if self.params["under_sampling"]: self.df_full = self.df_full.loc[:, ~self.df_full.columns.duplicated()].copy()
+                if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
                 self.df[dummies_columns] = self.df[dummies_columns].fillna(0)
                 if self.params["under_sampling"]: self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(0)
+
+                progress_current = round(progress_counter / progress_total, 2)
+                print_and_log(f"[ OPTIMAL BINNING ] Progress:{progress_current} Done added data for: {dummies_columns}", "YELLOW")
+                progress_counter+=1
 
                 for col in dummies_columns:
                     columns_all.append(col)
 
         self.columns = columns_all
-
         self.rename_strings_cols_opt_bin()
 
         return self.df, self.df_full, self.columns
