@@ -79,7 +79,7 @@ class ModuleClass(SessionManager):
                         self.output_df[f"predict_{model}"] = 0
                     else:
                         self.output_df[f"predict_{model}"] = model_pkl.model.predict_proba(
-                            self.output_df[model_pkl.final_features])[:, 1]
+                            self.output_df[model_pkl.model.get_booster().feature_names])[:, 1]
                         self.output_df[f"predict_{model}"] = self.output_df[f"predict_{model}"].round(5)
                 except Exception as model_error:
                     print_and_log(f"[ PREDICT ] ERROR for {model}: {model_error}", "RED")
