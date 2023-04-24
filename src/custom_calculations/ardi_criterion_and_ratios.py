@@ -30,12 +30,20 @@ def calculate_flag_trend(df):
     ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['currency'] == currency.upper()].copy()
     ma_best_simu_results = ma_best_simu_results[ma_best_simu_results['direction'] == direction].copy()
 
-    timeframe_fast = ma_best_simu_results['timeframe_fast'].iloc[-1]
-    timeframe_slow = ma_best_simu_results['timeframe_slow'].iloc[-1]
-    period_fast_small = ma_best_simu_results['period_fast_small'].iloc[-1]
-    period_fast_big = ma_best_simu_results['period_fast_big'].iloc[-1]
-    period_slow = ma_best_simu_results['period_slow'].iloc[-1]
-    diff_pips = ma_best_simu_results['diff_pips'].iloc[-1]
+    try:
+        timeframe_fast = ma_best_simu_results['timeframe_fast'].iloc[-1]
+        timeframe_slow = ma_best_simu_results['timeframe_slow'].iloc[-1]
+        period_fast_small = ma_best_simu_results['period_fast_small'].iloc[-1]
+        period_fast_big = ma_best_simu_results['period_fast_big'].iloc[-1]
+        period_slow = ma_best_simu_results['period_slow'].iloc[-1]
+        diff_pips = ma_best_simu_results['diff_pips'].iloc[-1]
+    except:
+        timeframe_fast =  1
+        timeframe_slow = 1
+        period_fast_small = 1
+        period_fast_big = 1
+        period_slow = 1
+        diff_pips = 1
 
     # Aggregate 1M to 15M df
     df7 = df.iloc[::-timeframe_slow, :].copy()
@@ -322,10 +330,10 @@ def calculate_criterion_ma_simu(df, predict_module, currency, tp, sl, period):
 
 def ma_simulation(source_df):
     timeframe_fast = [1]
-    timeframe_slow = [5, 15]
-    period_fast_small = [5, 10, 15]
+    timeframe_slow = [1]
+    period_fast_small = [1]
     period_fast_big = period_fast_small.copy() # The idea is to use the same values on different timeframes separately
-    period_slow = [5, 15, 30, 60]
+    period_slow = [1]
     diff_pips = [0.0005, 0.0010]
     direction = ['buy', 'sell']
     currency_list = source_df['Currency'].unique().tolist()
@@ -333,7 +341,7 @@ def ma_simulation(source_df):
         if ('jpy' in el.lower()) or ('xau' in el.lower()) or ('xag' in el.lower()) or ('us30' in el.lower()):
             currency_list.remove(el)
 
-    sl = [0.005, 0.003]
+    sl = [0.005]
 
     ma_best_simu_results = pd.DataFrame()
 

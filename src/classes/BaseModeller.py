@@ -72,7 +72,11 @@ class BaseModeller:
         df[f'{self.model_name}_y_pred'] = self.model.predict(df[self.final_features])
         df[f'{self.model_name}_deciles_predict'] = pd.qcut(df[f'{self.model_name}_y_pred'], 10, duplicates='drop',
                                                            labels=False)
-        df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.model.get_booster().feature_names])[:, 1]
+        if self.model_name == 'xgb':
+            df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.model.get_booster().feature_names])[:, 1]
+        else:
+            df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.final_features])[
+                                                   :, 1]
         df[f'{self.model_name}_deciles_pred_prob'] = pd.qcut(df[f'{self.model_name}_y_pred_prob'], 10,
                                                              duplicates='drop', labels=False)
 

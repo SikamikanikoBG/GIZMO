@@ -123,6 +123,7 @@ try:
 
     if session == 'gridsearch':
         ma_simulation(in_data.sort_values(by='time', ascending=True))
+        
 
     ma_simu_time = datetime.datetime.now()
     api_time_delta = api_time - start_time
