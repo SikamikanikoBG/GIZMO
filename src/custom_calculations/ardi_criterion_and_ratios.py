@@ -117,10 +117,12 @@ def calculate_criterion(df, predict_module):
     else:
         pass
 
-    df['check_ROLL_min'] = df['low'][::-1].rolling(window=period).min()
-    df['check_ROLL_max'] = df['high'][::-1].rolling(window=period).max()
-    df['check_pips'] = df['open'] + profit_pips
+    # Remove comments if you want to check only
+    # df['check_ROLL_min'] = df['low'][::-1].rolling(window=period).min()
+    # df['check_ROLL_max'] = df['high'][::-1].rolling(window=period).max()
+    # df['check_pips'] = df['open'] + profit_pips
 
+    # Calculate the criterion rate
     df['criterion_ROLLING_min'] = df['low'][::-1].rolling(window=period).min() - df['open']
     df['criterion_ROLLING_max'] = df['high'][::-1].rolling(window=period).max() - df['open']
 
@@ -128,6 +130,9 @@ def calculate_criterion(df, predict_module):
                                    & (df['criterion_ROLLING_min'] > -loss_pips), 1, 0)
     df['criterion_sell'] = np.where((df['criterion_ROLLING_max'] < loss_pips)
                                     & (df['criterion_ROLLING_min'] < -profit_pips), 1, 0)
+    del df['criterion_ROLLING_min']
+    del df['criterion_ROLLING_max']
+
 
     criterion_buy = df['criterion_buy'].sum() / df['criterion_buy'].count()
     criterion_sell = df['criterion_sell'].sum() / df['criterion_sell'].count()
