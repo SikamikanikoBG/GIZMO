@@ -49,10 +49,11 @@ if winner:
 else:
     grid_param = {"tp": [0.0025],
                   "sl": [0.0150],
-                  "period": [240, 480],
-                  "t_val_size_per_period": [1300],
-                  "training_rows": [4000, 7000],
-                  "nb_features": [15, 30, 50]
+                  "period": [480],
+                  "t_val_size_per_period": [1300, 2600],
+                  #"training_rows": [4000, 7000, 10000, 15000],
+                  "training_rows": [4000, 10000],
+                  "nb_features": [100]
                   }
 
 a, b = 0, 0

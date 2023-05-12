@@ -1,11 +1,10 @@
 import sys
+import definitions
 
 import pandas as pd
 import xgboost
-import statsmodels.api as sm
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
 
 from src import print_and_log, cut_into_bands, get_metrics
 
@@ -32,8 +31,10 @@ class BaseModeller:
 
     def model_fit(self, train_X, train_y, test_X, test_y):
         if self.model_name == 'xgb':
-            self.model.fit(train_X[self.final_features], train_y, eval_set=[(test_X[self.final_features], test_y)],
-                           early_stopping_rounds=15)
+            eval_metric = ['auc', 'error', 'logloss']
+            self.model.fit(train_X[self.final_features], train_y,
+                           eval_set=[(train_X[self.final_features], train_y), (test_X[self.final_features], test_y)],
+                           early_stopping_rounds=definitions.early_stopping_rounds, verbose=False, eval_metric=eval_metric)
         elif self.model_name == 'rf':
             self.model.fit(train_X[self.final_features], train_y)
         elif self.model_name == 'dt':
@@ -49,10 +50,9 @@ class BaseModeller:
             print_and_log(f"[ Modelling ] ERROR: Model {self.model_name} not recognized.", "RED")
             quit()
 
-
     def load_model(self):
         if self.model_name == 'xgb':
-            self.model = xgboost.XGBClassifier(colsample_bytree=.1, subsample=.5, max_depth=5)
+            self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators, colsample_bytree=.1, subsample=.5, learning_rate=definitions.learning_rate)
         elif self.model_name == 'rf':
             self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,
@@ -73,7 +73,8 @@ class BaseModeller:
         df[f'{self.model_name}_deciles_predict'] = pd.qcut(df[f'{self.model_name}_y_pred'], 10, duplicates='drop',
                                                            labels=False)
         if self.model_name == 'xgb':
-            df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.model.get_booster().feature_names])[:, 1]
+            df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.model.get_booster().feature_names])[
+                                                   :, 1]
         else:
             df[f'{self.model_name}_y_pred_prob'] = self.model.predict_proba(df[self.final_features])[
                                                    :, 1]
@@ -94,12 +95,14 @@ class BaseModeller:
                                                                              y=y_true, depth=3)
 
         ac, auc, prec, recall, f1, cr, cr_p, vol = get_metrics(y_pred=df[f'{self.model_name}_y_pred'], y_true=y_true,
-                                                y_pred_prob=df[f'{self.model_name}_y_pred_prob'])
+                                                               y_pred_prob=df[f'{self.model_name}_y_pred_prob'])
 
         desired_cutoff = 0.6
         df_temp_tocalc_proba = df[df[f'{self.model_name}_y_pred_prob'] >= desired_cutoff].copy()
-        cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[self.params['criterion_column']].count(), 2)
-        cr_p_des_vol = round(df_temp_tocalc_proba[f'{self.model_name}_y_pred'].sum() / df[self.params['criterion_column']].count(), 2)
+        cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[
+            self.params['criterion_column']].count(), 2)
+        cr_p_des_vol = round(
+            df_temp_tocalc_proba[f'{self.model_name}_y_pred'].sum() / df[self.params['criterion_column']].count(), 2)
 
         metrics_df = pd.DataFrame()
         metrics_df['AccuracyScore'] = [ac]
@@ -109,7 +112,7 @@ class BaseModeller:
         metrics_df['F1'] = [f1]
         metrics_df['CR'] = [cr]
         metrics_df['CR_pred_cutoff'] = [cr_p]
-        metrics_df['PrecisionScore_cutoff_' + str(desired_cutoff*100)] = [cr_p_des_cutt]
-        metrics_df['Volumes_Criterion_rate_predicted_' + str(desired_cutoff*100)] = [cr_p_des_vol]
+        metrics_df['PrecisionScore_cutoff_' + str(desired_cutoff * 100)] = [cr_p_des_cutt]
+        metrics_df['Volumes_Criterion_rate_predicted_' + str(desired_cutoff * 100)] = [cr_p_des_vol]
         metrics_df['Volumes'] = [vol]
         return metrics_df, df

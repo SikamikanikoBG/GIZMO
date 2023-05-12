@@ -2,13 +2,14 @@ import os
 import pickle
 
 import pandas as pd
+from matplotlib import pyplot
 from sklearn.model_selection import train_test_split
 
-from src.classes.SessionManager import SessionManager
 from src.classes.BaseModeller import BaseModeller
+from src.classes.SessionManager import SessionManager
 from src.functions.data_prep.misc_functions import correlation_matrix
-from src.functions.printing_and_logging import print_end, print_and_log, print_train
 from src.functions.data_prep.raw_features_to_list import raw_features_to_list
+from src.functions.printing_and_logging import print_end, print_and_log, print_train
 
 
 class ModuleClass(SessionManager):
@@ -24,8 +25,8 @@ class ModuleClass(SessionManager):
         print_train()
 
         # remove last n rows where there is no enough time/periods to calculate the criterion
-        #shape_of_df = len(self.loader.in_df)
-        #records_to_keep = shape_of_df - self.args.period
+        # shape_of_df = len(self.loader.in_df)
+        # records_to_keep = shape_of_df - self.args.period
         # self.loader.in_df = self.loader.in_df.head(records_to_keep).copy()
 
         self.split_temporal_validation_periods()
@@ -84,10 +85,12 @@ class ModuleClass(SessionManager):
 
         count = 0
         for dataframe in validation_dataframes_X:
-            metrics, validation_dataframes_X[count] = globals()['self.modeller_' + model_type].generate_predictions_and_metrics(
-                    y_true=validation_dataframes_y[count],
-                    df=validation_dataframes_X[count])
-            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(metrics)
+            metrics, validation_dataframes_X[count] = globals()[
+                'self.modeller_' + model_type].generate_predictions_and_metrics(
+                y_true=validation_dataframes_y[count],
+                df=validation_dataframes_X[count])
+            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+                metrics)
             globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = validation_dataframes_name[count]
             count += 1
 
@@ -145,12 +148,65 @@ class ModuleClass(SessionManager):
         # fitting new model only with selected final features
         self.training_models_fit_procedure(model_type)
 
-        metrics, self.loader.train_X = globals()[
-                'self.modeller_' + model_type].generate_predictions_and_metrics(
-                y_true=self.loader.y_train,
-                df=self.loader.train_X)
+        try:
+            # Saving cost function graphs:
+            # retrieve performance metrics
+            results_evals = globals()['self.modeller_' + model_type].model.evals_result()
+            print(results)
+            # plot learning curves
+            pyplot.plot(results_evals['validation_0']['logloss'], label='train')
+            pyplot.plot(results_evals['validation_1']['logloss'], label='test')
+            # show the legend
+            pyplot.legend()
+            pyplot.savefig(f'{self.session_id_folder}/cost_graph_{model_type}.png')
+            try:
+                pyplot.savefig(f'{self.log_folder_name}/cost_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
+            except Exception as e:
+                print_and_log(f"{e}", "YELLOW")
+                pass
+            pyplot. clf()
+            
+            
+            # plot auc curves
+            pyplot.plot(results_evals['validation_0']['auc'], label='train')
+            pyplot.plot(results_evals['validation_1']['auc'], label='test')
+            # show the legend
+            pyplot.legend()
+            # show the plot
+            # pyplot.show()
+            pyplot.savefig(f'{self.session_id_folder}/auc_graph_{model_type}.png')
+            try:
+                pyplot.savefig(f'{self.log_folder_name}/auc_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
+            except Exception as e:
+                print_and_log(f"{e}", "YELLOW")
+                pass
+            pyplot. clf()
+            
+            # plot error curves
+            pyplot.plot(results_evals['validation_0']['error'], label='train')
+            pyplot.plot(results_evals['validation_1']['error'], label='test')
+            # show the legend
+            pyplot.legend()
+            # show the plot
+            # pyplot.show()
+            pyplot.savefig(f'{self.session_id_folder}/error_graph_{model_type}.png')
+            try:
+                pyplot.savefig(f'{self.log_folder_name}/error_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
+            except Exception as e:
+                print_and_log(f"{e}", "YELLOW")
+                pass
+        except Exception as e:
+            print_and_log(f"EVAL Validation_1: {e}", "YELLOW")
+            pass
 
-        globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(metrics)
+
+        metrics, self.loader.train_X = globals()[
+            'self.modeller_' + model_type].generate_predictions_and_metrics(
+            y_true=self.loader.y_train,
+            df=self.loader.train_X)
+
+        globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+            metrics)
         globals()['self.modeller_' + model_type].metrics['DataSet'] = 'train_X'
         globals()['self.modeller_' + model_type].results = results
 
@@ -161,7 +217,8 @@ class ModuleClass(SessionManager):
                            session_id_folder=self.session_id_folder,
                            model_corr=model_type,
                            flag_raw='', keep_cols=None)
-        globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(globals()['self.modeller_' + model_type].final_features)
+        globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(
+            globals()['self.modeller_' + model_type].final_features)
         correlation_matrix(X=self.loader.train_X[globals()['self.modeller_' + model_type].raw_features],
                            y=None,
                            flag_matrix='all',
@@ -271,6 +328,8 @@ class ModuleClass(SessionManager):
         print_and_log(f"[ TEMPORAL VALIDATION ] CR: t1 {cr_t1}%, t2 {cr_t2}%, t3 {cr_t3}%.", "")
 
         if len(self.loader.t1df) == 0 or len(self.loader.t2df) == 0 or len(self.loader.t3df) == 0:
-            print_and_log(f"[ TEMPORAL VALIDATION ] ERROR: data for some of the temp validation periods is missing. Termination", "RED")
+            print_and_log(
+                f"[ TEMPORAL VALIDATION ] ERROR: data for some of the temp validation periods is missing. Termination",
+                "RED")
             quit()
         print_and_log("Splitting temporal validation dataframes. Done", '')

@@ -34,3 +34,8 @@ selected_project = None
 selected_param_file = None
 input_df = None
 
+# XGBoost
+n_estimators = 100
+early_stopping_rounds = 10
+learning_rate = 0.01
+
