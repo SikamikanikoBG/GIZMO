@@ -97,7 +97,7 @@ class BaseModeller:
         ac, auc, prec, recall, f1, cr, cr_p, vol = get_metrics(y_pred=df[f'{self.model_name}_y_pred'], y_true=y_true,
                                                                y_pred_prob=df[f'{self.model_name}_y_pred_prob'])
 
-        desired_cutoff = 0.6
+        desired_cutoff = 0.5
         df_temp_tocalc_proba = df[df[f'{self.model_name}_y_pred_prob'] >= desired_cutoff].copy()
         cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[
             self.params['criterion_column']].count(), 2)
