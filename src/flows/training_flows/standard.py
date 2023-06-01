@@ -123,9 +123,9 @@ class ModuleClass(SessionManager):
         results['importances'] = globals()['self.modeller_' + model_type].model.feature_importances_
         results.sort_values(by='importances', ascending=False, inplace=True)
 
-        # Select importances between 0 and 0.95 and keep top 30 features
-        results = results[results['importances'] > 0]
-        results = results[results['importances'] < 0.95]
+        # Select importances between 0 and 0.95 and keep top args.nb_tree_features features
+        #results = results[results['importances'] > 0]
+        #results = results[results['importances'] < 0.95]
 
         if self.args.nb_tree_features:
             nb_features = int(self.args.nb_tree_features)
@@ -219,13 +219,16 @@ class ModuleClass(SessionManager):
                            flag_raw='', keep_cols=None)
         globals()['self.modeller_' + model_type].raw_features = raw_features_to_list(
             globals()['self.modeller_' + model_type].final_features)
-        correlation_matrix(X=self.loader.train_X[globals()['self.modeller_' + model_type].raw_features],
+        try:
+            correlation_matrix(X=self.loader.train_X[globals()['self.modeller_' + model_type].raw_features],
                            y=None,
                            flag_matrix='all',
                            input_data_project_folder=None,
                            session_id_folder=self.session_id_folder,
                            model_corr=model_type,
                            flag_raw='yes', keep_cols=None)
+        except Exception as e:
+            print_and_log(f"[ TRAINING ] Raw featires correlation matrix error for model: {model_type}. Error: {e}", "RED")
 
     def training_models_fit_procedure(self, model_type):
         if self.under_sampling:

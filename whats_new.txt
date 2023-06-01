@@ -1,4 +1,7 @@
+7.2.1 - train standard flow - remove removal of strong and weak predictors
 7.2.0 - saving cost, auc, error xgb graph. also in definitions some xgboost hyperparameters
+7.1.5 - critical - train base modeller changed get_booster().feature_names
+7.1.4 - critical predict fix - model_pkl.model.get_booster().feature_names
 7.1.3 - Opt binning added print and try/except
 7.1.2 - eval - fixed appendix graphs
 7.1.1 - ardi custom calc - ma simulation - created new logic for ma
