@@ -50,7 +50,7 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
     tpl.save(doc_file)
     plt.clf()
 
-    if os.exsits(session_id_folder + '/' + graph + '.png'):
+    if os.path.isfile(session_id_folder + '/' + graph + '.png'):
         remove(session_id_folder + '/' + graph + '.png')
     print(f"[ EVAL ] Graph {graph} ready")
     
