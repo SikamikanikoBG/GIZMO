@@ -180,7 +180,7 @@ class ModuleClass(SessionManager):
         # remove single value columns from final features
         for el in self.loader.final_features[:]:
             try:
-                if len(self.loader.in_df[el].nunique()) == 0:
+                if len(self.loader.in_df[el].nunique()) == 1:
                     self.loader.final_features.remove(el)
                     print_and_log(f"[ DATA LOAD ] Removing {el} from final features due to single value.", "YELLOW")
             except:

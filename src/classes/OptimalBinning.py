@@ -128,8 +128,10 @@ class OptimaBinning:
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
                 if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
-                self.df[dummies_columns] = self.df[dummies_columns].fillna(0)
-                if self.params["under_sampling"]: self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(0)
+                self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
+                if self.params["under_sampling"]: 
+                    self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(
+                        self.df_full[dummies_columns].mean())
 
                 progress_current = round(progress_counter / progress_total, 2)
                 print_and_log(f"[ OPTIMAL BINNING ] Progress:{progress_current} Done added data for: {dummies_columns}", "YELLOW")
