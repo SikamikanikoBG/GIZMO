@@ -11,3 +11,4 @@
 /.ipynb_checkpoints/
 /.~lock.architecture.odp#
 /Untitled.ipynb
+*.pyc

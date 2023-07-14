@@ -18,8 +18,8 @@ class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
         #self.main_model = args.main_model.lower()
-        self.models_list = ['xgb']
-        # self.models_list = ['xgb', 'rf', 'dt']
+        #self.models_list = ['xgb']
+        self.models_list = ['xgb', 'rf', 'dt']
         # self.models_list = ['xgb']
         self.args = args
         self.output_df = None
@@ -34,7 +34,7 @@ class ModuleClass(SessionManager):
 
         for model in self.models_list:
             print(f"[ EVAL ] Model: {model}")
-            merge_word(input_data_folder_name=self.input_data_folder_name,
+            merge_word(project_name=self.project_name,input_data_folder_name=self.input_data_folder_name,
                    input_data_project_folder=self.input_data_project_folder,
                    session_to_eval=self.session_to_eval,
                    session_folder_name = self.session_folder_name,

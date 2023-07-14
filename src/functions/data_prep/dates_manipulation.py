@@ -20,6 +20,7 @@ def convert_obj_to_date(df, object_cols, suffix):
                     switched.append(el)
                 except:
                     pass
+            del df[el+suffix]    
     print_and_log(f'[ OBJECT TO DATE ] Column converted to dates: {len(switched)}', '')
     return df
 

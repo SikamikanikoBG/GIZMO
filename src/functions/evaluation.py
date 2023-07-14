@@ -4,7 +4,7 @@ import logging
 import os
 import shutil
 import sys
-from os import listdir
+from os import listdir, remove
 from os.path import join, isfile
 
 import dataframe_image as dfi
@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import seaborn as sns
+
+import definitions
 from docxtpl import DocxTemplate
 from mailmerge import MailMerge
 from optbinning.scorecard import plot_cap
@@ -21,7 +23,39 @@ from sklearn import metrics
 from src import print_and_log
 
 
-def merge_word(input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
+use_mlflow = False
+try:
+    import mlflow
+    use_mlflow = True
+    mlflow.set_tracking_uri(definitions.mlflow_tracking_uri)
+except:
+    pass
+
+def log_graph_to_mlflow(run_id, graph, mlflow_path="graphs"):
+    mlflow.start_run(run_id=run_id)
+    mlflow.log_artifact(graph, mlflow_path)
+    mlflow.end_run()
+
+def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
+    # Insert graphs
+
+    context = {}
+    old_im = graph
+    new_im = session_id_folder + '/' + graph + '.png'
+    
+    log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
+
+    tpl.replace_pic(old_im, new_im)
+    tpl.render(context)
+    tpl.save(doc_file)
+    plt.clf()
+
+    if os.path.isfile(session_id_folder + '/' + graph + '.png'):
+        remove(session_id_folder + '/' + graph + '.png')
+    print(f"[ EVAL ] Graph {graph} ready")
+    
+
+def merge_word(project_name, input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
                session_id_folder, criterion_column,
                observation_date_column,
                columns_to_exclude,
@@ -31,6 +65,26 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
                t3df_period,
                model_arg,
                missing_treatment, params):
+    
+    experiment = mlflow.set_experiment(definitions.mlflow_prefix + "_" + project_name)
+    parent_run_id = ""
+    run_id = ""
+    for result in mlflow.search_runs(experiment.experiment_id).iterrows():        
+        if result[1]['tags.mlflow.runName'] == session_to_eval:
+            parent_run_id = result[1]['run_id']
+            break
+    if parent_run_id == "":
+        print_and_log(f"ERROR: No parent run for {session_to_eval} found, aborting", "RED")
+        sys.exit()
+
+    child_runs = mlflow.search_runs(experiment.experiment_id, filter_string=f"tags.mlflow.parentRunId = '{parent_run_id}' and tags.mlflow.runName = '{model_arg}'")
+    if len(child_runs)>0:
+        run_id = child_runs.run_id.values[0]
+    else:
+        print_and_log(f"ERROR: Could not find child runs for {model_arg} in session {session_to_eval}", "RED")
+        sys.exit()  
+    
+
     # Load train session data
     onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
                  isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
@@ -144,17 +198,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     dfi.export(models[models['Method'] == model_arg], session_id_folder + '/' + graph + '.png', max_rows=-1,
                max_cols=-1, table_conversion="matplotlib")
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 1 ---------------------------------------------------------------------------------------------------
     graph = "graph1"
@@ -163,17 +207,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/graph1.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = "graph1"
-    new_im = session_id_folder + '/graph1.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 2 ---------------------------------------------------------------------------------------------------
     graph = "graph2"
@@ -182,17 +216,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/graph2.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = "graph2"
-    new_im = session_id_folder + '/graph2.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 3 ---------------------------------------------------------------------------------------------------
     graph = 'graph3'
@@ -201,17 +225,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 1.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph1.1'
@@ -220,17 +234,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 2.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph2.1'
@@ -239,17 +243,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 3.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph3.1'
@@ -258,17 +252,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 4 ---------------------------------------------------------------------------------------------------
     graph = 'graph4'
@@ -282,17 +266,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 5 ---------------------------------------------------------------------------------------------------
     graph = 'graph5'
@@ -306,17 +280,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 5.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph5.1'
@@ -329,17 +293,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 6.0 ---------------------------------------------------------------------------------------------------
     graph = 'graph6.0'
@@ -437,16 +391,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     try:
         dfi.export(grid, session_id_folder + '/' + graph + '.png', table_conversion="matplotlib")
 
-        # Insert graphs
-
-        context = {}
-        old_im = graph
-        new_im = session_id_folder + '/' + graph + '.png'
-
-        tpl.replace_pic(old_im, new_im)
-        tpl.render(context)
-        tpl.save(DEST_FILE)
-        plt.clf()
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
     except Exception as e:
         print(e)
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
@@ -496,17 +441,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 6.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph6.1'
@@ -516,17 +451,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 7 ---------------------------------------------------------------------------------------------------
     graph = 'graph7'
@@ -534,17 +459,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
                        margins=True).style.background_gradient()
     dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8 ---------------------------------------------------------------------------------------------------
     graph = 'graph8'
@@ -558,17 +473,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.1'
@@ -581,17 +486,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.2'
@@ -604,17 +499,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9 ---------------------------------------------------------------------------------------------------
     graph = 'graph9'
@@ -625,17 +510,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     # fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.1'
@@ -657,17 +532,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
 
     plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.2'
@@ -689,17 +554,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
 
     plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.3'
@@ -710,17 +565,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
 
     plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.4 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.4'
@@ -731,17 +576,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
 
     plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10 ---------------------------------------------------------------------------------------------------
     graph = 'graph10'
@@ -756,17 +591,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.1'
@@ -781,17 +606,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.2'
@@ -806,17 +621,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.3'
@@ -829,17 +634,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11'
@@ -889,17 +684,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11.1'
@@ -949,17 +734,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 12 ---------------------------------------------------------------------------------------------------
     graph = 'graph12'
@@ -1006,17 +781,7 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     dfi.export(grid_describe.round(2).style.background_gradient(cmap='RdYlGn', axis=1),
                session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
 
-    # Insert graphs
-
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 13 ---------------------------------------------------------------------------------------------------
     graph = 'graph13'
@@ -1028,20 +793,13 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     else:
         shutil.copy('gizmo_logo.png', session_id_folder + '/' + graph + '.png')
 
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
-
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(DEST_FILE)
-    plt.clf()
-    print(f"[ EVAL ] Graph {graph} ready")
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
 
     # todo: fix. Const something
 
+"""
     i = 1
 
     for el in features:
@@ -1248,3 +1006,5 @@ def merge_word(input_data_folder_name, input_data_project_folder, session_to_eva
     for file in os.listdir(session_id_folder):
         if file.endswith('.png'):
             os.remove(session_id_folder + '/' + file)
+
+"""

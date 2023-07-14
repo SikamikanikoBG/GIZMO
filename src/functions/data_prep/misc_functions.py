@@ -34,10 +34,10 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_
 
 def convert_obj_to_cat_and_get_dummies(input_df, input_df_full, object_cols, params):
     for col in object_cols:
-        dummies = pd.get_dummies(input_df[col], prefix=col + '_dummie')
+        dummies = pd.get_dummies(input_df[col], prefix=col + '_dummie', drop_first=True, dummy_na=True)
         input_df[dummies.columns] = dummies
         if params["under_sampling"]:
-            dummies = pd.get_dummies(input_df_full[col], prefix=col + '_dummie')
+            dummies = pd.get_dummies(input_df_full[col], prefix=col + '_dummie', drop_first=True, dummy_na=True)
             input_df_full[dummies.columns] = dummies
     return input_df, input_df_full
 
