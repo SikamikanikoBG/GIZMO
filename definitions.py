@@ -39,3 +39,6 @@ n_estimators = 100
 early_stopping_rounds = 10
 learning_rate = 0.01
 
+# MLFlow 
+mlflow_tracking_uri = "http://10.128.11.44:8503"
+mlflow_prefix = "Scoring Gizmo"

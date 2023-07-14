@@ -1,9 +1,19 @@
 import os
 import pickle
+import definitions
+
+use_mlflow = False
+try:
+    import mlflow
+    mlflow.set_tracking_uri(definitions.mlflow_tracking_uri)
+    use_mlflow = True
+except:
+    pass
 
 import pandas as pd
 from matplotlib import pyplot
 from sklearn.model_selection import train_test_split
+
 
 from src.classes.BaseModeller import BaseModeller
 from src.classes.SessionManager import SessionManager
@@ -15,6 +25,10 @@ from src.functions.printing_and_logging import print_end, print_and_log, print_t
 class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
+
+        if use_mlflow:            
+            mlflow.set_experiment(definitions.mlflow_prefix + "_" + self.project_name)
+        
         self.metrics_df = pd.DataFrame()
 
     def run(self):
@@ -40,14 +54,40 @@ class ModuleClass(SessionManager):
         dt for Decision trees
         lr for Logistic Regression"""
 
+        mlflow.start_run(run_name=self.session_id)
+
         for model in models:
+            if use_mlflow:
+                mlflow.start_run(nested=True, run_name=model)
+                mlflow.autolog()
+            
             metrics = self.create_model_procedure(model)
+            
+            if use_mlflow:
+                self.log_to_mlflow(metrics)
+            
             self.metrics_df = self.metrics_df.append(metrics)
+            
+            if use_mlflow:
+                mlflow.end_run()
 
         self.save_results()
 
         print_end()
         self.run_time_calc()
+
+
+    def log_to_mlflow(self, metrics: pd.DataFrame):
+        '''
+        Logs metrics to MLFlow server by DataSet
+        '''        
+        for row in metrics.iterrows():
+            mlflow.start_run(nested=True, run_name=f"{row[1]['DataSet']}")            
+            for idx, val in row[1].items():
+                if type(val) != str:
+                    mlflow.log_metric(idx, val)               
+            mlflow.end_run()
+
 
     def create_model_procedure(self, model_type):
         print_and_log(f"Starting training procedure for {model_type}", 'YELLOW')
@@ -233,6 +273,7 @@ class ModuleClass(SessionManager):
     def training_models_fit_procedure(self, model_type):
         if self.under_sampling:
             # print_and_log('\n\t *** UNDERSAMPLING MODEL ***', 'YELLOW')
+            mlflow.autolog()
             globals()['self.modeller_' + model_type].model_fit(
                 self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
                 self.loader.y_train_us,
