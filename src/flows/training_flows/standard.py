@@ -11,8 +11,10 @@ except:
     pass
 
 import pandas as pd
+import numpy as np
 from matplotlib import pyplot
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 
 from src.classes.BaseModeller import BaseModeller
@@ -30,6 +32,8 @@ class ModuleClass(SessionManager):
             mlflow.set_experiment(definitions.mlflow_prefix + "_" + self.project_name)
         
         self.metrics_df = pd.DataFrame()
+        self.is_multiclass = self.loader.in_df[self.params['criterion_column']].nunique() > 2
+
 
     def run(self):
         """
@@ -43,11 +47,15 @@ class ModuleClass(SessionManager):
         # records_to_keep = shape_of_df - self.args.period
         # self.loader.in_df = self.loader.in_df.head(records_to_keep).copy()
 
+        models = ['xgb', 'rf', 'dt']
+        if self.is_multiclass:
+            models = ['xgb']
+            self.encode_criterion_column()        
+
         self.split_temporal_validation_periods()
         self.split_train_test_df()
         self.create_train_session_folder()
 
-        models = ['xgb', 'rf', 'dt']
         """models should be specified as following:
         xgb for XGBoost
         rf for Random forest
@@ -74,8 +82,16 @@ class ModuleClass(SessionManager):
         self.save_results()
 
         print_end()
-        self.run_time_calc()
 
+    def encode_criterion_column(self):
+        le = LabelEncoder()
+        self.loader.in_df_f[self.criterion_column] = le.fit_transform(self.loader.in_df_f[self.criterion_column])
+        if self.under_sampling:
+            self.loader.in_df[self.criterion_column] = le.transform(self.loader.in_df[self.criterion_column])
+        self.encoded_classes = pd.DataFrame(le.classes_) \
+            .reset_index() \
+            .rename(columns={'index': 'class_encoded_as', 0: 'class_label'}) 
+        self.encoded_classes.to_csv(self.output_data_folder_name + self.input_data_project_folder + '/' + 'encoded_labels.csv', index=False)
 
     def log_to_mlflow(self, metrics: pd.DataFrame):
         '''
@@ -124,15 +140,64 @@ class ModuleClass(SessionManager):
         validation_dataframes_y = [self.loader.y_test, self.loader.t1df_y, self.loader.t2df_y, self.loader.t3df_y]
 
         count = 0
-        for dataframe in validation_dataframes_X:
-            metrics, validation_dataframes_X[count] = globals()[
-                'self.modeller_' + model_type].generate_predictions_and_metrics(
-                y_true=validation_dataframes_y[count],
-                df=validation_dataframes_X[count])
+        if not self.is_multiclass:
+            for dataframe in validation_dataframes_X:            
+                metrics, validation_dataframes_X[count] = \
+                    globals()['self.modeller_' + model_type] \
+                        .generate_predictions_and_metrics(
+                                    y_true=validation_dataframes_y[count],
+                                    df=validation_dataframes_X[count]
+                    )            
+                globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+                metrics)
+                globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = validation_dataframes_name[count]
+                count += 1
+        else: 
+            # This loop needs to be unrolled because multiple columns need to be added to the dataframe which is done with 
+            # pd.concat, which creates new Dataframe, it gets replaced in the list, but does not update the end loader DF.
+            metrics, self.loader.test_X = \
+                    globals()['self.modeller_' + model_type] \
+                        .generate_multiclass_predictions_and_metrics(
+                            self.loader.y_test,
+                            self.loader.test_X,
+                            self.encoded_classes
+                    )
             globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
                 metrics)
-            globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = validation_dataframes_name[count]
-            count += 1
+            globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = 'test_X'
+
+            metrics, self.loader.t1df = \
+                    globals()['self.modeller_' + model_type] \
+                        .generate_multiclass_predictions_and_metrics(
+                            self.loader.t1df_y,
+                            self.loader.t1df,
+                            self.encoded_classes
+                    )
+            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+                metrics)
+            globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = 't1df'
+
+            metrics, self.loader.t2df = \
+                    globals()['self.modeller_' + model_type] \
+                        .generate_multiclass_predictions_and_metrics(
+                            self.loader.t2df_y,
+                            self.loader.t2df,
+                            self.encoded_classes
+                    )
+            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+                metrics)
+            globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = 't2df'
+
+            metrics, self.loader.t3df = \
+                    globals()['self.modeller_' + model_type] \
+                        .generate_multiclass_predictions_and_metrics(
+                            self.loader.t3df_y,
+                            self.loader.t3df,
+                            self.encoded_classes
+                    )
+            globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
+                metrics)
+            globals()['self.modeller_' + model_type].metrics['DataSet'].iloc[-1] = 't3df'
 
         globals()['self.modeller_' + model_type].metrics['Method'] = model_type
         globals()['self.modeller_' + model_type].metrics['NbFeatures'] = len(
@@ -194,11 +259,12 @@ class ModuleClass(SessionManager):
             results_evals = globals()['self.modeller_' + model_type].model.evals_result()
             print(results)
             # plot learning curves
-            pyplot.plot(results_evals['validation_0']['logloss'], label='train')
-            pyplot.plot(results_evals['validation_1']['logloss'], label='test')
+            pyplot.plot(results_evals['validation_0']['mlogloss' if self.is_multiclass else 'logloss'], label='train')
+            pyplot.plot(results_evals['validation_1']['mlogloss' if self.is_multiclass else 'logloss'], label='test')
             # show the legend
             pyplot.legend()
             pyplot.savefig(f'{self.session_id_folder}/cost_graph_{model_type}.png')
+            mlflow.log_artifact(f'{self.session_id_folder}/cost_graph_{model_type}.png', 'graphs')
             try:
                 pyplot.savefig(f'{self.log_folder_name}/cost_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
             except Exception as e:
@@ -215,6 +281,7 @@ class ModuleClass(SessionManager):
             # show the plot
             # pyplot.show()
             pyplot.savefig(f'{self.session_id_folder}/auc_graph_{model_type}.png')
+            mlflow.log_artifact(f'{self.session_id_folder}/auc_graph_{model_type}.png', 'graphs')
             try:
                 pyplot.savefig(f'{self.log_folder_name}/auc_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
             except Exception as e:
@@ -223,13 +290,14 @@ class ModuleClass(SessionManager):
             pyplot. clf()
             
             # plot error curves
-            pyplot.plot(results_evals['validation_0']['error'], label='train')
-            pyplot.plot(results_evals['validation_1']['error'], label='test')
+            pyplot.plot(results_evals['validation_0']['merror' if self.is_multiclass else 'error'], label='train')
+            pyplot.plot(results_evals['validation_1']['merror' if self.is_multiclass else 'error'], label='test')
             # show the legend
             pyplot.legend()
             # show the plot
             # pyplot.show()
             pyplot.savefig(f'{self.session_id_folder}/error_graph_{model_type}.png')
+            mlflow.log_artifact(f'{self.session_id_folder}/error_graph_{model_type}.png', 'graphs')
             try:
                 pyplot.savefig(f'{self.log_folder_name}/error_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
             except Exception as e:
@@ -239,11 +307,15 @@ class ModuleClass(SessionManager):
             print_and_log(f"EVAL Validation_1: {e}", "YELLOW")
             pass
 
-
-        metrics, self.loader.train_X = globals()[
-            'self.modeller_' + model_type].generate_predictions_and_metrics(
-            y_true=self.loader.y_train,
-            df=self.loader.train_X)
+        if self.is_multiclass:            
+            metrics, self.loader.train_X = globals()['self.modeller_' + model_type].generate_multiclass_predictions_and_metrics(
+                self.loader.y_train, self.loader.train_X, self.encoded_classes
+            )
+        else:
+            metrics, self.loader.train_X = globals()[
+                'self.modeller_' + model_type].generate_predictions_and_metrics(
+                y_true=self.loader.y_train,
+                df=self.loader.train_X)
 
         globals()['self.modeller_' + model_type].metrics = globals()['self.modeller_' + model_type].metrics.append(
             metrics)
@@ -273,7 +345,6 @@ class ModuleClass(SessionManager):
     def training_models_fit_procedure(self, model_type):
         if self.under_sampling:
             # print_and_log('\n\t *** UNDERSAMPLING MODEL ***', 'YELLOW')
-            mlflow.autolog()
             globals()['self.modeller_' + model_type].model_fit(
                 self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
                 self.loader.y_train_us,
@@ -285,7 +356,7 @@ class ModuleClass(SessionManager):
                 self.loader.test_X[globals()['self.modeller_' + model_type].final_features], self.loader.y_test)
 
     def create_train_session_folder(self):
-        print_and_log('Createing session folder. Starting', 'YELLOW')
+        print_and_log('Creating session folder. Starting', 'YELLOW')
         self.session_id = 'TRAIN_' + self.input_data_project_folder + '_' + str(self.start_time) + '_' + self.tag
         self.session_id_folder = self.session_folder_name + self.session_id
         os.mkdir(self.session_id_folder)
@@ -293,7 +364,7 @@ class ModuleClass(SessionManager):
         os.mkdir(self.session_id_folder + '/rf/')
         os.mkdir(self.session_id_folder + '/xgb/')
         os.mkdir(self.session_id_folder + '/lr/')
-        print_and_log('Createing session folder. Done', '')
+        print_and_log('Creating session folder. Done', '')
 
     def split_train_test_df(self):
         print_and_log("Splitting train and test dataframes. Starting", '')
@@ -347,29 +418,21 @@ class ModuleClass(SessionManager):
             print_and_log(f"t3 done. Shape: {len(self.loader.t3df)}", '')
 
         self.loader.in_df = self.loader.in_df[
-            self.loader.in_df[self.observation_date_column] != self.t1df_period].copy()
-        self.loader.in_df = self.loader.in_df[
-            self.loader.in_df[self.observation_date_column] != self.t2df_period].copy()
-        self.loader.in_df = self.loader.in_df[
-            self.loader.in_df[self.observation_date_column] != self.t3df_period].copy()
+            ~self.loader.in_df[self.observation_date_column].isin([self.t1df_period, self.t2df_period, self.t3df_period])].copy()
 
-        if self.params['under_sampling']:
+        if self.under_sampling:
             self.loader.in_df_f = self.loader.in_df_f[
-                self.loader.in_df_f[self.observation_date_column] != self.t1df_period].copy()
-            self.loader.in_df_f = self.loader.in_df_f[
-                self.loader.in_df_f[self.observation_date_column] != self.t2df_period].copy()
-            self.loader.in_df_f = self.loader.in_df_f[
-                self.loader.in_df_f[self.observation_date_column] != self.t3df_period].copy()
+                ~self.loader.in_df_f[self.observation_date_column].isin([self.t1df_period, self.t2df_period, self.t3df_period])].copy()            
 
         self.loader.t1df_y = self.loader.t1df[self.criterion_column]
         self.loader.t2df_y = self.loader.t2df[self.criterion_column]
         self.loader.t3df_y = self.loader.t3df[self.criterion_column]
 
-        cr_t1 = round(self.loader.t1df[self.criterion_column].sum() / len(self.loader.t1df), 2)
-        cr_t2 = round(self.loader.t2df[self.criterion_column].sum() / len(self.loader.t2df), 2)
-        cr_t3 = round(self.loader.t3df[self.criterion_column].sum() / len(self.loader.t3df), 2)
+        cr_t1 = self.loader.t1df[self.criterion_column].value_counts(dropna=False, normalize=True)
+        cr_t2 = self.loader.t2df[self.criterion_column].value_counts(dropna=False, normalize=True)
+        cr_t3 = self.loader.t3df[self.criterion_column].value_counts(dropna=False, normalize=True)
 
-        print_and_log(f"[ TEMPORAL VALIDATION ] CR: t1 {cr_t1}%, t2 {cr_t2}%, t3 {cr_t3}%.", "")
+        print_and_log(f"[ TEMPORAL VALIDATION ] CR(%):\nt1\n{cr_t1},\nt2\n{cr_t2},\nt3\n{cr_t3}.", "")
 
         if len(self.loader.t1df) == 0 or len(self.loader.t2df) == 0 or len(self.loader.t3df) == 0:
             print_and_log(

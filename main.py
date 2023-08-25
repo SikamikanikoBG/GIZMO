@@ -20,7 +20,7 @@ if __name__ == '__main__':
     #parser.add_argument('--run', type=str, help='After run write which command to execute: load, train, eval')
     parser.add_argument('--tag', type=str, help='Tag the training_flows session. Optional')
     parser.add_argument('--project', type=str,
-                        help='name of the project. Should  the same as the input folder and the param file.')
+                        help='name of the project. Should be the same as the input folder and the param file.')
     parser.add_argument('--session', type=str, help='Train session folder to generate evaluation docx')
     parser.add_argument('--model', type=str, help='Model to evaluate. xgb, rf, dt, lr')
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     module = module_lib.ModuleClass(args=args)
     module.prepare()
-    module.start_logging()
+    
     try:
         module.run()
     except Exception as e:

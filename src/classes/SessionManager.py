@@ -58,6 +58,7 @@ class SessionManager:
         self.functions_folder_name = definitions.ROOT_DIR + '/src/'
         self.params_folder_name = definitions.EXTERNAL_DIR + '/params/'
         self.implemented_folder = definitions.EXTERNAL_DIR + '/implemented_models/'
+        self.start_logging()
 
         # Import parameters
         try:
@@ -166,3 +167,5 @@ class SessionManager:
                       f"Check2 time: {self.check2_time_runtime}c, "
                       f"Check3 time: {self.check3_time_runtime}c, "
                       f"Check4 time: {self.check4_time_runtime}c, ", "YELLOW")
+        if self.args.train_module:
+            print_and_log(f"Session complete.\nRun standard eval session with: python main.py --project {self.project_name} --eval_module standard --session \"{self.session_id}\"",'GREEN')

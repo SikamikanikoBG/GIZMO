@@ -6,7 +6,7 @@ import xgboost
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 
-from src import print_and_log, cut_into_bands, get_metrics
+from src import print_and_log, cut_into_bands, get_metrics, get_multiclass_metrics
 
 
 class BaseModeller:
@@ -32,6 +32,9 @@ class BaseModeller:
     def model_fit(self, train_X, train_y, test_X, test_y):
         if self.model_name == 'xgb':
             eval_metric = ['auc', 'error', 'logloss']
+            if (train_y.nunique() > 2):
+                eval_metric = ['auc', 'merror', 'mlogloss']
+            
             self.model.fit(train_X[self.final_features], train_y,
                            eval_set=[(train_X[self.final_features], train_y), (test_X[self.final_features], test_y)],
                            early_stopping_rounds=definitions.early_stopping_rounds, verbose=False, eval_metric=eval_metric)
@@ -66,6 +69,52 @@ class BaseModeller:
         else:
             print_and_log('ERROR: No model provided (model_name)', 'RED')
             sys.exit()
+
+    def generate_multiclass_predictions_and_metrics(self, y_true, df, classes, desired_cutoff=0.5):
+        metrics = pd.DataFrame()
+
+        y_pred = self.model.predict(df[self.final_features])
+        deciles_predict = pd.qcut(y_pred, 10, duplicates='drop', labels=False)
+        y_pred_prob = self.model.predict_proba(df[self.model.get_booster().feature_names])
+        
+        pred_classes = [f"proba_for_criterion_class_{c}" for c in classes['class_label']]
+        y_pred_prob = pd.DataFrame(y_pred_prob, columns=pred_classes, index=y_true.index)
+        
+        df = pd.concat([df, y_pred_prob], axis=1)
+
+        dec_classes = [f"criterion_decil_class_{c}" for c in classes['class_label']]
+        deciles_pred_prob = pd.DataFrame([], columns=dec_classes)
+        for cl in classes['class_label']: 
+            deciles_pred_prob[f"criterion_decil_class_{cl}"]  = pd.qcut(y_pred_prob[f'proba_for_criterion_class_{cl}'], 10, duplicates='drop', labels=False)
+        
+        df = pd.concat([df, deciles_pred_prob], axis=1)
+
+        # TODO find out why storing these corrupts the feather file
+        bands_predict = []
+        if self.cut_offs:
+            bands_predict = pd.cut(y_pred, bins=self.cut_offs,include_lowest=True)
+        else:
+            bands_predict  = cut_into_bands(y_pred, y_true, depth=3)
+
+#        df_temp_tocalc_proba = df[df[f'{self.model_name}_y_pred_prob'] >= desired_cutoff].copy()
+#        cr_p_des_cutt = round(df_temp_tocalc_proba[self.params['criterion_column']].sum() / df_temp_tocalc_proba[
+#            self.params['criterion_column']].count(), 2)
+#        cr_p_des_vol = round( 
+#           df_temp_tocalc_proba[f'{self.model_name}_y_pred'].sum() / df[self.params['criterion_column']].count(), 2)
+
+        ac, auc, prec, recall, f1, cr, cr_p, vol = get_multiclass_metrics(y_true, y_pred,  y_pred_prob)
+        metrics['AccuracyScore'] = [ac]
+        metrics['AUC'] = [auc]
+        metrics['PrecisionScore'] = [prec]
+        metrics['Recall'] = [recall]
+        metrics['F1'] = [f1]
+        metrics['CR'] = [cr]
+        metrics['CR_pred_cutoff'] = [cr_p]
+#        metrics['PrecisionScore_cutoff_' + str(desired_cutoff * 100)] = [cr_p_des_cutt]
+#        metrics['Volumes_Criterion_rate_predicted_' + str(desired_cutoff * 100)] = [cr_p_des_vol]
+        metrics['Volumes'] = [vol]
+        return metrics, df
+
 
     def generate_predictions_and_metrics(self, y_true, df):
 

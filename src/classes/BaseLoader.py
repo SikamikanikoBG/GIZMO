@@ -5,7 +5,7 @@ import pandas as pd
 from pyarrow import parquet as pq
 
 from src.functions.data_load_functions import check_separator_csv_file, print_and_log
-from src.functions.data_prep.misc_functions import check_if_multiclass_criterion_is_passed, remove_periods_from_df
+from src.functions.data_prep.misc_functions import remove_periods_from_df
 from src.functions.data_prep.under_sampling import under_sampling_df_based_on_params
 
 
@@ -82,7 +82,6 @@ class BaseLoader:
             self.in_df[self.params['observation_date_column']] = self.in_df[self.params['observation_date_column']].astype('O')
             self.in_df_f[self.params['observation_date_column']] = self.in_df_f[self.params['observation_date_column']].astype('O')
 
-        check_if_multiclass_criterion_is_passed(self.in_df, self.params)
 
     def data_load_train(self, output_data_folder_name, input_data_project_folder):
         print_and_log('[ LOADING ] Loading data', 'GREEN')

@@ -16,7 +16,7 @@ from src.functions.data_prep.misc_functions import split_columns_by_types, switc
     remove_categorical_cols_with_too_many_values, treating_outliers
 from src.functions.data_prep.missing_treatment import missing_values
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
-
+import definitions
 
 class ModuleClass(SessionManager):
     def __init__(self, args):
@@ -27,6 +27,8 @@ class ModuleClass(SessionManager):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
+        self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
+
         self.check1_time = datetime.now()
         self.prepare()
         print_load()
@@ -112,10 +114,17 @@ class ModuleClass(SessionManager):
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols
 
         # Check correlation. Remove low correlation columns from numerical. At this point this is needed to lower the nb of ratios to be created
-        print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
-        self.remove_final_features_with_low_correlation()
+        if not self.is_multiclass:
+            print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
+            self.remove_final_features_with_low_correlation()
+        else:
+            print_and_log("[ FEATURE SELECTION] Feature selection, based on predictive power", '')
+            self.loader.final_features =  self.select_features_by_predictive_power()
+
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
+
+        print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
@@ -126,9 +135,14 @@ class ModuleClass(SessionManager):
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
 
-        # Check correlation
-        print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
-        self.remove_final_features_with_low_correlation()
+        if self.loader.in_df[self.criterion_column].nunique() == 2:
+            # Check correlation
+            print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
+            self.remove_final_features_with_low_correlation()
+        else:
+            print_and_log("[ FEATURE SELECTION ] Running feature selection by predictive power", '')
+            self.loader.final_features = self.select_features_by_predictive_power()            
+
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             ratios_cols, self.columns_to_include)
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
@@ -185,6 +199,65 @@ class ModuleClass(SessionManager):
                     print_and_log(f"[ DATA LOAD ] Removing {el} from final features due to single value.", "YELLOW")
             except:
                 pass
+
+    def select_features_by_predictive_power(self):
+        import ppscore as pps
+        df = self.loader.in_df.copy()
+
+        df = df[self.loader.final_features + [self.criterion_column]]
+        df = df.drop(
+            df.columns[df.columns.str.contains(self.criterion_column + "_") ].tolist(),
+            axis=1
+        )
+        pp = pps.predictors(df, 
+                       self.criterion_column, sorted=True, random_seed=42)
+
+        pp.to_csv(definitions.ROOT_DIR  + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
+        top_100 = pp[pp['ppscore'] >  0.05][['x']][:100]
+
+        print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
+
+        return top_100['x'].tolist()
+
+    def select_features_by_importance(self):
+        from xgboost import XGBClassifier
+        from sklearn.feature_selection import RFECV
+        from sklearn.preprocessing import LabelEncoder
+        from sklearn.model_selection import StratifiedKFold
+        import traceback
+
+
+        min_features_to_select = min(100,  len(self.loader.in_df.columns) / 2)  # Minimum number of features to consider
+        print_and_log(f"[ FEATURE SELECTION ] Minimum features to select {min_features_to_select}", '')
+        clf = XGBClassifier(eval_metric='mlogloss', n_estimators=10,                             
+                            colsample_bytree=.1, subsample=.5, learning_rate=definitions.learning_rate)
+
+        cv = StratifiedKFold(5)
+
+        le = LabelEncoder()
+        y = le.fit_transform(self.loader.in_df[self.criterion_column])
+
+        rfecv = RFECV(
+                estimator=clf,
+                step=0.5,
+                cv=cv,
+                scoring="f1_macro",
+                min_features_to_select=min_features_to_select,
+                n_jobs=2,
+
+            )
+        try:
+            rfecv.fit(self.loader.in_df[self.loader.final_features], 
+                    y
+            )
+        except:
+            traceback.print_exc()
+
+        print(f"Optimal number of features: {rfecv.n_features_}, selecting top 100")
+
+
+        return rfecv.get_feature_names_out().tolist()
+
 
     def remove_final_features_with_low_correlation(self):
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],

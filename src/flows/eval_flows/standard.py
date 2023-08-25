@@ -18,9 +18,13 @@ class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
         #self.main_model = args.main_model.lower()
-        #self.models_list = ['xgb']
-        self.models_list = ['xgb', 'rf', 'dt']
-        # self.models_list = ['xgb']
+
+        # check if we have multiclass artifacts from training sessions
+        if os.path.exists(f"output_data/{self.project_name}/ppscore.csv"):
+            self.models_list = ['xgb']
+        else:
+            self.models_list = ['xgb', 'rf', 'dt']
+        
         self.args = args
         self.output_df = None
 
