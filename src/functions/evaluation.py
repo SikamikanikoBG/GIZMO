@@ -207,6 +207,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 1 ---------------------------------------------------------------------------------------------------
     # Precompute statistics for Graphs 1-3
+    agg_data = pd.DataFrame()
     if is_multiclass:        
         agg_data = df_total[[criterion_column, observation_date_column]].groupby([observation_date_column, criterion_column]).agg(counts=(criterion_column, 'count'), ).reset_index()
         totals = agg_data.groupby([observation_date_column])['counts'].sum().reset_index().rename(columns={"counts": "total"})
@@ -437,10 +438,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
         pass
 
+    bands_column = model_arg + '_bands_predict_proba'   
     # Graph 6 ---------------------------------------------------------------------------------------------------
+    graph = 'graph6'
     if not is_multiclass:
-        graph = 'graph6'
-        bands_column = model_arg + '_bands_predict_proba'
         if params["secondary_criterion_columns"]:
 
             secondary_col1 = params["secondary_criterion_columns"][0]
@@ -484,9 +485,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 6.1 ---------------------------------------------------------------------------------------------------
+    graph = 'graph6.1'
     if not is_multiclass:
-        graph = 'graph6.1'
-        bands_column = model_arg + '_bands_predict_proba'
         plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).count().plot(
             kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
         fig = plot.get_figure()
@@ -495,8 +495,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 7 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:        
-        graph = 'graph7'
+    graph = 'graph7'
+    if not is_multiclass:
         plot = pd.crosstab([df_train_test['Dataset'], df_train_test[criterion_column]], df_train_test[bands_column],
                         margins=True).style.background_gradient()
         dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
@@ -504,10 +504,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8 ---------------------------------------------------------------------------------------------------
+    #TODO cache cross-tabs by using multiple aggfuncs
+    graph = 'graph8'
     if not is_multiclass:
-        graph = 'graph8'    
-        bands_column = model_arg + '_bands_predict_proba'
-
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
                         values=df_total_scope[criterion_column],
                         aggfunc='mean').plot(
@@ -519,9 +518,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.1 ---------------------------------------------------------------------------------------------------
+    graph = 'graph8.1'
     if not is_multiclass:
-        graph = 'graph8.1'
-        bands_column = model_arg + '_bands_predict_proba'
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
                         values=df_total_scope[criterion_column],
                         aggfunc='count').plot(
@@ -533,10 +531,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.2 ---------------------------------------------------------------------------------------------------
+    graph = 'graph8.2'
     if not is_multiclass:
-        graph = 'graph8.2'
-        bands_column = model_arg + '_bands_predict_proba'
-
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
                         normalize='index').plot(
             kind='bar', ylabel='Share of bands per observation period', figsize=(15, 10), edgecolor='white',
@@ -547,26 +543,28 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
 
-    encodings = pd.read_csv("output_data/" + project_name + '/' + 'encoded_labels.csv').to_dict()
-    # Graph 9 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph9'
-        bands_column = model_arg + '_y_pred_prob'
-        df = df_total_scope[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if is_multiclass:
+        encodings = pd.read_csv("output_data/" + project_name + '/' + 'encoded_labels.csv').to_dict()
 
-        fig = sns.displot(df, x=bands_column, hue=criterion_column, kind="ecdf")
+    model_arg_y_pred_prob = model_arg + '_y_pred_prob'
+
+    # Graph 9 ---------------------------------------------------------------------------------------------------
+    graph = 'graph9'
+    if not is_multiclass:
+        df = df_total_scope[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+
+        fig = sns.displot(df, x=model_arg_y_pred_prob, hue=criterion_column, kind="ecdf")
         # fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.1 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph9.1'
-        bands_column = model_arg + '_y_pred_prob'
-        df = df_train_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    graph = 'graph9.1'
+    if not is_multiclass:   
+        df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
-        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[bands_column])
+        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
         roc_auc = metrics.auc(fpr, tpr)
 
         # method I: plt
@@ -584,7 +582,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
     else:
         graph = 'graph9.1'
-        y_proba = df_train_X[df_test_X.columns[df_test_X.columns.str.contains('proba')]]
+        y_proba = df_train_X[df_train_X.columns[df_train_X.columns.str.contains('proba')]]
         y_train = df_train_X[criterion_column].apply(lambda x: encodings['class_label'][x])
         skplot.metrics.plot_roc(y_train, y_proba, figsize=(10, 6))
 
@@ -592,12 +590,11 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.2 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph9.2'
-        bands_column = model_arg + '_y_pred_prob'
-        df = df_test_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    graph = 'graph9.2'
+    if not is_multiclass:       
+        df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
-        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[bands_column])
+        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
         roc_auc = metrics.auc(fpr, tpr)
 
         # method I: plt
@@ -614,8 +611,6 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
     else:
-        graph = 'graph9.2'
-
         y_proba = df_test_X[df_test_X.columns[df_test_X.columns.str.contains('proba')]]
         y_test = df_test_X[criterion_column].apply(lambda x: encodings['class_label'][x])
         skplot.metrics.plot_roc(y_test, y_proba, figsize=(10, 6))
@@ -623,36 +618,31 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         plt.savefig(session_id_folder + "/" + graph + '.png')
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
-    # Graph 9.3 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph9.3'
-        bands_column = model_arg + '_y_pred_prob'
-        df = df_train_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
-
-        plot_cap(df[criterion_column], df[bands_column])
+    # Graph 9.3 ---------------------------------------------------------------------------------------------------  
+    graph = 'graph9.3'
+    if not is_multiclass:       
+        df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+        plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
         plt.savefig(session_id_folder + '/' + graph + '.png')
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.4 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph9.4'
-        bands_column = model_arg + '_y_pred_prob'
-        df = df_test_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
-
-        plot_cap(df[criterion_column], df[bands_column])
+    graph = 'graph9.4'
+    if not is_multiclass:       
+        df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+        plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
         plt.savefig(session_id_folder + '/' + graph + '.png')
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph10'
-        bands_column = model_arg + '_y_pred_prob'
+    graph = 'graph10'
+    if not is_multiclass:       
         plot = df_train_X.copy()
-        plot['deciles'] = pd.qcut(plot[bands_column], 10, duplicates='drop')
+        plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
                                                                                 ylabel='Nb of cases in each Proba',
                                                                                 figsize=(15, 10), edgecolor='white',
@@ -664,11 +654,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.1 ---------------------------------------------------------------------------------------------------
+    graph = 'graph10.1'
     if not is_multiclass:
-        graph = 'graph10.1'
-        bands_column = model_arg + '_y_pred_prob'
         plot = df_test_X.copy()
-        plot['deciles'] = pd.qcut(plot[bands_column], 10, duplicates='drop')
+        plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
                                                                                 ylabel='Nb of cases in each Proba',
                                                                                 figsize=(15, 10), edgecolor='white',
@@ -680,9 +669,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.2 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph10.2'
-        model_arg_y_pred_prob = model_arg + "_y_pred_prob"
+    graph = 'graph10.2'
+    if not is_multiclass:        
         accumulation_points = (
                 df_train_X[model_arg_y_pred_prob].round(3).value_counts() / df_train_X[
             model_arg_y_pred_prob].count()).astype(
@@ -696,8 +684,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.3 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph10.3'
+    graph = 'graph10.3'
+    if not is_multiclass:        
         accumulation_points = (
                 df_test_X[model_arg_y_pred_prob].round(3).value_counts() / df_test_X[model_arg_y_pred_prob].count()).astype(
             float).round(2)
@@ -710,11 +698,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph11'
-        bands_column = model_arg + '_y_pred_prob'
+    graph = 'graph11'
+    if not is_multiclass:        
         temp_df = df_train_X.copy()
-        temp_df['deciles'] = pd.qcut(temp_df[bands_column], 10, duplicates='drop')
+        temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
         if params["secondary_criterion_columns"]:
 
@@ -761,11 +748,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph11.1'
-        bands_column = model_arg + '_y_pred_prob'
+    graph = 'graph11.1'
+    if not is_multiclass:       
         temp_df = df_test_X.copy()
-        temp_df['deciles'] = pd.qcut(temp_df[bands_column], 10, duplicates='drop')
+        temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
         if params["secondary_criterion_columns"]:
 
@@ -812,9 +798,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 12 ---------------------------------------------------------------------------------------------------
-    if not is_multiclass:
-        graph = 'graph12'
-
+    graph = 'graph12'
+    if not is_multiclass:        
         bands_column = model_arg + '_bands_predict_proba'
         grid_describe = pd.DataFrame()
 

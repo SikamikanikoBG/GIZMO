@@ -239,6 +239,7 @@ class ModuleClass(SessionManager):
             results = results[:100]
         globals()['self.modeller_' + model_type].final_features = results['columns'].unique().tolist()
 
+        features_removed = False
         if globals()['self.modeller_' + model_type].trees_features_to_exclude:
             print_and_log(
                 f'Removing features specified in the params file: {globals()["self.modeller_" + model_type].trees_features_to_exclude}',
@@ -247,10 +248,12 @@ class ModuleClass(SessionManager):
                 try:
                     globals()['self.modeller_' + model_type].final_features.remove(el)
                     results = results[~results['columns'].str.contains(el)]
+                    features_removed = True
                 except:
                     pass
-
-        # fitting new model only with selected final features
+        
+        # fitting new model only with selected final features       
+        # TODO if features_removed:
         self.training_models_fit_procedure(model_type)
 
         try:

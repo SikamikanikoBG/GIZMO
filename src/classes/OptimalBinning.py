@@ -27,10 +27,13 @@ class OptimaBinning:
             temp_df2 = self.df.copy()
             temp_df_full = self.df_full.copy()
 
-            # Removing all periods before splitting train and test
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t1df']]
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t2df']]
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t3df']]
+            # Removing all periods before splitting train and test            
+            temp_df2 = temp_df2[~temp_df2[self.observation_date_column].isin(
+                        [self.params['t1df'],
+                         self.params['t2df'], 
+                         self.params['t3df']]
+                    ) 
+                ]           
 
             x_train, _, y_train, _ = train_test_split(
                 temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
