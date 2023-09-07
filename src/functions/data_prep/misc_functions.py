@@ -123,12 +123,6 @@ def convert_column_to_category(df, column):
     return df
 
 
-def check_if_multiclass_criterion_is_passed(input_df, params):
-    if input_df[params['criterion_column']].nunique() > 2:
-        print_and_log('ERROR: Multiclass classification criterion passed', 'RED')
-        sys.exit()
-
-
 def create_dict_based_on_col_name_contains(input_df_cols, text):
     collection_cols = []
     for col in input_df_cols:
@@ -137,6 +131,7 @@ def create_dict_based_on_col_name_contains(input_df_cols, text):
     return collection_cols
 
 
+# TODO: use itertools.combinations or permutations, if keeping mirrored features is important
 def create_ratios(df, columns, columns_to_include):
     shortlist = []
     temp = []

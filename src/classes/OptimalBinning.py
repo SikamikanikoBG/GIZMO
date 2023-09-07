@@ -1,7 +1,7 @@
 from multiprocessing import Pool
 
 import pandas as pd
-from optbinning import OptimalBinning
+from optbinning import OptimalBinning, MulticlassOptimalBinning
 from sklearn.model_selection import train_test_split
 
 from src import print_and_log
@@ -16,6 +16,8 @@ class OptimaBinning:
         self.final_features = final_features
         self.observation_date_column = observation_date_column
         self.params = params
+        self.is_multiclass = True if self.df_full[criterion_column].nunique() > 2 else False
+
 
     def optimal_binning_procedure(self, col):
         try:
@@ -25,10 +27,13 @@ class OptimaBinning:
             temp_df2 = self.df.copy()
             temp_df_full = self.df_full.copy()
 
-            # Removing all periods before splitting train and test
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t1df']]
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t2df']]
-            temp_df2 = temp_df2[temp_df2[self.observation_date_column] != self.params['t3df']]
+            # Removing all periods before splitting train and test            
+            temp_df2 = temp_df2[~temp_df2[self.observation_date_column].isin(
+                        [self.params['t1df'],
+                         self.params['t2df'], 
+                         self.params['t3df']]
+                    ) 
+                ]           
 
             x_train, _, y_train, _ = train_test_split(
                 temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
@@ -36,7 +41,11 @@ class OptimaBinning:
 
             x = x_train[col].values
             y = x_train[self.criterion_column].values
-            optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+            
+            if not self.is_multiclass:
+                optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+            else:
+                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
             optb.fit(x, y)
 
             temp_df = temp_df.dropna(subset=[col])

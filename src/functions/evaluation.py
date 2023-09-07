@@ -19,6 +19,7 @@ from docxtpl import DocxTemplate
 from mailmerge import MailMerge
 from optbinning.scorecard import plot_cap
 from sklearn import metrics
+import scikitplot as skplot
 
 from src import print_and_log
 
@@ -134,8 +135,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     models = pd.read_csv(session_folder_name + session_to_eval + '/models.csv')
     corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv')
     corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv')
-    correl_feat_y = pd.read_csv('./output_data/' + input_data_project_folder + '/correl.csv')
-    correl_feat_y = correl_feat_y[correl_feat_y.iloc[:, 0].isin(corr_feat['Unnamed: 0'].unique().tolist())]
+    
     missing_table = pd.read_csv('./output_data/' + input_data_project_folder + '/missing_values.csv')
     if model_arg == 'lr':
         lr_table = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/lr_table.csv')
@@ -153,6 +153,11 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     elif model_arg == 'lr':
         chosen_model = 'Logistic regression'
 
+    is_multiclass = False
+
+    if df_total[criterion_column].nunique() > 2:
+        is_multiclass = True
+
     # Fill in fields
     document.merge(
         df_total_min_date=str(df_total[observation_date_column].min()),
@@ -166,7 +171,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         df_t3df_date=str(df_t3df[observation_date_column].min()),
         excluded_periods=str(periods_to_exclude),
         statistical_tool=str('Python, Sklearn(Random Forest, Decision tree), Xgboost, Logistic regression'),
-        nb_of_bands=str(df_train_X[model_arg + '_y_pred_prob'].nunique()),
+        nb_of_bands=0 if is_multiclass else str(df_train_X[model_arg + '_y_pred_prob'].nunique()),
         list_of_variables=str(corr_feat['Unnamed: 0'].unique()),
         list_of_raw_variables=str(corr_feat_raw['Unnamed: 0'].unique()),
         df_train_volume=str(len(df_train_X)),
@@ -201,33 +206,68 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 1 ---------------------------------------------------------------------------------------------------
+    # Precompute statistics for Graphs 1-3
+    agg_data = pd.DataFrame()
+    if is_multiclass:        
+        agg_data = df_total[[criterion_column, observation_date_column]].groupby([observation_date_column, criterion_column]).agg(counts=(criterion_column, 'count'), ).reset_index()
+        totals = agg_data.groupby([observation_date_column])['counts'].sum().reset_index().rename(columns={"counts": "total"})
+        agg_data = agg_data.merge(totals, on=observation_date_column, how='left')
+        agg_data['percentage'] = agg_data['counts'] / agg_data['total'] 
+    
+    # TODO: Does it make sense in Multiclass?
+    plot = []
     graph = "graph1"
-    plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
-        kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/graph1.png')
+    if not is_multiclass:
+        plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
+            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+        
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+    else:
+        import matplotlib.ticker as mticker
+        plot = agg_data.set_index(([observation_date_column, criterion_column])).percentage.unstack().plot(
+            kind='bar', figsize=(15, 10), ylabel='Average Criterion Rate')
+                
+        #plot.yaxis.set_major_formatter(mticker.PercentFormatter(1.0))
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
+
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 2 ---------------------------------------------------------------------------------------------------
+    # TODO: Does it make sense in Multiclass?
     graph = "graph2"
-    plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
-        kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/graph2.png')
+    if not is_multiclass:
+        
+        plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
+                kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))      
+    else:
+        plot = agg_data.set_index(([observation_date_column, criterion_column])).counts.unstack().plot(
+            kind='bar', figsize=(15, 10), ylabel='NB Criterion cases')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
-
-    # Graph 3 ---------------------------------------------------------------------------------------------------
-    graph = 'graph3'
-    plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).count().plot(
-        kind='bar', ylabel='NB Total cases', figsize=(15, 10))
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+    # Graph 3 ---------------------------------------------------------------------------------------------------
+    # TODO: Does it make sense in Multiclass?
+    graph = 'graph3'
+    if not is_multiclass:        
+        plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).count().plot(
+            kind='bar', ylabel='NB Total cases', figsize=(15, 10))        
+    else:
+        plot = agg_data[[observation_date_column, 'total']].plot(kind='bar', x=observation_date_column, y='total', figsize=(25, 10), ylabel='NB Total cases')
+        
+    fig = plot.get_figure()
+    fig.savefig(session_id_folder + '/' + graph + '.png')
+
+    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+    del agg_data
 
     # Graph 1.1 ---------------------------------------------------------------------------------------------------
+    # TODO: Does it make sense in Multiclass?
     graph = 'graph1.1'
     plot = df_total_scope[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
         kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
@@ -237,6 +277,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 2.1 ---------------------------------------------------------------------------------------------------
+    # TODO: Does it make sense in Multiclass?
     graph = 'graph2.1'
     plot = df_total_scope[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
         kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
@@ -396,392 +437,412 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         print(e)
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
         pass
-    print(f"[ EVAL ] Graph {graph} ready")
 
+    bands_column = model_arg + '_bands_predict_proba'   
     # Graph 6 ---------------------------------------------------------------------------------------------------
     graph = 'graph6'
-    bands_column = model_arg + '_bands_predict_proba'
-    if params["secondary_criterion_columns"]:
+    if not is_multiclass:
+        if params["secondary_criterion_columns"]:
 
-        secondary_col1 = params["secondary_criterion_columns"][0]
-        secondary_col2 = params["secondary_criterion_columns"][1]
+            secondary_col1 = params["secondary_criterion_columns"][0]
+            secondary_col2 = params["secondary_criterion_columns"][1]
 
-        print('Columns for secondary response rate:', secondary_col1, secondary_col2)
+            print('Columns for secondary response rate:', secondary_col1, secondary_col2)
 
-        ax_left = plt.subplot(1, 2, 1)
-        ax_right = plt.subplot(1, 2, 2)
+            ax_left = plt.subplot(1, 2, 1)
+            ax_right = plt.subplot(1, 2, 2)
 
-        plt.subplot(1, 2, 1)
+            plt.subplot(1, 2, 1)
 
-        df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(kind='bar', figsize=(15, 5),
-                                                                                       linewidth=0.1, stacked=True,
-                                                                                       ax=ax_left)
-        plt.title(
-            'Average Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
-                secondary_col1, secondary_col2))
-        plt.legend(shadow=True)
-        plt.ylabel('Primary Criterion rate')
+            df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(kind='bar', figsize=(15, 5),
+                                                                                        linewidth=0.1, stacked=True,
+                                                                                        ax=ax_left)
+            plt.title(
+                'Average Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
+                    secondary_col1, secondary_col2))
+            plt.legend(shadow=True)
+            plt.ylabel('Primary Criterion rate')
 
-        plt.subplot(1, 2, 2)
-        df_train_X["secondary_criterion"] = df_train_X[secondary_col1] / df_train_X[secondary_col2]
-        df_train_X[["secondary_criterion", bands_column]].groupby(bands_column).mean().plot(kind='bar',
-                                                                                            figsize=(
-                                                                                                15, 5),
-                                                                                            linewidth=0.1,
-                                                                                            ax=ax_right)
-        plt.xlabel('Bands')
-        plt.legend(shadow=True)
-        plt.ylabel('Secondary Criterion rate')
+            plt.subplot(1, 2, 2)
+            df_train_X["secondary_criterion"] = df_train_X[secondary_col1] / df_train_X[secondary_col2]
+            df_train_X[["secondary_criterion", bands_column]].groupby(bands_column).mean().plot(kind='bar',
+                                                                                                figsize=(
+                                                                                                    15, 5),
+                                                                                                linewidth=0.1,
+                                                                                                ax=ax_right)
+            plt.xlabel('Bands')
+            plt.legend(shadow=True)
+            plt.ylabel('Secondary Criterion rate')
 
 
-    else:
-        plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(
-            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+        else:
+            plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(
+                kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 6.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph6.1'
-    bands_column = model_arg + '_bands_predict_proba'
-    plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).count().plot(
-        kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+    if not is_multiclass:
+        plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).count().plot(
+            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 7 ---------------------------------------------------------------------------------------------------
     graph = 'graph7'
-    plot = pd.crosstab([df_train_test['Dataset'], df_train_test[criterion_column]], df_train_test[bands_column],
-                       margins=True).style.background_gradient()
-    dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
+    if not is_multiclass:
+        plot = pd.crosstab([df_train_test['Dataset'], df_train_test[criterion_column]], df_train_test[bands_column],
+                        margins=True).style.background_gradient()
+        dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8 ---------------------------------------------------------------------------------------------------
+    #TODO cache cross-tabs by using multiple aggfuncs
     graph = 'graph8'
-    bands_column = model_arg + '_bands_predict_proba'
+    if not is_multiclass:
+        plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
+                        values=df_total_scope[criterion_column],
+                        aggfunc='mean').plot(
+            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), edgecolor='white',
+            linewidth=0.2)
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                       values=df_total_scope[criterion_column],
-                       aggfunc='mean').plot(
-        kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), edgecolor='white',
-        linewidth=0.2)
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
-
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.1'
-    bands_column = model_arg + '_bands_predict_proba'
-    plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                       values=df_total_scope[criterion_column],
-                       aggfunc='count').plot(
-        kind='bar', ylabel='Nb of cases per bands per observation period', figsize=(15, 10), edgecolor='white',
-        linewidth=0.2)
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+    if not is_multiclass:
+        plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
+                        values=df_total_scope[criterion_column],
+                        aggfunc='count').plot(
+            kind='bar', ylabel='Nb of cases per bands per observation period', figsize=(15, 10), edgecolor='white',
+            linewidth=0.2)
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph8.2'
-    bands_column = model_arg + '_bands_predict_proba'
+    if not is_multiclass:
+        plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
+                        normalize='index').plot(
+            kind='bar', ylabel='Share of bands per observation period', figsize=(15, 10), edgecolor='white',
+            linewidth=0.2, stacked=True)
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                       normalize='index').plot(
-        kind='bar', ylabel='Share of bands per observation period', figsize=(15, 10), edgecolor='white',
-        linewidth=0.2, stacked=True)
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+
+    if is_multiclass:
+        encodings = pd.read_csv("output_data/" + project_name + '/' + 'encoded_labels.csv').to_dict()
+
+    model_arg_y_pred_prob = model_arg + '_y_pred_prob'
 
     # Graph 9 ---------------------------------------------------------------------------------------------------
     graph = 'graph9'
-    bands_column = model_arg + '_y_pred_prob'
-    df = df_total_scope[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if not is_multiclass:
+        df = df_total_scope[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
-    fig = sns.displot(df, x=bands_column, hue=criterion_column, kind="ecdf")
-    # fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = sns.displot(df, x=model_arg_y_pred_prob, hue=criterion_column, kind="ecdf")
+        # fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.1'
-    bands_column = model_arg + '_y_pred_prob'
-    df = df_train_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if not is_multiclass:   
+        df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
-    fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[bands_column])
-    roc_auc = metrics.auc(fpr, tpr)
+        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
+        roc_auc = metrics.auc(fpr, tpr)
 
-    # method I: plt
-    plt.title('Receiver Operating Characteristic')
-    plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-    plt.legend(loc='lower right')
-    plt.plot([0, 1], [0, 1], 'r--')
-    plt.xlim([0, 1])
-    plt.ylim([0, 1])
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Positive Rate')
+        # method I: plt
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
+        plt.legend(loc='lower right')
+        plt.plot([0, 1], [0, 1], 'r--')
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
 
-    plt.savefig(session_id_folder + '/' + graph + '.png')
+        plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+    else:
+        graph = 'graph9.1'
+        y_proba = df_train_X[df_train_X.columns[df_train_X.columns.str.contains('proba')]]
+        y_train = df_train_X[criterion_column].apply(lambda x: encodings['class_label'][x])
+        skplot.metrics.plot_roc(y_train, y_proba, figsize=(10, 6))
+
+        plt.savefig(session_id_folder + "/" + graph + '.png')
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.2'
-    bands_column = model_arg + '_y_pred_prob'
-    df = df_test_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if not is_multiclass:       
+        df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
-    fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[bands_column])
-    roc_auc = metrics.auc(fpr, tpr)
+        fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
+        roc_auc = metrics.auc(fpr, tpr)
 
-    # method I: plt
-    plt.title('Receiver Operating Characteristic')
-    plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-    plt.legend(loc='lower right')
-    plt.plot([0, 1], [0, 1], 'r--')
-    plt.xlim([0, 1])
-    plt.ylim([0, 1])
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Positive Rate')
+        # method I: plt
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
+        plt.legend(loc='lower right')
+        plt.plot([0, 1], [0, 1], 'r--')
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
 
-    plt.savefig(session_id_folder + '/' + graph + '.png')
+        plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+    else:
+        y_proba = df_test_X[df_test_X.columns[df_test_X.columns.str.contains('proba')]]
+        y_test = df_test_X[criterion_column].apply(lambda x: encodings['class_label'][x])
+        skplot.metrics.plot_roc(y_test, y_proba, figsize=(10, 6))
 
-    # Graph 9.3 ---------------------------------------------------------------------------------------------------
+        plt.savefig(session_id_folder + "/" + graph + '.png')
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+
+    # Graph 9.3 ---------------------------------------------------------------------------------------------------  
     graph = 'graph9.3'
-    bands_column = model_arg + '_y_pred_prob'
-    df = df_train_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if not is_multiclass:       
+        df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+        plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
-    plot_cap(df[criterion_column], df[bands_column])
+        plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    plt.savefig(session_id_folder + '/' + graph + '.png')
-
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 9.4 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.4'
-    bands_column = model_arg + '_y_pred_prob'
-    df = df_test_X[[criterion_column, bands_column]]  # .sort_values(by=[bands_column], ascending=True)
+    if not is_multiclass:       
+        df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+        plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
-    plot_cap(df[criterion_column], df[bands_column])
+        plt.savefig(session_id_folder + '/' + graph + '.png')
 
-    plt.savefig(session_id_folder + '/' + graph + '.png')
-
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10 ---------------------------------------------------------------------------------------------------
     graph = 'graph10'
-    bands_column = model_arg + '_y_pred_prob'
-    plot = df_train_X.copy()
-    plot['deciles'] = pd.qcut(plot[bands_column], 10, duplicates='drop')
-    plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
-                                                                               ylabel='Nb of cases in each Proba',
-                                                                               figsize=(15, 10), edgecolor='white',
-                                                                               linewidth=0.2)
+    if not is_multiclass:       
+        plot = df_train_X.copy()
+        plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
+        plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
+                                                                                ylabel='Nb of cases in each Proba',
+                                                                                figsize=(15, 10), edgecolor='white',
+                                                                                linewidth=0.2)
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.1'
-    bands_column = model_arg + '_y_pred_prob'
-    plot = df_test_X.copy()
-    plot['deciles'] = pd.qcut(plot[bands_column], 10, duplicates='drop')
-    plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
-                                                                               ylabel='Nb of cases in each Proba',
-                                                                               figsize=(15, 10), edgecolor='white',
-                                                                               linewidth=0.2)
+    if not is_multiclass:
+        plot = df_test_X.copy()
+        plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
+        plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
+                                                                                ylabel='Nb of cases in each Proba',
+                                                                                figsize=(15, 10), edgecolor='white',
+                                                                                linewidth=0.2)
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.2'
-    model_arg_y_pred_prob = model_arg + "_y_pred_prob"
-    accumulation_points = (
-            df_train_X[model_arg_y_pred_prob].round(3).value_counts() / df_train_X[
-        model_arg_y_pred_prob].count()).astype(
-        float).round(2)
-    accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
-                                              title='TOP5 Accumulation points by probability')
+    if not is_multiclass:        
+        accumulation_points = (
+                df_train_X[model_arg_y_pred_prob].round(3).value_counts() / df_train_X[
+            model_arg_y_pred_prob].count()).astype(
+            float).round(2)
+        accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
+                                                title='TOP5 Accumulation points by probability')
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 10.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.3'
-    accumulation_points = (
-            df_test_X[model_arg_y_pred_prob].round(3).value_counts() / df_test_X[model_arg_y_pred_prob].count()).astype(
-        float).round(2)
-    accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
-                                              title='TOP5 Accumulation points by probability')
+    if not is_multiclass:        
+        accumulation_points = (
+                df_test_X[model_arg_y_pred_prob].round(3).value_counts() / df_test_X[model_arg_y_pred_prob].count()).astype(
+            float).round(2)
+        accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
+                                                title='TOP5 Accumulation points by probability')
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11'
-    bands_column = model_arg + '_y_pred_prob'
-    temp_df = df_train_X.copy()
-    temp_df['deciles'] = pd.qcut(temp_df[bands_column], 10, duplicates='drop')
+    if not is_multiclass:        
+        temp_df = df_train_X.copy()
+        temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
-    if params["secondary_criterion_columns"]:
+        if params["secondary_criterion_columns"]:
 
-        secondary_col1 = params["secondary_criterion_columns"][0]
-        secondary_col2 = params["secondary_criterion_columns"][1]
+            secondary_col1 = params["secondary_criterion_columns"][0]
+            secondary_col2 = params["secondary_criterion_columns"][1]
 
-        print('Columns for secondary response rate:', secondary_col1, secondary_col2)
+            print('Columns for secondary response rate:', secondary_col1, secondary_col2)
 
-        ax_left = plt.subplot(1, 2, 1)
-        ax_right = plt.subplot(1, 2, 2)
+            ax_left = plt.subplot(1, 2, 1)
+            ax_right = plt.subplot(1, 2, 2)
 
-        plt.subplot(1, 2, 1)
+            plt.subplot(1, 2, 1)
 
-        temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                              ylabel='Nb of cases in each Proba',
-                                                                              figsize=(15, 10), edgecolor='white',
-                                                                              linewidth=0.2, ax=ax_left)
-        plt.title(
-            'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
-                secondary_col1, secondary_col2))
-        plt.legend(shadow=True)
-        plt.ylabel('Primary Criterion rate')
+            temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                                ylabel='Nb of cases in each Proba',
+                                                                                figsize=(15, 10), edgecolor='white',
+                                                                                linewidth=0.2, ax=ax_left)
+            plt.title(
+                'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
+                    secondary_col1, secondary_col2))
+            plt.legend(shadow=True)
+            plt.ylabel('Primary Criterion rate')
 
-        plt.subplot(1, 2, 2)
-        temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
-        temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                   ylabel='Nb of cases in each Proba',
-                                                                                   figsize=(15, 10), edgecolor='white',
-                                                                                   linewidth=0.2, ax=ax_right)
-        plt.xlabel('Bands')
-        plt.legend(shadow=True)
-        plt.ylabel('Secondary Criterion rate')
+            plt.subplot(1, 2, 2)
+            temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
+            temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                                    ylabel='Nb of cases in each Proba',
+                                                                                    figsize=(15, 10), edgecolor='white',
+                                                                                    linewidth=0.2, ax=ax_right)
+            plt.xlabel('Bands')
+            plt.legend(shadow=True)
+            plt.ylabel('Secondary Criterion rate')
 
 
-    else:
-        plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                           ylabel='Nb of cases in each Proba',
-                                                                           figsize=(15, 10), edgecolor='white',
-                                                                           linewidth=0.2)
+        else:
+            plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                            ylabel='Nb of cases in each Proba',
+                                                                            figsize=(15, 10), edgecolor='white',
+                                                                            linewidth=0.2)
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11.1'
-    bands_column = model_arg + '_y_pred_prob'
-    temp_df = df_test_X.copy()
-    temp_df['deciles'] = pd.qcut(temp_df[bands_column], 10, duplicates='drop')
+    if not is_multiclass:       
+        temp_df = df_test_X.copy()
+        temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
-    if params["secondary_criterion_columns"]:
+        if params["secondary_criterion_columns"]:
 
-        secondary_col1 = params["secondary_criterion_columns"][0]
-        secondary_col2 = params["secondary_criterion_columns"][1]
+            secondary_col1 = params["secondary_criterion_columns"][0]
+            secondary_col2 = params["secondary_criterion_columns"][1]
 
-        print('Columns for secondary response rate:', secondary_col1, secondary_col2)
+            print('Columns for secondary response rate:', secondary_col1, secondary_col2)
 
-        ax_left = plt.subplot(1, 2, 1)
-        ax_right = plt.subplot(1, 2, 2)
+            ax_left = plt.subplot(1, 2, 1)
+            ax_right = plt.subplot(1, 2, 2)
 
-        plt.subplot(1, 2, 1)
+            plt.subplot(1, 2, 1)
 
-        temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                              ylabel='Nb of cases in each Proba',
-                                                                              figsize=(15, 10), edgecolor='white',
-                                                                              linewidth=0.2, ax=ax_left)
-        plt.title(
-            'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
-                secondary_col1, secondary_col2))
-        plt.legend(shadow=True)
-        plt.ylabel('Primary Criterion rate')
+            temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                                ylabel='Nb of cases in each Proba',
+                                                                                figsize=(15, 10), edgecolor='white',
+                                                                                linewidth=0.2, ax=ax_left)
+            plt.title(
+                'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
+                    secondary_col1, secondary_col2))
+            plt.legend(shadow=True)
+            plt.ylabel('Primary Criterion rate')
 
-        plt.subplot(1, 2, 2)
-        temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
-        temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                   ylabel='Nb of cases in each Proba',
-                                                                                   figsize=(15, 10), edgecolor='white',
-                                                                                   linewidth=0.2, ax=ax_right)
-        plt.xlabel('Bands')
-        plt.legend(shadow=True)
-        plt.ylabel('Secondary Criterion rate')
+            plt.subplot(1, 2, 2)
+            temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
+            temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                                    ylabel='Nb of cases in each Proba',
+                                                                                    figsize=(15, 10), edgecolor='white',
+                                                                                    linewidth=0.2, ax=ax_right)
+            plt.xlabel('Bands')
+            plt.legend(shadow=True)
+            plt.ylabel('Secondary Criterion rate')
 
 
-    else:
-        plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                           ylabel='Nb of cases in each Proba',
-                                                                           figsize=(15, 10), edgecolor='white',
-                                                                           linewidth=0.2)
+        else:
+            plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
+                                                                            ylabel='Nb of cases in each Proba',
+                                                                            figsize=(15, 10), edgecolor='white',
+                                                                            linewidth=0.2)
 
-    fig = plot.get_figure()
-    fig.savefig(session_id_folder + '/' + graph + '.png')
+        fig = plot.get_figure()
+        fig.savefig(session_id_folder + '/' + graph + '.png')
 
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 12 ---------------------------------------------------------------------------------------------------
     graph = 'graph12'
+    if not is_multiclass:        
+        bands_column = model_arg + '_bands_predict_proba'
+        grid_describe = pd.DataFrame()
 
-    bands_column = model_arg + '_bands_predict_proba'
-    grid_describe = pd.DataFrame()
+        for el in features:
+            temp = pd.crosstab(df_train_X[el], df_train_X[bands_column], normalize='index')
+            temp['Predictor'] = el
+            temp = temp[temp.index == 1]
 
-    for el in features:
-        temp = pd.crosstab(df_train_X[el], df_train_X[bands_column], normalize='index')
-        temp['Predictor'] = el
-        temp = temp[temp.index == 1]
+            #
+            if 'dummie_' in el:
+                prefix, match, sufix = str(el).partition('_dummie_')
+            elif 'tree' in el:
+                prefix, match, sufix = str(el).partition('_tree')
+                sufix = '> ' + sufix
+            else:
+                sufix = ''
+                prefix = 'const'
+            if '_binned' in prefix:
+                prefix = prefix.replace('_binned', '')
+            if '_div_ratio_' in prefix:
+                prefix = prefix.replace('_div_ratio_', ' / ')
+            temp['cut_off_value'] = sufix
+            temp['mouchard_name'] = prefix
+            temp['cut_off_value'] = temp['cut_off_value'].str.replace('_', ' ')
+            #
 
-        #
-        if 'dummie_' in el:
-            prefix, match, sufix = str(el).partition('_dummie_')
-        elif 'tree' in el:
-            prefix, match, sufix = str(el).partition('_tree')
-            sufix = '> ' + sufix
-        else:
-            sufix = ''
-            prefix = 'const'
-        if '_binned' in prefix:
-            prefix = prefix.replace('_binned', '')
-        if '_div_ratio_' in prefix:
-            prefix = prefix.replace('_div_ratio_', ' / ')
-        temp['cut_off_value'] = sufix
-        temp['mouchard_name'] = prefix
-        temp['cut_off_value'] = temp['cut_off_value'].str.replace('_', ' ')
-        #
+            grid_describe = grid_describe.append(temp)
 
-        grid_describe = grid_describe.append(temp)
+        grid_describe.reset_index(drop=True, inplace=True)
+        grid_describe.rename_axis("Nb", axis='index', inplace=True)
 
-    grid_describe.reset_index(drop=True, inplace=True)
-    grid_describe.rename_axis("Nb", axis='index', inplace=True)
+        cols = list(grid_describe.columns)
+        cols = cols[-3:] + cols[:-3]
+        grid_describe = grid_describe[cols]
+        try:
+            grid_describe['Description'] = grid_describe.apply(describe, axis=1)
+        except:
+            pass
 
-    cols = list(grid_describe.columns)
-    cols = cols[-3:] + cols[:-3]
-    grid_describe = grid_describe[cols]
-    try:
-        grid_describe['Description'] = grid_describe.apply(describe, axis=1)
-    except:
-        pass
+        dfi.export(grid_describe.round(2).style.background_gradient(cmap='RdYlGn', axis=1),
+                session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
 
-    dfi.export(grid_describe.round(2).style.background_gradient(cmap='RdYlGn', axis=1),
-               session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
-
-    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+        save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 13 ---------------------------------------------------------------------------------------------------
     graph = 'graph13'
