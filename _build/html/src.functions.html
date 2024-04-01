@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.functions package &mdash; Gizmo 2019 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gizmo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.functions package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.functions.api_communication">src.functions.api_communication module</a></li>
+<li><a class="reference internal" href="#module-src.functions.data_load_functions">src.functions.data_load_functions module</a></li>
+<li><a class="reference internal" href="#src-functions-evaluation-module">src.functions.evaluation module</a></li>
+<li><a class="reference internal" href="#module-src.functions.printing_and_logging">src.functions.printing_and_logging module</a></li>
+<li><a class="reference internal" href="#module-src.functions">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gizmo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src.functions package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.functions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-functions-package">
+<h1>src.functions package<a class="headerlink" href="#src-functions-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.functions.api.html">src.functions.api package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.api.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.api.html#module-src.functions.api.add_new_models">src.functions.api.add_new_models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.api.html#module-src.functions.api">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.functions.data_prep.html">src.functions.data_prep package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#module-src.functions.data_prep.dates_manipulation">src.functions.data_prep.dates_manipulation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#module-src.functions.data_prep.misc_functions">src.functions.data_prep.misc_functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#src-functions-data-prep-missing-treatment-module">src.functions.data_prep.missing_treatment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#module-src.functions.data_prep.raw_features_to_list">src.functions.data_prep.raw_features_to_list module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#src-functions-data-prep-under-sampling-module">src.functions.data_prep.under_sampling module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.data_prep.html#module-src.functions.data_prep">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.functions.grid_search.html">src.functions.grid_search package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.grid_search.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.grid_search.html#module-src.functions.grid_search.grid_search_functions">src.functions.grid_search.grid_search_functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.grid_search.html#module-src.functions.grid_search">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.functions.modelling.html">src.functions.modelling package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.modelling.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.modelling.html#module-src.functions.modelling.modelling_functions">src.functions.modelling.modelling_functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.modelling.html#module-src.functions.modelling">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.functions.predict.html">src.functions.predict package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.predict.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.predict.html#module-src.functions.predict.calcula_data_drift">src.functions.predict.calcula_data_drift module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.predict.html#module-src.functions.predict.calculate_predictors">src.functions.predict.calculate_predictors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.functions.predict.html#module-src.functions.predict">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.api_communication">
+<span id="src-functions-api-communication-module"></span><h2>src.functions.api_communication module<a class="headerlink" href="#module-src.functions.api_communication" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.api_communication.api_get">
+<span class="sig-prename descclassname"><span class="pre">src.functions.api_communication.</span></span><span class="sig-name descname"><span class="pre">api_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/api_communication.html#api_get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.api_communication.api_get" title="Permalink to this definition"></a></dt>
+<dd><p>Send a GET request to the specified URL with optional conditions.</p>
+<p>Parameters:
+- url: str, URL to send the GET request to
+- conditions: str, additional conditions to append to the URL</p>
+<p>Returns:
+- df_received_data: DataFrame, data received from the API response</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.api_communication.api_post">
+<span class="sig-prename descclassname"><span class="pre">src.functions.api_communication.</span></span><span class="sig-name descname"><span class="pre">api_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/api_communication.html#api_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.api_communication.api_post" title="Permalink to this definition"></a></dt>
+<dd><p>Send a POST request to the specified URL with the provided data.</p>
+<p>Parameters:
+- url: str, URL to send the POST request to
+- data: DataFrame, data to be sent in JSON format</p>
+<p>Returns:
+- response: Response object, response from the POST request</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.api_communication.api_post_string">
+<span class="sig-prename descclassname"><span class="pre">src.functions.api_communication.</span></span><span class="sig-name descname"><span class="pre">api_post_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/api_communication.html#api_post_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.api_communication.api_post_string" title="Permalink to this definition"></a></dt>
+<dd><p>Send a POST request to the specified URL with the provided string data.</p>
+<p>Parameters:
+- url: str, URL to send the POST request to
+- string: str, string data to be sent</p>
+<p>Returns:
+- response: Response object, response from the POST request</p>
+</dd></dl>
+
+</section>
+<section id="module-src.functions.data_load_functions">
+<span id="src-functions-data-load-functions-module"></span><h2>src.functions.data_load_functions module<a class="headerlink" href="#module-src.functions.data_load_functions" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_load_functions.check_files_for_csv_suffix">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_load_functions.</span></span><span class="sig-name descname"><span class="pre">check_files_for_csv_suffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_load_functions.html#check_files_for_csv_suffix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_load_functions.check_files_for_csv_suffix" title="Permalink to this definition"></a></dt>
+<dd><p>Check the files in the input folder for a CSV suffix and return the CSV file.</p>
+<p>Parameters:
+- input_data_folder_name: str, name of the input data folder
+- input_data_project_folder: str, name of the project folder within the input data folder</p>
+<p>Returns:
+- input_file: str, name of the CSV file in the input folder</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_load_functions.check_separator_csv_file">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_load_functions.</span></span><span class="sig-name descname"><span class="pre">check_separator_csv_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_load_functions.html#check_separator_csv_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_load_functions.check_separator_csv_file" title="Permalink to this definition"></a></dt>
+<dd><p>Check the separator of the CSV file and handle errors if the separator is not ‘,’ or ‘;’.</p>
+<p>Parameters:
+- input_data_folder_name: str, name of the input data folder
+- input_data_project_folder: str, name of the project folder within the input data folder
+- input_df: DataFrame, input data DataFrame
+- input_file: str, name of the CSV file in the input folder</p>
+<p>Returns:
+- input_df: DataFrame, updated input data DataFrame</p>
+</dd></dl>
+
+</section>
+<section id="src-functions-evaluation-module">
+<h2>src.functions.evaluation module<a class="headerlink" href="#src-functions-evaluation-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.printing_and_logging">
+<span id="src-functions-printing-and-logging-module"></span><h2>src.functions.printing_and_logging module<a class="headerlink" href="#module-src.functions.printing_and_logging" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.printing_and_logging.print_and_log">
+<span class="sig-prename descclassname"><span class="pre">src.functions.printing_and_logging.</span></span><span class="sig-name descname"><span class="pre">print_and_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colour</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/printing_and_logging.html#print_and_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.printing_and_logging.print_and_log" title="Permalink to this definition"></a></dt>
+<dd><p>Print the given text with the specified color and log it accordingly.</p>
+<p>Steps:
+1. Convert the input text to a string.
+2. If a color is specified:</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><p>Print the text with the specified color using the <cite>Fore</cite> module from <cite>colorama</cite>.</p></li>
+<li><dl class="simple">
+<dt>If the color is ‘RED’:</dt><dd><ol class="lowerroman simple">
+<li><p>Log the text as an error using <cite>logging.error()</cite>.</p></li>
+<li><p>Try to post the error to an API using <cite>api_post_string()</cite>.</p></li>
+<li><p>If an exception occurs during the API post, log the error using <cite>logging.error()</cite>.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><p>Otherwise, log the text as information using <cite>logging.info()</cite>.</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><dl class="simple">
+<dt>If no color is specified:</dt><dd><ol class="loweralpha simple">
+<li><p>Print the text without any color.</p></li>
+<li><p>Log the text as information using <cite>logging.info()</cite>.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ol>
+<p>Parameters:
+- text (str): The text to be printed and logged.
+- colour (str): The color to be used for printing the text. Can be ‘RED’ or any other color supported by the <cite>Fore</cite> module from <cite>colorama</cite>.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.printing_and_logging.print_end">
+<span class="sig-prename descclassname"><span class="pre">src.functions.printing_and_logging.</span></span><span class="sig-name descname"><span class="pre">print_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/printing_and_logging.html#print_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.printing_and_logging.print_end" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.printing_and_logging.print_eval">
+<span class="sig-prename descclassname"><span class="pre">src.functions.printing_and_logging.</span></span><span class="sig-name descname"><span class="pre">print_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/printing_and_logging.html#print_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.printing_and_logging.print_eval" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.printing_and_logging.print_load">
+<span class="sig-prename descclassname"><span class="pre">src.functions.printing_and_logging.</span></span><span class="sig-name descname"><span class="pre">print_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/printing_and_logging.html#print_load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.printing_and_logging.print_load" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.printing_and_logging.print_train">
+<span class="sig-prename descclassname"><span class="pre">src.functions.printing_and_logging.</span></span><span class="sig-name descname"><span class="pre">print_train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/printing_and_logging.html#print_train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.printing_and_logging.print_train" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-src.functions">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.functions" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Arsen Apostolov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

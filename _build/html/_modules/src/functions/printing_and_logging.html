@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.functions.printing_and_logging &mdash; Gizmo 2019 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Gizmo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Gizmo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.functions.printing_and_logging</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.functions.printing_and_logging</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Style</span>
+
+<span class="kn">import</span> <span class="nn">definitions</span>
+<span class="kn">from</span> <span class="nn">src.functions.api_communication</span> <span class="kn">import</span> <span class="n">api_post_string</span>
+
+
+<div class="viewcode-block" id="print_and_log"><a class="viewcode-back" href="../../../src.functions.html#src.functions.printing_and_logging.print_and_log">[docs]</a><span class="k">def</span> <span class="nf">print_and_log</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">colour</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print the given text with the specified color and log it accordingly.</span>
+
+<span class="sd">    Steps:</span>
+<span class="sd">    1. Convert the input text to a string.</span>
+<span class="sd">    2. If a color is specified:</span>
+<span class="sd">        a. Print the text with the specified color using the `Fore` module from `colorama`.</span>
+<span class="sd">        b. If the color is &#39;RED&#39;:</span>
+<span class="sd">            i. Log the text as an error using `logging.error()`.</span>
+<span class="sd">            ii. Try to post the error to an API using `api_post_string()`.</span>
+<span class="sd">            iii. If an exception occurs during the API post, log the error using `logging.error()`.</span>
+<span class="sd">        c. Otherwise, log the text as information using `logging.info()`.</span>
+<span class="sd">    3. If no color is specified:</span>
+<span class="sd">        a. Print the text without any color.</span>
+<span class="sd">        b. Log the text as information using `logging.info()`.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - text (str): The text to be printed and logged.</span>
+<span class="sd">    - colour (str): The color to be used for printing the text. Can be &#39;RED&#39; or any other color supported by the `Fore` module from `colorama`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">colour</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">Fore</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">colour</span> <span class="o">==</span> <span class="s1">&#39;RED&#39;</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">text_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&quot;[ </span><span class="si">{</span><span class="n">definitions</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">project</span><span class="si">}</span><span class="s1"> ] </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">api_post_string</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">definitions</span><span class="o">.</span><span class="n">api_url_post_error</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="n">text_api</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;API log not possible: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="print_load"><a class="viewcode-back" href="../../../src.functions.html#src.functions.printing_and_logging.print_load">[docs]</a><span class="k">def</span> <span class="nf">print_load</span><span class="p">():</span>
+    <span class="n">print_and_log</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+
+<span class="s2">                     _             </span>
+<span class="s2">                    (_)            </span>
+<span class="s2">  ___  ___ ___  _ __ _ _ __   __ _ </span>
+<span class="s2"> / __|/ __/ _ \| &#39;__| | &#39;_ \ / _` |</span>
+<span class="s2"> \__ \ (_| (_) | |  | | | | | (_| |</span>
+<span class="s2"> |___/\___\___/|_|  |_|_| |_|\__, |</span>
+<span class="s2">                              __/ |</span>
+<span class="s2">                             |___/ </span>
+<span class="s2">   _____ _____ ________  __  ____  </span>
+<span class="s2">  / ____|_   _|___  /  \/  |/ __ \ </span>
+<span class="s2"> | |  __  | |    / /| \  / | |  | |</span>
+<span class="s2"> | | |_ | | |   / / | |\/| | |  | |</span>
+<span class="s2"> | |__| |_| |_ / /__| |  | | |__| |</span>
+<span class="s2">  \_____|_____/_____|_|  |_|\____/ </span>
+<span class="s2">  _                     _          </span>
+<span class="s2"> | |                   | |         </span>
+<span class="s2"> | |     ___   __ _  __| |         </span>
+<span class="s2"> | |    / _ \ / _` |/ _` |         </span>
+<span class="s2"> | |___| (_) | (_| | (_| |_ _ _    </span>
+<span class="s2"> |______\___/ \__,_|\__,_(_|_|_)   </span>
+<span class="s2">                                   </span>
+<span class="s2">                                   </span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;GREEN&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_train"><a class="viewcode-back" href="../../../src.functions.html#src.functions.printing_and_logging.print_train">[docs]</a><span class="k">def</span> <span class="nf">print_train</span><span class="p">():</span>
+    <span class="n">print_and_log</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+
+<span class="s2">                     _             </span>
+<span class="s2">                    (_)            </span>
+<span class="s2">  ___  ___ ___  _ __ _ _ __   __ _ </span>
+<span class="s2"> / __|/ __/ _ \| &#39;__| | &#39;_ \ / _` |</span>
+<span class="s2"> \__ \ (_| (_) | |  | | | | | (_| |</span>
+<span class="s2"> |___/\___\___/|_|  |_|_| |_|\__, |</span>
+<span class="s2">                              __/ |</span>
+<span class="s2">                             |___/ </span>
+<span class="s2">   _____ _____ ________  __  ____  </span>
+<span class="s2">  / ____|_   _|___  /  \/  |/ __ \ </span>
+<span class="s2"> | |  __  | |    / /| \  / | |  | |</span>
+<span class="s2"> | | |_ | | |   / / | |\/| | |  | |</span>
+<span class="s2"> | |__| |_| |_ / /__| |  | | |__| |</span>
+<span class="s2">  \_____|_____/_____|_|  |_|\____/ </span>
+<span class="s2">  _______        _                 </span>
+<span class="s2"> |__   __|      (_)                </span>
+<span class="s2">    | |_ __ __ _ _ _ __            </span>
+<span class="s2">    | | &#39;__/ _` | | &#39;_ \           </span>
+<span class="s2">    | | | | (_| | | | | |_ _ _     </span>
+<span class="s2">    |_|_|  \__,_|_|_| |_(_|_|_)    </span>
+<span class="s2">                                   </span>
+<span class="s2">                                   </span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;GREEN&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_eval"><a class="viewcode-back" href="../../../src.functions.html#src.functions.printing_and_logging.print_eval">[docs]</a><span class="k">def</span> <span class="nf">print_eval</span><span class="p">():</span>
+    <span class="n">print_and_log</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+
+<span class="s2">                     _                                  </span>
+<span class="s2">                    (_)                                 </span>
+<span class="s2">  ___  ___ ___  _ __ _ _ __   __ _                      </span>
+<span class="s2"> / __|/ __/ _ \| &#39;__| | &#39;_ \ / _` |                     </span>
+<span class="s2"> \__ \ (_| (_) | |  | | | | | (_| |                     </span>
+<span class="s2"> |___/\___\___/|_|  |_|_| |_|\__, |                     </span>
+<span class="s2">                              __/ |                     </span>
+<span class="s2">   _____ _____ ________  __  |___/                      </span>
+<span class="s2">  / ____|_   _|___  /  \/  |/ __ \                      </span>
+<span class="s2"> | |  __  | |    / /| \  / | |  | |                     </span>
+<span class="s2"> | | |_ | | |   / / | |\/| | |  | |                     </span>
+<span class="s2"> | |__| |_| |_ / /__| |  | | |__| |                     </span>
+<span class="s2">  \_____|_____/_____|_|  |_|\____/  _                   </span>
+<span class="s2"> |  ____|        | |           | | (_)                  </span>
+<span class="s2"> | |____   ____ _| |_   _  __ _| |_ _  ___  _ __        </span>
+<span class="s2"> |  __\ \ / / _` | | | | |/ _` | __| |/ _ \| &#39;_ \       </span>
+<span class="s2"> | |___\ V / (_| | | |_| | (_| | |_| | (_) | | | |_ _ _ </span>
+<span class="s2"> |______\_/ \__,_|_|\__,_|\__,_|\__|_|\___/|_| |_(_|_|_)</span>
+<span class="s2">                                                        </span>
+<span class="s2">                                                        </span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;GREEN&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_end"><a class="viewcode-back" href="../../../src.functions.html#src.functions.printing_and_logging.print_end">[docs]</a><span class="k">def</span> <span class="nf">print_end</span><span class="p">():</span>
+    <span class="n">print_and_log</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+
+<span class="s2">     _      ______ _   _ _____       _    </span>
+<span class="s2">  /\| |/\  |  ____| \ | |  __ \   /\| |/\ </span>
+<span class="s2">  \ ` &#39; /  | |__  |  \| | |  | |  \ ` &#39; / </span>
+<span class="s2"> |_     _| |  __| | . ` | |  | | |_     _|</span>
+<span class="s2">  / , . \  | |____| |\  | |__| |  / , . \ </span>
+<span class="s2">  \/|_|\/  |______|_| \_|_____/   \/|_|\/ </span>
+<span class="s2">                                          </span>
+<span class="s2">                                          </span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span> <span class="s1">&#39;GREEN&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Arsen Apostolov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

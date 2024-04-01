@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.functions.data_prep package &mdash; Gizmo 2019 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gizmo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.functions.data_prep package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.functions.data_prep.dates_manipulation">src.functions.data_prep.dates_manipulation module</a></li>
+<li><a class="reference internal" href="#module-src.functions.data_prep.misc_functions">src.functions.data_prep.misc_functions module</a></li>
+<li><a class="reference internal" href="#src-functions-data-prep-missing-treatment-module">src.functions.data_prep.missing_treatment module</a></li>
+<li><a class="reference internal" href="#module-src.functions.data_prep.raw_features_to_list">src.functions.data_prep.raw_features_to_list module</a></li>
+<li><a class="reference internal" href="#src-functions-data-prep-under-sampling-module">src.functions.data_prep.under_sampling module</a></li>
+<li><a class="reference internal" href="#module-src.functions.data_prep">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gizmo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src.functions.data_prep package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.functions.data_prep.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-functions-data-prep-package">
+<h1>src.functions.data_prep package<a class="headerlink" href="#src-functions-data-prep-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.data_prep.dates_manipulation">
+<span id="src-functions-data-prep-dates-manipulation-module"></span><h2>src.functions.data_prep.dates_manipulation module<a class="headerlink" href="#module-src.functions.data_prep.dates_manipulation" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.dates_manipulation.calculate_date_diff_between_date_columns">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.dates_manipulation.</span></span><span class="sig-name descname"><span class="pre">calculate_date_diff_between_date_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dates_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/dates_manipulation.html#calculate_date_diff_between_date_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.dates_manipulation.calculate_date_diff_between_date_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the difference in hours between date columns in a DataFrame.</p>
+<p>Parameters:
+- df: DataFrame
+- dates_cols: list of str, columns containing dates</p>
+<p>Returns:
+- df: DataFrame with new columns showing the difference in hours between date columns</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.dates_manipulation.convert_obj_to_date">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.dates_manipulation.</span></span><span class="sig-name descname"><span class="pre">convert_obj_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/dates_manipulation.html#convert_obj_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.dates_manipulation.convert_obj_to_date" title="Permalink to this definition"></a></dt>
+<dd><p>Convert object columns in a DataFrame to datetime format.</p>
+<p>Parameters:
+- df: DataFrame
+- object_cols: list of str, columns to convert to datetime
+- suffix: str, suffix to add to new datetime columns</p>
+<p>Returns:
+- df: DataFrame with object columns converted to datetime</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.dates_manipulation.extract_date_characteristics_from_date_column">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.dates_manipulation.</span></span><span class="sig-name descname"><span class="pre">extract_date_characteristics_from_date_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dates_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/dates_manipulation.html#extract_date_characteristics_from_date_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.dates_manipulation.extract_date_characteristics_from_date_column" title="Permalink to this definition"></a></dt>
+<dd><p>Extract specific date characteristics from date columns in a DataFrame.</p>
+<p>Parameters:
+- df: DataFrame
+- dates_cols: list of str, columns containing dates</p>
+<p>Returns:
+- df: DataFrame with new columns showing extracted date characteristics</p>
+</dd></dl>
+
+</section>
+<section id="module-src.functions.data_prep.misc_functions">
+<span id="src-functions-data-prep-misc-functions-module"></span><h2>src.functions.data_prep.misc_functions module<a class="headerlink" href="#module-src.functions.data_prep.misc_functions" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.convert_column_to_category">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">convert_column_to_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#convert_column_to_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.convert_column_to_category" title="Permalink to this definition"></a></dt>
+<dd><p>Convert a column in a DataFrame to categorical and create a corresponding categorical code column.</p>
+<p>Parameters:
+- df: DataFrame
+- column: str, column to convert to categorical</p>
+<p>Returns:
+- df: DataFrame with column converted to categorical and categorical code column added</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.convert_obj_to_cat_and_get_dummies">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">convert_obj_to_cat_and_get_dummies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_df_full</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#convert_obj_to_cat_and_get_dummies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.convert_obj_to_cat_and_get_dummies" title="Permalink to this definition"></a></dt>
+<dd><p>Convert object columns to categorical and create dummy variables.</p>
+<p>Parameters:
+- input_df: DataFrame, input DataFrame
+- input_df_full: DataFrame, full input DataFrame
+- object_cols: list of str, object columns to convert
+- params: dict, parameters for conversion</p>
+<p>Returns:
+- input_df: DataFrame, updated input DataFrame with dummy columns
+- input_df_full: DataFrame, updated full input DataFrame with dummy columns</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.correlation_matrix">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">correlation_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag_raw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#correlation_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.correlation_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate correlation matrix and select columns based on correlation values.</p>
+<p>Parameters:
+- X: DataFrame, input features
+- y: Series, target variable
+- input_data_project_folder: str, folder path for output data
+- flag_matrix: str, flag to determine type of correlation matrix
+- session_id_folder: str, folder path for session data
+- model_corr: str, model name for correlation output
+- flag_raw: str, flag for raw correlation output
+- keep_cols: list of str, columns to keep based on correlation</p>
+<p>Returns:
+- corr_cols: list of str, columns to keep based on correlation values</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.create_dict_based_on_col_name_contains">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">create_dict_based_on_col_name_contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#create_dict_based_on_col_name_contains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.create_dict_based_on_col_name_contains" title="Permalink to this definition"></a></dt>
+<dd><p>Create a list of columns in a DataFrame based on a text pattern.</p>
+<p>Parameters:
+- input_df_cols: list of str, columns in the DataFrame
+- text: str, text pattern to search for in column names</p>
+<p>Returns:
+- collection_cols: list of str, columns containing the specified text pattern</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.create_ratios">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">create_ratios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_to_include</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#create_ratios"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.create_ratios" title="Permalink to this definition"></a></dt>
+<dd><p>Create ratio features based on specified columns.</p>
+<p>Parameters:
+- df: DataFrame
+- columns: list of str, columns to create ratios from
+- columns_to_include: list of str, columns to include in ratio creation</p>
+<p>Returns:
+- df: DataFrame with new ratio features added</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.create_tree_feats">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">create_tree_feats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#create_tree_feats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.create_tree_feats" title="Permalink to this definition"></a></dt>
+<dd><p>Create tree-based features using decision tree cuts.</p>
+<p>Parameters:
+- df: DataFrame
+- columns: list of str, columns to create tree features from
+- criterion: str, column to use as the criterion for decision tree cuts</p>
+<p>Returns:
+- df: DataFrame with new tree-based features added</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.outlier">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">outlier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#outlier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.outlier" title="Permalink to this definition"></a></dt>
+<dd><p>Placeholder function for outlier treatment.</p>
+<p>Parameters:
+- df: DataFrame</p>
+<p>Returns:
+- df: DataFrame</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.remove_categorical_cols_with_too_many_values">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">remove_categorical_cols_with_too_many_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#remove_categorical_cols_with_too_many_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.remove_categorical_cols_with_too_many_values" title="Permalink to this definition"></a></dt>
+<dd><p>Remove object columns with too many unique values from the list.</p>
+<p>Parameters:
+- df: DataFrame
+- object_cols: list of str, object columns to check and potentially remove</p>
+<p>Returns:
+- object_cols: list of str, updated object columns list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.remove_column_if_not_in_final_features">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">remove_column_if_not_in_final_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#remove_column_if_not_in_final_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.remove_column_if_not_in_final_features" title="Permalink to this definition"></a></dt>
+<dd><p>Remove columns from numerical_cols that are not in final_features and add columns from keep_cols that are similar to removed columns.</p>
+<p>Parameters:
+- final_features: list of str, final list of features
+- numerical_cols: list of str, numerical columns to check and potentially remove
+- keep_cols: list of str, columns to keep if similar to removed columns</p>
+<p>Returns:
+- final_features: list of str, updated final features list
+- numerical_cols: list of str, updated numerical columns list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.remove_columns_to_exclude">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">remove_columns_to_exclude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categorical_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dates_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#remove_columns_to_exclude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.remove_columns_to_exclude" title="Permalink to this definition"></a></dt>
+<dd><p>Remove columns specified in the params file from respective column lists.</p>
+<p>Parameters:
+- categorical_cols: list of str, categorical columns
+- dates_cols: list of str, date columns
+- numerical_cols: list of str, numerical columns
+- object_cols: list of str, object columns
+- params: dict, parameters containing columns to exclude</p>
+<p>Returns:
+- categorical_cols: list of str, updated categorical columns list
+- dates_cols: list of str, updated date columns list
+- numerical_cols: list of str, updated numerical columns list
+- object_cols: list of str, updated object columns list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.remove_periods_from_df">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">remove_periods_from_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#remove_periods_from_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.remove_periods_from_df" title="Permalink to this definition"></a></dt>
+<dd><p>Remove rows from a DataFrame based on specified periods.</p>
+<p>Parameters:
+- input_df: DataFrame
+- params: dict, parameters containing periods to exclude</p>
+<p>Returns:
+- input_df: DataFrame with rows removed based on specified periods</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.split_columns_by_types">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">split_columns_by_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#split_columns_by_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.split_columns_by_types" title="Permalink to this definition"></a></dt>
+<dd><p>Split columns in a DataFrame by data types and remove excluded columns.</p>
+<p>Parameters:
+- df: DataFrame
+- params: dict, parameters for column splitting</p>
+<p>Returns:
+- categorical_cols: list of str, categorical columns
+- numerical_cols: list of str, numerical columns
+- object_cols: list of str, object columns
+- dates_cols: list of str, date columns</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.switch_numerical_to_object_column">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">switch_numerical_to_object_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numerical_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#switch_numerical_to_object_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.switch_numerical_to_object_column" title="Permalink to this definition"></a></dt>
+<dd><p>Switch numerical columns to object columns based on the number of unique values.</p>
+<p>Parameters:
+- input_df: DataFrame, input DataFrame
+- numerical_cols: list of str, numerical columns to check and potentially switch
+- object_cols: list of str, object columns to update</p>
+<p>Returns:
+- numerical_cols: list of str, updated numerical columns list
+- object_cols: list of str, updated object columns list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.treating_outliers">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">treating_outliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_input_df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/misc_functions.html#treating_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.misc_functions.treating_outliers" title="Permalink to this definition"></a></dt>
+<dd><p>Treat outliers in a DataFrame by converting or deleting them.</p>
+<p>Parameters:
+- input_df: DataFrame, input DataFrame
+- secondary_input_df: DataFrame, secondary input DataFrame</p>
+<p>Returns:
+- input_df: DataFrame with outliers treated
+- secondary_input_df: DataFrame with outliers treated</p>
+</dd></dl>
+
+</section>
+<section id="src-functions-data-prep-missing-treatment-module">
+<h2>src.functions.data_prep.missing_treatment module<a class="headerlink" href="#src-functions-data-prep-missing-treatment-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.data_prep.raw_features_to_list">
+<span id="src-functions-data-prep-raw-features-to-list-module"></span><h2>src.functions.data_prep.raw_features_to_list module<a class="headerlink" href="#module-src.functions.data_prep.raw_features_to_list" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.raw_features_to_list.raw_features_to_list">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.raw_features_to_list.</span></span><span class="sig-name descname"><span class="pre">raw_features_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/data_prep/raw_features_to_list.html#raw_features_to_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.data_prep.raw_features_to_list.raw_features_to_list" title="Permalink to this definition"></a></dt>
+<dd><p>Extract raw features from a list of final features.</p>
+<p>Steps:
+1. Initialize an empty list to store raw features.
+2. Iterate over each feature in the final features list.
+3. If the feature contains ‘binned’:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Extract the prefix before ‘_binned’.</p></li>
+<li><dl class="simple">
+<dt>If the prefix contains ‘_ratio_’:</dt><dd><ul>
+<li><p>Extract the components based on different ratio types (‘_div_’, ‘_add_’, ‘_subs_’, ‘_mult_’).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Otherwise, add the prefix to the raw features list.</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><dl class="simple">
+<dt>If the feature contains ‘_ratio_’:</dt><dd><ul class="simple">
+<li><p>Extract the components based on different ratio types (‘_div_’, ‘_add_’, ‘_subs_’, ‘_mult_’).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Otherwise, add the feature to the raw features list.</p></li>
+<li><p>Remove duplicates from the raw features list.</p></li>
+<li><p>Return the list of raw features.</p></li>
+</ol>
+<p>Parameters:
+- final_features: list of str, final list of features</p>
+<p>Returns:
+- raw_features: list of str, extracted raw features</p>
+</dd></dl>
+
+</section>
+<section id="src-functions-data-prep-under-sampling-module">
+<h2>src.functions.data_prep.under_sampling module<a class="headerlink" href="#src-functions-data-prep-under-sampling-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.data_prep">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.functions.data_prep" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Arsen Apostolov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

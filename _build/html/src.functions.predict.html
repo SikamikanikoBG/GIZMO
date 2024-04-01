@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.functions.predict package &mdash; Gizmo 2019 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Gizmo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.functions.predict package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.functions.predict.calcula_data_drift">src.functions.predict.calcula_data_drift module</a></li>
+<li><a class="reference internal" href="#module-src.functions.predict.calculate_predictors">src.functions.predict.calculate_predictors module</a></li>
+<li><a class="reference internal" href="#module-src.functions.predict">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Gizmo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src.functions.predict package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.functions.predict.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-functions-predict-package">
+<h1>src.functions.predict package<a class="headerlink" href="#src-functions-predict-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-src.functions.predict.calcula_data_drift">
+<span id="src-functions-predict-calcula-data-drift-module"></span><h2>src.functions.predict.calcula_data_drift module<a class="headerlink" href="#module-src.functions.predict.calcula_data_drift" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.predict.calcula_data_drift.calculate_data_drift">
+<span class="sig-prename descclassname"><span class="pre">src.functions.predict.calcula_data_drift.</span></span><span class="sig-name descname"><span class="pre">calculate_data_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_proj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/predict/calcula_data_drift.html#calculate_data_drift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.predict.calcula_data_drift.calculate_data_drift" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate data drift metrics based on feature means between training and prediction data.</p>
+<p>Steps:
+1. Load training and prediction data.
+2. Initialize feature importance DataFrame with XGBoost data.
+3. Extract unique feature columns.
+4. Calculate means of features and data drift for each feature.
+5. Calculate data drift metrics:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Calculate mean data drift and weighted mean data drift.</p></li>
+<li><p>Extract top 5 data drift metrics and calculate their mean and weighted mean.</p></li>
+</ul>
+</div></blockquote>
+<p>Parameters:
+- selected_proj: str, selected project for data drift calculation</p>
+<p>Returns:
+- mean_drift: float, mean data drift
+- mean_drift_weighted: float, weighted mean data drift
+- mean_drift_top5: float, mean data drift of top 5 features
+- mean_drift_weighted_top5: float, weighted mean data drift of top 5 features</p>
+</dd></dl>
+
+</section>
+<section id="module-src.functions.predict.calculate_predictors">
+<span id="src-functions-predict-calculate-predictors-module"></span><h2>src.functions.predict.calculate_predictors module<a class="headerlink" href="#module-src.functions.predict.calculate_predictors" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.predict.calculate_predictors.calculate_predictors">
+<span class="sig-prename descclassname"><span class="pre">src.functions.predict.calculate_predictors.</span></span><span class="sig-name descname"><span class="pre">calculate_predictors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_features_calcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/functions/predict/calculate_predictors.html#calculate_predictors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.functions.predict.calculate_predictors.calculate_predictors" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate predictors based on specified calculations for each feature.</p>
+<p>Steps:
+1. Iterate over each feature in the final_features_calcs dictionary.
+2. Based on the type of calculation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For ‘ratio’: Calculate the ratio of two raw columns and assign the result to the feature.</p></li>
+<li><p>For ‘single’: Assign 1 if the raw column value matches the cutpoint, else assign 0.</p></li>
+<li><p>For ‘less_than’: Assign 1 if the raw column value is less than the cutpoint, else assign 0.</p></li>
+<li><p>For ‘greater_than’: Assign 1 if the raw column value is greater than the cutpoint, else assign 0.</p></li>
+<li><p>For ‘less_eq_to’: Assign 1 if the raw column value is less than or equal to the cutpoint, else assign 0.</p></li>
+<li><p>For ‘greater_eq_to’: Assign 1 if the raw column value is greater than or equal to the cutpoint, else assign 0.</p></li>
+<li><p>For ‘between_left_incl’: Assign 1 if the raw column value is between the cutpoints with left inclusive, else assign 0.</p></li>
+<li><p>For ‘between_right_incl’: Assign 1 if the raw column value is between the cutpoints with right inclusive, else assign 0.</p></li>
+<li><p>For ‘between_both_incl’: Assign 1 if the raw column value is between the cutpoints with both inclusive, else assign 0.</p></li>
+<li><p>For ‘between’: Assign 1 if the raw column value is between the cutpoints with neither inclusive, else assign 0.</p></li>
+<li><p>For unrecognized types: Log an error message.</p></li>
+</ul>
+</div></blockquote>
+<p>Parameters:
+- df: DataFrame, input DataFrame
+- final_features_calcs: dict, calculations for each feature</p>
+<p>Returns:
+- df: DataFrame with calculated predictors</p>
+</dd></dl>
+
+</section>
+<section id="module-src.functions.predict">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.functions.predict" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Arsen Apostolov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
