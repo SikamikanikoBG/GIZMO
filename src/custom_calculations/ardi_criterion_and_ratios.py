@@ -10,6 +10,15 @@ warnings.filterwarnings("ignore")
 
 
 def run(df):
+    """
+    Process the input DataFrame by renaming columns and calculating indicators.
+
+    Args:
+    df (pd.DataFrame): Input DataFrame containing financial data.
+
+    Returns:
+    pd.DataFrame: Processed DataFrame with renamed columns and calculated indicators.
+    """
     # df = df.drop_duplicates(subset=['time'], keep='last')
     # df = df.tail(40000)
     # df = df.reset_index(drop=True)
@@ -22,6 +31,15 @@ def run(df):
 
 
 def calculate_flag_trend(df):
+    """
+    Calculate flag for trends based on the input DataFrame and parameters extracted from a simulation file.
+
+    Args:
+    df (pd.DataFrame): Input DataFrame containing financial data.
+
+    Returns:
+    pd.DataFrame: DataFrame with added 'flag_trend' column indicating trend flags.
+    """
     # Load ma simulation file to extract parameters from it
     ma_best_simu_results = pd.read_csv(f"{definitions.EXTERNAL_DIR}/ma_simu/ma_best_simu_results.csv")
     project = definitions.args.project.lower()
@@ -98,6 +116,16 @@ def calculate_flag_trend(df):
 
 
 def calculate_criterion(df, predict_module):
+    """
+    Calculate the criterion for buying and selling based on the input DataFrame and specified parameters.
+
+    Args:
+    df (pd.DataFrame): Input DataFrame containing financial data.
+    predict_module: Not used in the function.
+
+    Returns:
+    pd.DataFrame: DataFrame with calculated 'criterion_buy' and 'criterion_sell' columns.
+    """
     profit_pips = float(definitions.args.tp)
     loss_pips = float(definitions.args.sl)  # .0050
     period = int(definitions.args.period)  # 480
@@ -280,6 +308,16 @@ def calculate_flag_trend_ma_simu(df, timeframe_fast, timeframe_slow, period_fast
 
 
 def calculate_criterion_ma_simu(df, predict_module, currency, tp, sl, period):
+    """
+   Calculate the criterion for buying and selling based on the input DataFrame and specified parameters.
+
+   Args:
+   df (pd.DataFrame): Input DataFrame containing financial data.
+   predict_module: Not used in the function.
+
+   Returns:
+   pd.DataFrame: DataFrame with calculated 'criterion_buy' and 'criterion_sell' columns.
+   """
     profit_pips = float(tp)
     loss_pips = float(sl)  # .0050
     period = int(period)  # 480
@@ -334,6 +372,15 @@ def calculate_criterion_ma_simu(df, predict_module, currency, tp, sl, period):
 
 
 def ma_simulation(source_df):
+    """
+    Perform MA simulation based on the input DataFrame.
+
+    Args:
+    source_df (pd.DataFrame): Input DataFrame containing financial data.
+
+    Returns:
+    pd.DataFrame: DataFrame with MA simulation results stored in CSV files.
+    """
     timeframe_fast = [1]
     timeframe_slow = [1]
     period_fast_small = [1]

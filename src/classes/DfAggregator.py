@@ -9,6 +9,20 @@ from src.functions.data_prep.misc_functions import split_columns_by_types
 
 class DfAggregator:
     def __init__(self, params):
+        """
+        Initialize the DfAggregator object with parameters.
+
+        Args:
+            params (dict): Dictionary of parameters.
+
+        Attributes:
+            df_to_return (pandas.DataFrame): DataFrame to return after aggregation.
+            final_features_aggregation: Placeholder for final features aggregation.
+            columns_to_group: Columns to group for aggregation.
+            df_to_aggregate: DataFrame to aggregate.
+            params (dict): Dictionary of parameters.
+            criterion_column: Criterion column specified in the parameters.
+        """
         self.df_to_return = pd.DataFrame()
         self.final_features_aggregation = None
         self.columns_to_group = None
@@ -17,6 +31,16 @@ class DfAggregator:
         self.criterion_column = self.params["criterion_column"]
 
     def aggregation_procedure(self, df_to_aggregate, columns_to_group):
+        """
+        Perform the aggregation procedure on the input DataFrame.
+
+        Args:
+            df_to_aggregate (pandas.DataFrame): DataFrame to aggregate.
+            columns_to_group (list): Columns to group for aggregation.
+
+        Returns:
+            pandas.DataFrame: Aggregated DataFrame.
+        """
         self.df_to_aggregate = df_to_aggregate
         self.columns_to_group = columns_to_group
         self.df_to_return = self.df_to_aggregate[self.columns_to_group].copy()
@@ -28,6 +52,9 @@ class DfAggregator:
         return self.df_to_return
 
     def merge_first_and_last_rows(self):
+        """
+        Merge the first and last rows based on the specified columns.
+        """
         temp_df = self.df_to_aggregate.copy()
 
         # row nb
@@ -69,4 +96,7 @@ class DfAggregator:
         self.df_to_return = self.df_to_return.merge(temp_df_agg_count, on=self.columns_to_group, how='left')
 
     def merge_aggregation_by_period(self):
+        """
+        Merge the aggregation by period.
+        """
         pass

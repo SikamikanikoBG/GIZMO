@@ -5,13 +5,26 @@ from src.functions.printing_and_logging import print_and_log
 
 def under_sampling_df_based_on_params(input_df, params):
     """
-    Under-sampling procedure for dataframe based on params
-    Args:
-        input_df:
-        params:
+    Perform under-sampling on a DataFrame based on specified parameters.
 
-    Returns: 2 dataframes - one with the under-sampled df_to_aggregate and one with the original (full)
+    Steps:
+    1. Check if the dataset is multi-class based on the criterion column.
+    2. Calculate the criterion rate in the dataset.
+    3. Create a copy of the input DataFrame as the full DataFrame.
+    4. Log the start of the under-sampling process with strategy and initial dataset information.
+    5. Define the under-sampling strategy based on the multi-class status.
+    6. Perform under-sampling to create a new under-sampled DataFrame.
+    7. Update the input DataFrame with the under-sampled data.
+    8. Calculate the criterion rate in the updated DataFrame.
+    9. Log the completion of under-sampling with the new dataset information.
 
+    Parameters:
+    - input_df: DataFrame, input DataFrame to under-sample
+    - params: dict, parameters for under-sampling
+
+    Returns:
+    - input_df: DataFrame, under-sampled DataFrame
+    - input_df_full: DataFrame, original full DataFrame
     """
     is_multiclass = input_df[params['criterion_column']].nunique() > 2
     criterion_rate = input_df[params['criterion_column']].value_counts(dropna=False, normalize=True)

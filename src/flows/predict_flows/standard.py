@@ -14,6 +14,18 @@ from src.functions.printing_and_logging import print_end, print_and_log
 
 class ModuleClass(SessionManager):
     def __init__(self, args):
+        """
+        Initialize the ModuleClass.
+
+        Args:
+            args (object): Arguments object containing necessary parameters.
+
+        Attributes:
+            main_model (str): The main model specified in the arguments, converted to lowercase.
+            models_list (list): List of models to be used for prediction.
+            args (object): Reference to the arguments object.
+            output_df (None or DataFrame): DataFrame to store the output data, initialized as None.
+        """
         SessionManager.__init__(self, args)
         self.main_model = args.main_model.lower()
         self.models_list = ['xgb', 'rf', 'dt']
@@ -24,6 +36,22 @@ class ModuleClass(SessionManager):
     def run(self):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
+
+        This method orchestrates the actions to be performed by the ModuleClass. It includes the following steps:
+
+        1. Load model features by iterating over the models in the models_list and extracting final features from each model.
+        2. Prepare input data by setting columns to include based on all final features and loading data using data_load_prep.
+        3. Instantiate a data preparation module based on the pred_data_prep argument and run the preparation process.
+        4. Load output data for prediction from a parquet file.
+        5. Load models from the specified paths and make predictions for each model.
+        6. Add model predictions and parameters to the output DataFrame.
+        7. Calculate data drift using the calculate_data_drift function.
+        8. Save predictions along with data drift indicators as a CSV file.
+        9. Optionally, post predictions to an API if the API URL is defined in the definitions.
+
+        Raises:
+            Exception: If an error occurs during the execution, it is caught and logged in red color.
+
         """
         # Load models features
         all_final_features = []

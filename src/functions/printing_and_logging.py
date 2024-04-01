@@ -8,6 +8,29 @@ from src.functions.api_communication import api_post_string
 
 
 def print_and_log(text, colour):
+    """
+    Print the given text with the specified color and log it accordingly.
+
+    Steps:
+    1. Convert the input text to a string.
+    2. If a color is specified:
+        a. Print the text with the specified color using the `Fore` module from `colorama`.
+        b. If the color is 'RED':
+            i. Log the text as an error using `logging.error()`.
+            ii. Try to post the error to an API using `api_post_string()`.
+            iii. If an exception occurs during the API post, log the error using `logging.error()`.
+        c. Otherwise, log the text as information using `logging.info()`.
+    3. If no color is specified:
+        a. Print the text without any color.
+        b. Log the text as information using `logging.info()`.
+
+    Parameters:
+    - text (str): The text to be printed and logged.
+    - colour (str): The color to be used for printing the text. Can be 'RED' or any other color supported by the `Fore` module from `colorama`.
+
+    Returns:
+    None
+    """
     text = str(text)
     if colour:
         print(getattr(Fore, colour) + text + Style.RESET_ALL)

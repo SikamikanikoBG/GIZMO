@@ -6,6 +6,16 @@ import pandas as pd
 
 
 def api_post(url, data):
+    """
+    Send a POST request to the specified URL with the provided data.
+
+    Parameters:
+    - url: str, URL to send the POST request to
+    - data: DataFrame, data to be sent in JSON format
+
+    Returns:
+    - response: Response object, response from the POST request
+    """
     data = data.to_json(orient='records')
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     try:
@@ -17,6 +27,16 @@ def api_post(url, data):
 
 
 def api_post_string(url, string):
+    """
+    Send a POST request to the specified URL with the provided string data.
+
+    Parameters:
+    - url: str, URL to send the POST request to
+    - string: str, string data to be sent
+
+    Returns:
+    - response: Response object, response from the POST request
+    """
     try:
         response = requests.post(url=f"{url}{string}")
         return response
@@ -25,9 +45,17 @@ def api_post_string(url, string):
         return e
 
 
-
-
 def api_get(url, conditions):
+    """
+    Send a GET request to the specified URL with optional conditions.
+
+    Parameters:
+    - url: str, URL to send the GET request to
+    - conditions: str, additional conditions to append to the URL
+
+    Returns:
+    - df_received_data: DataFrame, data received from the API response
+    """
     if conditions:
         url = url + conditions
     response = requests.get(url)

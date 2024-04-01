@@ -10,11 +10,33 @@ from src.functions.data_prep.under_sampling import under_sampling_df_based_on_pa
 
 
 def load_from_csv(input_data_folder_name, input_data_project_folder, file):
+    """
+    Load a CSV file from the specified input data folder and project folder.
+
+    Args:
+        input_data_folder_name (str): The name of the input data folder.
+        input_data_project_folder (str): The name of the input data project folder.
+        file (str): The name of the CSV file to load.
+
+    Returns:
+        pandas.DataFrame: The loaded CSV file as a DataFrame.
+    """
     df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + file)
     return df
 
 
 def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
+    """
+    Load a Parquet file from the specified input data folder and project folder.
+
+    Args:
+        input_data_folder_name (str): The name of the input data folder.
+        input_data_project_folder (str): The name of the input data project folder.
+        file (str): The name of the Parquet file to load.
+
+    Returns:
+        pandas.DataFrame: The loaded Parquet file as a DataFrame.
+    """
     df = pd.read_parquet(input_data_folder_name + input_data_project_folder + '/' + file,
                          engine='pyarrow')
     return df
@@ -22,6 +44,24 @@ def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
 
 class BaseLoader:
     def __init__(self, params, predict_module):
+        """
+        Initialize the BaseLoader object with parameters and prediction module.
+
+        Args:
+            params (dict): Dictionary of parameters.
+            predict_module: The prediction module.
+
+        Attributes:
+            additional_files_df_dict (list): List to store additional files as DataFrames.
+            in_df (pandas.DataFrame): DataFrame for input data.
+            in_df_f (pandas.DataFrame): DataFrame for input data with under-sampling.
+            params (dict): Dictionary of parameters.
+            main_table (str): Name of the main table.
+            final_features: Placeholder for final features.
+            train_X, train_X_us, test_X, test_X_us, t1df, t2df, t3df (pandas.DataFrame): DataFrames for training and testing.
+            y_train, y_train_us, y_test, y_test_us, t1df_y, t2df_y, t3df_y: Placeholders for target variables.
+            predict_module: The prediction module.
+        """
         self.additional_files_df_dict = []
         self.in_df, self.in_df_f = pd.DataFrame(), pd.DataFrame()
         self.params = params
@@ -35,11 +75,11 @@ class BaseLoader:
 
     def data_load_prep(self, in_data_folder, in_data_proj_folder):
         """
-        Loads the file in the provided folder. No data manipulations. Checks if criterion is binary and prepares
-        dataframe with under-sampling strategy if needed.
+        Load and prepare data without manipulation. Check for binary criterion and apply under-sampling if needed.
+
         Args:
-            in_data_folder: as defined for the session
-            in_data_proj_folder: as defined for the session
+            in_data_folder (str): Input data folder.
+            in_data_proj_folder (str): Input data project folder.
         """
 
         # todo: add if logic - when loading from csv and when loading from API
@@ -84,6 +124,15 @@ class BaseLoader:
 
 
     def data_load_train(self, output_data_folder_name, input_data_project_folder):
+        """
+        Load training data from the specified output data folder and input data project folder.
+
+        Args:
+            output_data_folder_name (str): The name of the output data folder.
+            input_data_project_folder (str): The name of the input data project folder.
+
+        Loads the data, checks for duplicated columns, handles under-sampling if specified, and loads final features.
+        """
         print_and_log('[ LOADING ] Loading data', 'GREEN')
         self.in_df = pq.read_table(
             output_data_folder_name + input_data_project_folder + '/' 'output_data_file.parquet')

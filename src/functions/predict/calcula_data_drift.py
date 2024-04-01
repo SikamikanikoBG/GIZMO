@@ -5,6 +5,27 @@ import definitions
 
 
 def calculate_data_drift(selected_proj):
+    """
+    Calculate data drift metrics based on feature means between training and prediction data.
+
+    Steps:
+    1. Load training and prediction data.
+    2. Initialize feature importance DataFrame with XGBoost data.
+    3. Extract unique feature columns.
+    4. Calculate means of features and data drift for each feature.
+    5. Calculate data drift metrics:
+       - Calculate mean data drift and weighted mean data drift.
+       - Extract top 5 data drift metrics and calculate their mean and weighted mean.
+
+    Parameters:
+    - selected_proj: str, selected project for data drift calculation
+
+    Returns:
+    - mean_drift: float, mean data drift
+    - mean_drift_weighted: float, weighted mean data drift
+    - mean_drift_top5: float, mean data drift of top 5 features
+    - mean_drift_weighted_top5: float, weighted mean data drift of top 5 features
+    """
     # load data
     path = f"{definitions.EXTERNAL_DIR}/implemented_models/{selected_proj}"
     df_train = pd.read_feather(f"{path}/df_x_train.feather")

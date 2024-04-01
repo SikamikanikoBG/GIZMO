@@ -8,6 +8,15 @@ import definitions
 
 
 def add_new_models(new_models_winners):
+    """
+    Add new models based on the provided winners.
+
+    Args:
+        new_models_winners (dict): A dictionary containing project names as keys and model combinations as values.
+
+    Returns:
+        flask.Response: Response object indicating the success or failure of adding new models.
+    """
     try:
         grid_bash_modification(new_models_winners)
         predict_bash_modification(new_models_winners)
@@ -27,6 +36,12 @@ def add_new_models(new_models_winners):
 
 
 def update_param_files(new_models_winners):
+    """
+    Update parameter files with new model versions based on the provided winners.
+
+    Args:
+        new_models_winners (dict): A dictionary containing project names as keys and model combinations as values.
+    """
     params_path = f"{definitions.EXTERNAL_DIR}/params/"
     file_list = os.listdir(params_path)
     today = datetime.today().strftime("%Y%m%d")
@@ -42,6 +57,12 @@ def update_param_files(new_models_winners):
 
 
 def grid_bash_modification(new_models_winners):
+    """
+   Modify the grid search bash script based on the new model winners.
+
+   Args:
+       new_models_winners (dict): A dictionary containing project names as keys and model combinations as values.
+   """
     with open("run_gridsearch_winners.sh", "r") as simu_bash_file:
         header_lines = [next(simu_bash_file) for _ in range(7)]
 
@@ -58,6 +79,12 @@ def grid_bash_modification(new_models_winners):
 
 
 def predict_bash_modification(new_models_winners):
+    """
+   Modify the prediction bash script based on the new model winners.
+
+   Args:
+       new_models_winners (dict): A dictionary containing project names as keys and model combinations as values.
+   """
     with open("run_predict.sh", "r") as simu_bash_file:
         header_lines = [next(simu_bash_file) for _ in range(7)]
 

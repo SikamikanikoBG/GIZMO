@@ -15,6 +15,27 @@ from src.functions.evaluation import merge_word
 
 
 class ModuleClass(SessionManager):
+    """
+    A class that inherits from the `SessionManager` class and performs evaluation tasks.
+
+    Attributes:
+    - args (object): The arguments passed to the class.
+    - models_list (list): A list of models to be evaluated.
+    - output_df (pandas.DataFrame): The output DataFrame.
+
+    Methods:
+    - __init__(self, args):
+        - Initializes the class by calling the parent class's `__init__` method.
+        - Checks if there are multiclass artifacts from training sessions and sets the `models_list` accordingly.
+        - Assigns the `args` parameter to the `args` attribute.
+        - Initializes the `output_df` attribute to `None`.
+    - run(self):
+        - Orchestrates the evaluation process.
+        - Creates an evaluation session folder.
+        - Iterates through the models in the `models_list` and calls the `merge_word` function for each model.
+        - Prints the end of the evaluation process.
+
+    """
     def __init__(self, args):
         SessionManager.__init__(self, args)
         #self.main_model = args.main_model.lower()
@@ -57,6 +78,19 @@ class ModuleClass(SessionManager):
         print_end()
 
     def create_eval_session_folder(self):
+        """
+        Creates an evaluation session folder.
+
+        Steps:
+        1. Print and log a message indicating the start of the session folder creation.
+        2. Generate the session ID by concatenating 'EVAL_', the input data project folder, the start time, and the tag.
+        3. Set the session ID folder path by concatenating the session folder name and the session ID.
+        4. Create the session ID folder using the `os.mkdir()` function.
+        5. Print and log a message indicating the completion of the session folder creation.
+
+        Returns:
+        None
+        """
         print_and_log('Createing session folder. Starting', 'YELLOW')
         self.session_id = 'EVAL_' + self.input_data_project_folder + '_' + str(self.start_time) + '_' + self.tag
         self.session_id_folder = self.session_folder_name + self.session_id

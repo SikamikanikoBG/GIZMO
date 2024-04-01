@@ -23,27 +23,53 @@ import scikitplot as skplot
 
 from src import print_and_log
 
-
 use_mlflow = False
 try:
     import mlflow
+
     use_mlflow = True
     mlflow.set_tracking_uri(definitions.mlflow_tracking_uri)
 except:
     pass
 
+
 def log_graph_to_mlflow(run_id, graph, mlflow_path="graphs"):
+    """
+    Log a graph artifact to MLflow for the specified run.
+
+    Parameters:
+    - run_id: str, ID of the MLflow run
+    - graph: str, path to the graph artifact
+    - mlflow_path: str, path within MLflow to log the artifact (default is "graphs")
+
+    Returns:
+    - None
+    """
     mlflow.start_run(run_id=run_id)
     mlflow.log_artifact(graph, mlflow_path)
     mlflow.end_run()
 
+
 def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
+    """
+    Save a graph to a document file after logging it to MLflow.
+
+    Parameters:
+    - graph: str, name of the graph
+    - session_id_folder: str, path to the session folder
+    - tpl: DocxTemplate object, template for the document
+    - run_id: str, ID of the MLflow run
+    - doc_file: str, path to the document file
+
+    Returns:
+    - None
+    """
     # Insert graphs
 
     context = {}
     old_im = graph
     new_im = session_id_folder + '/' + graph + '.png'
-    
+
     log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
 
     tpl.replace_pic(old_im, new_im)
@@ -54,7 +80,7 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
     if os.path.isfile(session_id_folder + '/' + graph + '.png'):
         remove(session_id_folder + '/' + graph + '.png')
     print(f"[ EVAL ] Graph {graph} ready")
-    
+
 
 def merge_word(project_name, input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
                session_id_folder, criterion_column,
@@ -66,11 +92,46 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
                t3df_period,
                model_arg,
                missing_treatment, params):
-    
+    """
+    Merge the evaluation results into a Word document.
+
+    Steps:
+    1. Set up the MLflow experiment and retrieve the parent and child run IDs.
+    2. Load the input data and the data from the training session.
+    3. Concatenate the training, test, and time-based datasets into a single dataset.
+    4. Load the models, correlation features, and missing values data.
+    5. Load the evaluation template document.
+    6. Determine the chosen model and whether the problem is multiclass.
+    7. Fill in the fields in the evaluation template document.
+    8. Write the output document and create a DocxTemplate object.
+    9. Generate and save the graphs, inserting them into the document.
+    10. Save the final document.
+
+    Parameters:
+    - project_name (str): The name of the project.
+    - input_data_folder_name (str): The name of the input data folder.
+    - input_data_project_folder (str): The name of the input data project folder.
+    - session_to_eval (str): The name of the session to evaluate.
+    - session_folder_name (str): The name of the session folder.
+    - session_id_folder (str): The name of the session ID folder.
+    - criterion_column (str): The name of the criterion column.
+    - observation_date_column (str): The name of the observation date column.
+    - columns_to_exclude (list): A list of columns to exclude.
+    - periods_to_exclude (list): A list of periods to exclude.
+    - t1df_period (str): The period for the t1df dataset.
+    - t2df_period (str): The period for the t2df dataset.
+    - t3df_period (str): The period for the t3df dataset.
+    - model_arg (str): The model argument.
+    - missing_treatment (str): The missing data treatment.
+    - params (dict): A dictionary of parameters.
+
+    Returns:
+    None
+    """
     experiment = mlflow.set_experiment(definitions.mlflow_prefix + "_" + project_name)
     parent_run_id = ""
     run_id = ""
-    for result in mlflow.search_runs(experiment.experiment_id).iterrows():        
+    for result in mlflow.search_runs(experiment.experiment_id).iterrows():
         if result[1]['tags.mlflow.runName'] == session_to_eval:
             parent_run_id = result[1]['run_id']
             break
@@ -78,15 +139,15 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         print_and_log(f"ERROR: No parent run for {session_to_eval} found, aborting", "RED")
         sys.exit()
 
-    child_runs = mlflow.search_runs(experiment.experiment_id, filter_string=f"tags.mlflow.parentRunId = '{parent_run_id}' and tags.mlflow.runName = '{model_arg}'")
-    if len(child_runs)>0:
+    child_runs = mlflow.search_runs(experiment.experiment_id,
+                                    filter_string=f"tags.mlflow.parentRunId = '{parent_run_id}' and tags.mlflow.runName = '{model_arg}'")
+    if len(child_runs) > 0:
         run_id = child_runs.run_id.values[0]
     else:
         print_and_log(f"ERROR: Could not find child runs for {model_arg} in session {session_to_eval}", "RED")
-        sys.exit()  
-    
+        sys.exit()
 
-    # Load train session data
+        # Load train session data
     onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
                  isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
     if len(onlyfiles) == 0:
@@ -135,7 +196,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     models = pd.read_csv(session_folder_name + session_to_eval + '/models.csv')
     corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv')
     corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv')
-    
+
     missing_table = pd.read_csv('./output_data/' + input_data_project_folder + '/missing_values.csv')
     if model_arg == 'lr':
         lr_table = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/lr_table.csv')
@@ -208,19 +269,21 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     # Graph 1 ---------------------------------------------------------------------------------------------------
     # Precompute statistics for Graphs 1-3
     agg_data = pd.DataFrame()
-    if is_multiclass:        
-        agg_data = df_total[[criterion_column, observation_date_column]].groupby([observation_date_column, criterion_column]).agg(counts=(criterion_column, 'count'), ).reset_index()
-        totals = agg_data.groupby([observation_date_column])['counts'].sum().reset_index().rename(columns={"counts": "total"})
+    if is_multiclass:
+        agg_data = df_total[[criterion_column, observation_date_column]].groupby(
+            [observation_date_column, criterion_column]).agg(counts=(criterion_column, 'count'), ).reset_index()
+        totals = agg_data.groupby([observation_date_column])['counts'].sum().reset_index().rename(
+            columns={"counts": "total"})
         agg_data = agg_data.merge(totals, on=observation_date_column, how='left')
-        agg_data['percentage'] = agg_data['counts'] / agg_data['total'] 
-    
-    # TODO: Does it make sense in Multiclass?
+        agg_data['percentage'] = agg_data['counts'] / agg_data['total']
+
+        # TODO: Does it make sense in Multiclass?
     plot = []
     graph = "graph1"
     if not is_multiclass:
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
             kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
-        
+
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -229,8 +292,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         import matplotlib.ticker as mticker
         plot = agg_data.set_index(([observation_date_column, criterion_column])).percentage.unstack().plot(
             kind='bar', figsize=(15, 10), ylabel='Average Criterion Rate')
-                
-        #plot.yaxis.set_major_formatter(mticker.PercentFormatter(1.0))
+
+        # plot.yaxis.set_major_formatter(mticker.PercentFormatter(1.0))
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -240,9 +303,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     # TODO: Does it make sense in Multiclass?
     graph = "graph2"
     if not is_multiclass:
-        
+
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
-                kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))      
+            kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
     else:
         plot = agg_data.set_index(([observation_date_column, criterion_column])).counts.unstack().plot(
             kind='bar', figsize=(15, 10), ylabel='NB Criterion cases')
@@ -254,12 +317,13 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     # Graph 3 ---------------------------------------------------------------------------------------------------
     # TODO: Does it make sense in Multiclass?
     graph = 'graph3'
-    if not is_multiclass:        
+    if not is_multiclass:
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).count().plot(
-            kind='bar', ylabel='NB Total cases', figsize=(15, 10))        
+            kind='bar', ylabel='NB Total cases', figsize=(15, 10))
     else:
-        plot = agg_data[[observation_date_column, 'total']].plot(kind='bar', x=observation_date_column, y='total', figsize=(25, 10), ylabel='NB Total cases')
-        
+        plot = agg_data[[observation_date_column, 'total']].plot(kind='bar', x=observation_date_column, y='total',
+                                                                 figsize=(25, 10), ylabel='NB Total cases')
+
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -438,7 +502,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
         pass
 
-    bands_column = model_arg + '_bands_predict_proba'   
+    bands_column = model_arg + '_bands_predict_proba'
     # Graph 6 ---------------------------------------------------------------------------------------------------
     graph = 'graph6'
     if not is_multiclass:
@@ -455,8 +519,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             plt.subplot(1, 2, 1)
 
             df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(kind='bar', figsize=(15, 5),
-                                                                                        linewidth=0.1, stacked=True,
-                                                                                        ax=ax_left)
+                                                                                           linewidth=0.1, stacked=True,
+                                                                                           ax=ax_left)
             plt.title(
                 'Average Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -498,18 +562,19 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     graph = 'graph7'
     if not is_multiclass:
         plot = pd.crosstab([df_train_test['Dataset'], df_train_test[criterion_column]], df_train_test[bands_column],
-                        margins=True).style.background_gradient()
-        dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
+                           margins=True).style.background_gradient()
+        dfi.export(plot, session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1,
+                   table_conversion="matplotlib")
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph 8 ---------------------------------------------------------------------------------------------------
-    #TODO cache cross-tabs by using multiple aggfuncs
+    # TODO cache cross-tabs by using multiple aggfuncs
     graph = 'graph8'
     if not is_multiclass:
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                        values=df_total_scope[criterion_column],
-                        aggfunc='mean').plot(
+                           values=df_total_scope[criterion_column],
+                           aggfunc='mean').plot(
             kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), edgecolor='white',
             linewidth=0.2)
         fig = plot.get_figure()
@@ -521,8 +586,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     graph = 'graph8.1'
     if not is_multiclass:
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                        values=df_total_scope[criterion_column],
-                        aggfunc='count').plot(
+                           values=df_total_scope[criterion_column],
+                           aggfunc='count').plot(
             kind='bar', ylabel='Nb of cases per bands per observation period', figsize=(15, 10), edgecolor='white',
             linewidth=0.2)
         fig = plot.get_figure()
@@ -534,14 +599,13 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     graph = 'graph8.2'
     if not is_multiclass:
         plot = pd.crosstab(df_total_scope[observation_date_column], df_total_scope[bands_column],
-                        normalize='index').plot(
+                           normalize='index').plot(
             kind='bar', ylabel='Share of bands per observation period', figsize=(15, 10), edgecolor='white',
             linewidth=0.2, stacked=True)
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
-
 
     if is_multiclass:
         encodings = pd.read_csv("output_data/" + project_name + '/' + 'encoded_labels.csv').to_dict()
@@ -551,7 +615,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     # Graph 9 ---------------------------------------------------------------------------------------------------
     graph = 'graph9'
     if not is_multiclass:
-        df = df_total_scope[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
+        df = df_total_scope[
+            [criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
         fig = sns.displot(df, x=model_arg_y_pred_prob, hue=criterion_column, kind="ecdf")
         # fig = plot.get_figure()
@@ -561,7 +626,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 9.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.1'
-    if not is_multiclass:   
+    if not is_multiclass:
         df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
         fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
@@ -591,7 +656,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 9.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.2'
-    if not is_multiclass:       
+    if not is_multiclass:
         df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
 
         fpr, tpr, threshold = metrics.roc_curve(df[criterion_column], df[model_arg_y_pred_prob])
@@ -620,7 +685,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 9.3 ---------------------------------------------------------------------------------------------------  
     graph = 'graph9.3'
-    if not is_multiclass:       
+    if not is_multiclass:
         df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
         plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
@@ -630,7 +695,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 9.4 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.4'
-    if not is_multiclass:       
+    if not is_multiclass:
         df = df_test_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
         plot_cap(df[criterion_column], df[model_arg_y_pred_prob])
 
@@ -640,13 +705,13 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 10 ---------------------------------------------------------------------------------------------------
     graph = 'graph10'
-    if not is_multiclass:       
+    if not is_multiclass:
         plot = df_train_X.copy()
         plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
-                                                                                ylabel='Nb of cases in each Proba',
-                                                                                figsize=(15, 10), edgecolor='white',
-                                                                                linewidth=0.2)
+                                                                                   ylabel='Nb of cases in each Proba',
+                                                                                   figsize=(15, 10), edgecolor='white',
+                                                                                   linewidth=0.2)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -659,9 +724,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
         plot = df_test_X.copy()
         plot['deciles'] = pd.qcut(plot[model_arg_y_pred_prob], 10, duplicates='drop')
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
-                                                                                ylabel='Nb of cases in each Proba',
-                                                                                figsize=(15, 10), edgecolor='white',
-                                                                                linewidth=0.2)
+                                                                                   ylabel='Nb of cases in each Proba',
+                                                                                   figsize=(15, 10), edgecolor='white',
+                                                                                   linewidth=0.2)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -670,13 +735,13 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 10.2 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.2'
-    if not is_multiclass:        
+    if not is_multiclass:
         accumulation_points = (
                 df_train_X[model_arg_y_pred_prob].round(3).value_counts() / df_train_X[
             model_arg_y_pred_prob].count()).astype(
             float).round(2)
         accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
-                                                title='TOP5 Accumulation points by probability')
+                                                  title='TOP5 Accumulation points by probability')
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -685,12 +750,13 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 10.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph10.3'
-    if not is_multiclass:        
+    if not is_multiclass:
         accumulation_points = (
-                df_test_X[model_arg_y_pred_prob].round(3).value_counts() / df_test_X[model_arg_y_pred_prob].count()).astype(
+                df_test_X[model_arg_y_pred_prob].round(3).value_counts() / df_test_X[
+            model_arg_y_pred_prob].count()).astype(
             float).round(2)
         accumulation_points.round(2).head(5).plot(kind='bar', figsize=(15, 5), linewidth=0.1, stacked=True,
-                                                title='TOP5 Accumulation points by probability')
+                                                  title='TOP5 Accumulation points by probability')
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -699,7 +765,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11'
-    if not is_multiclass:        
+    if not is_multiclass:
         temp_df = df_train_X.copy()
         temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
@@ -716,9 +782,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             plt.subplot(1, 2, 1)
 
             temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                ylabel='Nb of cases in each Proba',
-                                                                                figsize=(15, 10), edgecolor='white',
-                                                                                linewidth=0.2, ax=ax_left)
+                                                                                  ylabel='Nb of cases in each Proba',
+                                                                                  figsize=(15, 10), edgecolor='white',
+                                                                                  linewidth=0.2, ax=ax_left)
             plt.title(
                 'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -728,9 +794,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             plt.subplot(1, 2, 2)
             temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
             temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                    ylabel='Nb of cases in each Proba',
-                                                                                    figsize=(15, 10), edgecolor='white',
-                                                                                    linewidth=0.2, ax=ax_right)
+                                                                                       ylabel='Nb of cases in each Proba',
+                                                                                       figsize=(15, 10),
+                                                                                       edgecolor='white',
+                                                                                       linewidth=0.2, ax=ax_right)
             plt.xlabel('Bands')
             plt.legend(shadow=True)
             plt.ylabel('Secondary Criterion rate')
@@ -738,9 +805,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
         else:
             plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                            ylabel='Nb of cases in each Proba',
-                                                                            figsize=(15, 10), edgecolor='white',
-                                                                            linewidth=0.2)
+                                                                               ylabel='Nb of cases in each Proba',
+                                                                               figsize=(15, 10), edgecolor='white',
+                                                                               linewidth=0.2)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -749,7 +816,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 11 ---------------------------------------------------------------------------------------------------
     graph = 'graph11.1'
-    if not is_multiclass:       
+    if not is_multiclass:
         temp_df = df_test_X.copy()
         temp_df['deciles'] = pd.qcut(temp_df[model_arg_y_pred_prob], 10, duplicates='drop')
 
@@ -766,9 +833,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             plt.subplot(1, 2, 1)
 
             temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                ylabel='Nb of cases in each Proba',
-                                                                                figsize=(15, 10), edgecolor='white',
-                                                                                linewidth=0.2, ax=ax_left)
+                                                                                  ylabel='Nb of cases in each Proba',
+                                                                                  figsize=(15, 10), edgecolor='white',
+                                                                                  linewidth=0.2, ax=ax_left)
             plt.title(
                 'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -778,9 +845,10 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             plt.subplot(1, 2, 2)
             temp_df["secondary_criterion"] = temp_df[secondary_col1] / temp_df[secondary_col2]
             temp_df[["secondary_criterion", 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                                    ylabel='Nb of cases in each Proba',
-                                                                                    figsize=(15, 10), edgecolor='white',
-                                                                                    linewidth=0.2, ax=ax_right)
+                                                                                       ylabel='Nb of cases in each Proba',
+                                                                                       figsize=(15, 10),
+                                                                                       edgecolor='white',
+                                                                                       linewidth=0.2, ax=ax_right)
             plt.xlabel('Bands')
             plt.legend(shadow=True)
             plt.ylabel('Secondary Criterion rate')
@@ -788,9 +856,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
         else:
             plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
-                                                                            ylabel='Nb of cases in each Proba',
-                                                                            figsize=(15, 10), edgecolor='white',
-                                                                            linewidth=0.2)
+                                                                               ylabel='Nb of cases in each Proba',
+                                                                               figsize=(15, 10), edgecolor='white',
+                                                                               linewidth=0.2)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -799,7 +867,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
 
     # Graph 12 ---------------------------------------------------------------------------------------------------
     graph = 'graph12'
-    if not is_multiclass:        
+    if not is_multiclass:
         bands_column = model_arg + '_bands_predict_proba'
         grid_describe = pd.DataFrame()
 
@@ -840,7 +908,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
             pass
 
         dfi.export(grid_describe.round(2).style.background_gradient(cmap='RdYlGn', axis=1),
-                session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
+                   session_id_folder + '/' + graph + '.png', max_rows=-1, max_cols=-1, table_conversion="matplotlib")
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
@@ -859,6 +927,7 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
 
     # todo: fix. Const something
+
 
 """
     i = 1

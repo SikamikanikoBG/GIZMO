@@ -5,6 +5,7 @@ from pickle import dump
 
 import pandas as pd
 from datetime import datetime
+import ppscore as pps
 
 import src.functions.data_prep.dates_manipulation as date_funcs
 from src.classes.DfAggregator import DfAggregator
@@ -17,6 +18,11 @@ from src.functions.data_prep.misc_functions import split_columns_by_types, switc
 from src.functions.data_prep.missing_treatment import missing_values
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
 import definitions
+from xgboost import XGBClassifier
+from sklearn.feature_selection import RFECV
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+import traceback
 
 class ModuleClass(SessionManager):
     def __init__(self, args):
@@ -53,7 +59,12 @@ class ModuleClass(SessionManager):
         print_end()
 
     def data_cleaning(self):  # start data cleaning
+        """
+         Performs data cleaning operations on the input data.
 
+         Returns:
+             None
+         """
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
@@ -201,7 +212,13 @@ class ModuleClass(SessionManager):
                 pass
 
     def select_features_by_predictive_power(self):
-        import ppscore as pps
+        """
+        Selects features based on their predictive power using ppscore.
+
+        Returns:
+            list: List of selected features.
+        """
+
         df = self.loader.in_df.copy()
 
         df = df[self.loader.final_features + [self.criterion_column]]
@@ -220,11 +237,13 @@ class ModuleClass(SessionManager):
         return top_100['x'].tolist()
 
     def select_features_by_importance(self):
-        from xgboost import XGBClassifier
-        from sklearn.feature_selection import RFECV
-        from sklearn.preprocessing import LabelEncoder
-        from sklearn.model_selection import StratifiedKFold
-        import traceback
+        """
+       Selects features based on their importance using XGBoost and RFECV.
+
+       Returns:
+           list: List of selected features.
+       """
+
 
 
         min_features_to_select = min(100,  len(self.loader.in_df.columns) / 2)  # Minimum number of features to consider
@@ -260,6 +279,12 @@ class ModuleClass(SessionManager):
 
 
     def remove_final_features_with_low_correlation(self):
+        """
+       Removes final features with low correlation based on the correlation matrix.
+
+       Returns:
+           None
+       """
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],
                                                         y=self.loader.in_df[self.criterion_column],
                                                         input_data_project_folder=self.input_data_project_folder,
@@ -268,6 +293,13 @@ class ModuleClass(SessionManager):
                                                         keep_cols=self.columns_to_include)
 
     def optimal_binning_procedure(self):
+        """
+        Executes the optimal binning procedure on numerical columns.
+
+        Returns:
+            None
+        """
+
         binned_numerical = self.optimal_binning_columns
         # Optimal binning
         optimal_binning_obj = OptimaBinning(df=self.loader.in_df, df_full=self.loader.in_df_f,
@@ -291,6 +323,13 @@ class ModuleClass(SessionManager):
             binned_numerical, self.columns_to_include)
 
     def merging_additional_files_procedure(self):
+        """
+        Merges additional files based on specified merge group columns and appends suffixes to the merged columns.
+
+        Returns:
+            None
+        """
+
         count = 0
 
         if self.params["additional_tables"]:

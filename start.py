@@ -4,6 +4,16 @@ import os
 import streamlit as st
 import definitions
 
+"""
+This module sets up a Streamlit application for the Jizzmo project.
+
+The module configures the Streamlit page, displays the Gizzmo logo and header, and includes commented-out code for loading and displaying parameter files.
+
+Attributes:
+- st (streamlit): The Streamlit module, used for creating the web application.
+- selected_project (any): A global variable to store the selected project.
+"""
+
 st.set_page_config(
     page_title="Jizzmo",
     page_icon="✅",

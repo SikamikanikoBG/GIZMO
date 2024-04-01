@@ -9,6 +9,28 @@ from src import print_and_log
 
 class OptimaBinning:
     def __init__(self, df, df_full, columns, criterion_column, final_features, observation_date_column, params):
+        """
+        Initialize the OptimaBinning object with the provided parameters.
+
+        Args:
+            df (pandas.DataFrame): Input DataFrame.
+            df_full (pandas.DataFrame): Full DataFrame.
+            columns (list): List of columns.
+            criterion_column (str): Criterion column.
+            final_features (list): List of final features.
+            observation_date_column (str): Observation date column.
+            params (dict): Dictionary of parameters.
+
+        Attributes:
+            df (pandas.DataFrame): Input DataFrame.
+            df_full (pandas.DataFrame): Full DataFrame.
+            columns (list): List of columns.
+            criterion_column (str): Criterion column.
+            final_features (list): List of final features.
+            observation_date_column (str): Observation date column.
+            params (dict): Dictionary of parameters.
+            is_multiclass (bool): Flag indicating if the problem is multiclass.
+        """
         self.df = df
         self.df_full = df_full
         self.columns = columns
@@ -20,6 +42,17 @@ class OptimaBinning:
 
 
     def optimal_binning_procedure(self, col):
+        """
+        Perform the optimal binning procedure for a specific column.
+
+        Args:
+            col (str): Column to perform optimal binning on.
+
+        Returns:
+            pandas.DataFrame: Processed DataFrame for the column.
+            pandas.DataFrame: Processed DataFrame with under-sampling for the column.
+            list: List of dummies columns.
+        """
         try:
             print_and_log(f'[ OPTIMAL BINNING ] Starting for {col}', '')
             # creating binned dummie features from all numeric ones
@@ -75,6 +108,9 @@ class OptimaBinning:
             return pd.DataFrame(), pd.DataFrame(), []
 
     def rename_strings_cols_opt_bin(self):
+        """
+       Rename string columns based on specific rules.
+       """
         # Recoding strings
         for string in self.columns[:]:
             new_string = string.replace("<", "less_than")
@@ -120,6 +156,14 @@ class OptimaBinning:
             self.df_full.rename(columns={col: new_string}, inplace=True)
 
     def run_optimal_binning_multiprocess(self):
+        """
+        Run the optimal binning procedure using multiprocessing.
+
+        Returns:
+            pandas.DataFrame: Processed DataFrame.
+            pandas.DataFrame: Processed DataFrame with under-sampling.
+            list: List of columns.
+        """
         df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
         pool = Pool(30)
         # install_mp_handler()

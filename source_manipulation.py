@@ -1,6 +1,18 @@
 import pandas as pd
 import numpy as np
 
+"""
+This module performs data manipulation and preprocessing on a Parquet file.
+
+The module reads the input data from a Parquet file, removes duplicates, creates additional columns and flags, and splits the data into different subsets based on customer activity.
+
+Attributes:
+- df (pandas.DataFrame): The main DataFrame containing the input data.
+- df_org (pandas.DataFrame): A copy of the original DataFrame, kept for checks.
+- df_direct_active (pandas.DataFrame): A subset of the active customers who are direct active.
+- df_retail_active (pandas.DataFrame): A subset of the active customers who are retail active.
+- df_inactive (pandas.DataFrame): A subset of the inactive customers.
+"""
 
 df = pd.read_parquet("./input_data/input_source_original.parquet")
 

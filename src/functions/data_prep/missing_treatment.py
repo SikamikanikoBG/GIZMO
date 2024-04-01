@@ -5,6 +5,37 @@ from src import print_and_log
 
 
 def missing_values(df, missing_treatment, input_data_project_folder):
+    """
+    Handle missing values in a DataFrame based on specified treatment.
+
+    Steps:
+    1. Calculate the percentage of missing values in each column.
+    2. Create a DataFrame with column names and their respective missing value percentages.
+    3. Save the DataFrame to a CSV file in the output directory.
+    4. Drop columns with missing values exceeding 50% (commented out).
+    5. Drop rows with missing values.
+    6. Apply the specified missing treatment:
+        - 'delete': Drop rows with missing values.
+        - 'column_mean': Fill missing values with column means.
+        - 'median': Fill missing values with column medians.
+        - Other: Fill missing values with the specified treatment.
+            - If any missing values remain, handle them based on data type:
+                - Integer, float, uint, uint8: Fill with 0.
+                - Datetime: Fill with '1900-01-01'.
+                - Bool: Fill with True.
+                - Object: Fill with 'MissingInformation'.
+                - Log a warning for unhandled columns.
+    7. Calculate the number of rows removed due to missing values and the percentage removed.
+
+    Parameters:
+    - df: DataFrame, input DataFrame
+    - missing_treatment: str, method to handle missing values
+    - input_data_project_folder: str, folder path for output data
+
+    Returns:
+    - df: DataFrame with missing values treated
+    """
+
     # logging
 
     # removing columns with 50% or more missing values

@@ -26,6 +26,16 @@ from src.functions.printing_and_logging import print_end, print_and_log, print_t
 
 class ModuleClass(SessionManager):
     def __init__(self, args):
+        """
+        Initializes the ModuleClass object.
+
+        Args:
+            args: Arguments passed to the object.
+
+        Returns:
+            None
+        """
+
         SessionManager.__init__(self, args)
 
         if use_mlflow:            
@@ -37,8 +47,12 @@ class ModuleClass(SessionManager):
 
     def run(self):
         """
-        Orchestrator for this class. Here you should specify all the actions you want this class to perform.
+        Orchestrates the actions to be performed by this class.
+
+        Returns:
+            None
         """
+
         self.prepare()
         print_train()
 
@@ -84,6 +98,13 @@ class ModuleClass(SessionManager):
         print_end()
 
     def encode_criterion_column(self):
+        """
+        Encodes the criterion column using LabelEncoder and saves the encoded classes to a CSV file.
+
+        Returns:
+            None
+        """
+
         le = LabelEncoder()
         self.loader.in_df_f[self.criterion_column] = le.fit_transform(self.loader.in_df_f[self.criterion_column])
         if self.under_sampling:
@@ -95,8 +116,15 @@ class ModuleClass(SessionManager):
 
     def log_to_mlflow(self, metrics: pd.DataFrame):
         '''
-        Logs metrics to MLFlow server by DataSet
-        '''        
+        Logs metrics to MLFlow server by DataSet.
+
+        Args:
+            metrics (pd.DataFrame): DataFrame containing metrics to be logged.
+
+        Returns:
+            None
+        '''
+
         for row in metrics.iterrows():
             mlflow.start_run(nested=True, run_name=f"{row[1]['DataSet']}")            
             for idx, val in row[1].items():
@@ -106,6 +134,16 @@ class ModuleClass(SessionManager):
 
 
     def create_model_procedure(self, model_type):
+        """
+        Creates a model training procedure for the specified model type.
+
+        Args:
+            model_type (str): Type of the model to be trained.
+
+        Returns:
+            pd.DataFrame: Metrics for the trained model.
+        """
+
         print_and_log(f"Starting training procedure for {model_type}", 'YELLOW')
         globals()['self.modeller_' + model_type] = BaseModeller(model_name=model_type,
                                                                 params=self.params,
@@ -127,6 +165,13 @@ class ModuleClass(SessionManager):
         return globals()['self.modeller_' + model_type].metrics
 
     def save_results(self):
+        """
+        Saves the training and testing dataframes, as well as the metrics to files.
+
+        Returns:
+            None
+        """
+
         self.loader.train_X.reset_index().to_feather(self.session_id_folder + '/df_x_train.feather')
         self.loader.test_X.reset_index().to_feather(self.session_id_folder + '/df_x_test.feather')
         self.loader.t1df.reset_index().to_feather(self.session_id_folder + '/df_t1df.feather')
@@ -135,6 +180,16 @@ class ModuleClass(SessionManager):
         self.metrics_df.to_csv(self.session_id_folder + '/models.csv', index=False)
 
     def validation_modelling_procedure(self, model_type):
+        """
+        Performs the validation modelling procedure for the specified model type.
+
+        Args:
+            model_type (str): Type of the model being validated.
+
+        Returns:
+            None
+        """
+
         validation_dataframes_name = ['test_X', 't1df', 't2df', 't3df']
         validation_dataframes_X = [self.loader.test_X, self.loader.t1df, self.loader.t2df, self.loader.t3df]
         validation_dataframes_y = [self.loader.y_test, self.loader.t1df_y, self.loader.t2df_y, self.loader.t3df_y]
@@ -205,14 +260,26 @@ class ModuleClass(SessionManager):
 
     def train_modelling_procedure_trees(self, model_type):
         """
-        This method is used in order to run the needed steps and train a model. It is used for tree models since
-        their methods are the same.
+        This method is used to run the necessary steps and train a model, specifically for tree models.
+
         Args:
-            model_type: Needed in order to distinguish slight differences in the training procedure
+            model_type (str): Type of the model being trained.
+
+        This method performs the following steps:
+        1. Loads the model for the specified model type.
+        2. Fits the training models procedure.
+        3. Calculates feature importances and selects top features based on importance.
+        4. Optionally removes specified features from the final feature list.
+        5. Fits the model again with the selected final features.
+        6. Saves cost function graphs, AUC curves, and error curves.
+        7. Generates predictions and metrics for the training data.
+        8. Appends the metrics to the model's metrics dataframe.
+        9. Calculates correlation matrix for the final features.
 
         Returns:
-
+            None
         """
+
         results = pd.DataFrame()
 
         if globals()['self.modeller_' + model_type].trees_features_to_include:
@@ -346,6 +413,19 @@ class ModuleClass(SessionManager):
             print_and_log(f"[ TRAINING ] Raw featires correlation matrix error for model: {model_type}. Error: {e}", "RED")
 
     def training_models_fit_procedure(self, model_type):
+        """
+        This method is used to fit the model for the specified model type.
+
+        Args:
+            model_type (str): Type of the model being trained.
+
+        This method performs the following steps:
+        - Fits the model with the training data and evaluates on the test data.
+
+        Returns:
+            None
+        """
+
         if self.under_sampling:
             # print_and_log('\n\t *** UNDERSAMPLING MODEL ***', 'YELLOW')
             globals()['self.modeller_' + model_type].model_fit(
@@ -359,6 +439,13 @@ class ModuleClass(SessionManager):
                 self.loader.test_X[globals()['self.modeller_' + model_type].final_features], self.loader.y_test)
 
     def create_train_session_folder(self):
+        """
+        Creates a session folder for the training session.
+
+        Returns:
+            None
+        """
+
         print_and_log('Creating session folder. Starting', 'YELLOW')
         self.session_id = 'TRAIN_' + self.input_data_project_folder + '_' + str(self.start_time) + '_' + self.tag
         self.session_id_folder = self.session_folder_name + self.session_id
@@ -370,6 +457,12 @@ class ModuleClass(SessionManager):
         print_and_log('Creating session folder. Done', '')
 
     def split_train_test_df(self):
+        """
+        Splits the training and testing dataframes, as well as the temporal validation dataframes.
+
+        Returns:
+            None
+        """
         print_and_log("Splitting train and test dataframes. Starting", '')
         if self.under_sampling:
             self.loader.train_X, self.loader.test_X, self.loader.y_train, self.loader.y_test = train_test_split(
@@ -387,6 +480,13 @@ class ModuleClass(SessionManager):
         print_and_log('Splitting train and test dataframes. Done', '')
 
     def split_temporal_validation_periods(self):
+        """
+        Splits the temporal validation dataframes based on the specified periods.
+
+        Returns:
+            None
+        """
+
         print_and_log(
             f'\t All observation dates before splitting the '
             f'file: {self.observation_date_column}: {self.loader.in_df[self.observation_date_column].unique()}', '')

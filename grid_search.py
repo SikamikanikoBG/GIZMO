@@ -9,6 +9,27 @@ from notify_run import Notify
 from src.functions import api_communication
 from src.functions.grid_search.grid_search_functions import load_train
 
+"""
+This module performs a grid search for a machine learning model and generates evaluation results.
+
+The module uses command-line arguments to configure the grid search parameters, trains the models, and saves the results.
+
+Attributes:
+- notify (notify_run.Notify): An instance of the Notify class for sending notifications.
+- results_df (pandas.DataFrame): A DataFrame to store the grid search results.
+- parser (argparse.ArgumentParser): An instance of the ArgumentParser class to handle command-line arguments.
+- args (argparse.Namespace): The parsed command-line arguments.
+- project (str): The name of the project, converted to lowercase.
+- winner (str): The name of the winner, if specified.
+- training_rows (int): The number of training rows, converted from a string.
+- nb_features (int): The number of features, converted from a string.
+- tp (float): The take profit value, converted from a string.
+- sl (float): The stop loss value, converted from a string.
+- period (int): The period value, converted from a string.
+- grid_param (dict): A dictionary containing the grid search parameters.
+- a (int), b (int): Counters for the grid search iterations.
+"""
+
 notify = Notify()
 
 results_df = pd.DataFrame()

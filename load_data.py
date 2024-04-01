@@ -5,6 +5,18 @@ from notify_run import Notify
 
 from src.custom_calculations.ardi_criterion_and_ratios import ma_simulation
 
+"""
+This module is responsible for loading and processing data from an API, creating input data folders, and running a moving average simulation.
+
+Attributes:
+- notify (notify_run.Notify): An instance of the Notify class for sending notifications.
+- parser (argparse.ArgumentParser): An instance of the ArgumentParser class to handle command-line arguments.
+- args (argparse.Namespace): The parsed command-line arguments.
+- volumes (int): The number of records to keep, converted from a string.
+- session (str): The session type, either 'predict' or 'gridsearch', converted to lowercase.
+- folders (list): A list of folder names for the input data.
+"""
+
 notify = Notify()
 
 import definitions
