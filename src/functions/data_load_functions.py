@@ -52,7 +52,7 @@ def check_separator_csv_file(input_data_folder_name, input_data_project_folder, 
                                sep=';')
         if len(input_df.columns.to_list()) == 1:
             print_and_log('ERROR: input data separator not any of the following ,;', 'RED')
-            sys.exit()
+            sys.exit(1)
     return input_df
 
 
