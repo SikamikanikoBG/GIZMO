@@ -1,0 +1,155 @@
+(gizmo_sphinx) C:\git_temp\jizzmo\docs>make.bat html
+Running Sphinx v7.1.2
+making output directory... done
+building [mo]: targets for 0 po files that are out of date
+writing output...
+building [html]: targets for 25 source files that are out of date
+updating environment: [new config] 25 added, 0 changed, 0 removed
+usage: sphinx-build [-h] [--project PROJECT] [--winner WINNER] [--tp TP] [--sl SL] [--training_rows TRAINING_ROWS] [--nb_features NB_FEATURES] [--period PERIOD]
+sphinx-build: error: unrecognized arguments: -M html . _build
+C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\xgboost\compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+reading sources... [100%] start
+WARNING: autodoc: failed to import module 'grid_search'; the module executes module level statement and it might call sys.exit().
+WARNING: autodoc: failed to import module 'load_data'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\sphinx\ext\autodoc\importer.py", line 66, in import_module
+    return importlib.import_module(modname)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 843, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\git_temp\jizzmo\load_data.py", line 6, in <module>
+    from src.custom_calculations.ardi_criterion_and_ratios import ma_simulation
+  File "C:\git_temp\jizzmo\src\custom_calculations\ardi_criterion_and_ratios.py", line 2, in <module>
+    from stockstats import StockDataFrame as Sdf
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\stockstats.py", line 94, in <module>
+    def set_dft_window(name: str, windows: Union[int, tuple[int, ...]]):
+TypeError: 'type' object is not subscriptable
+
+WARNING: autodoc: failed to import module 'source_manipulation'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\sphinx\ext\autodoc\importer.py", line 66, in import_module
+    return importlib.import_module(modname)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 843, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\git_temp\jizzmo\source_manipulation.py", line 17, in <module>
+    df = pd.read_parquet("./input_data/input_source_original.parquet")
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\pandas\io\parquet.py", line 503, in read_parquet
+    return impl.read(
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\pandas\io\parquet.py", line 244, in read
+    path_or_handle, handles, kwargs["filesystem"] = _get_path_or_handle(
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\pandas\io\parquet.py", line 102, in _get_path_or_handle
+    handles = get_handle(
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\pandas\io\common.py", line 865, in get_handle
+    handle = open(handle, ioargs.mode)
+FileNotFoundError: [Errno 2] No such file or directory: './input_data/input_source_original.parquet'
+
+WARNING: autodoc: failed to import module 'ardi_criterion_and_ratios' from module 'src.custom_calculations'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\sphinx\ext\autodoc\importer.py", line 66, in import_module
+    return importlib.import_module(modname)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 843, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\git_temp\jizzmo\src\custom_calculations\ardi_criterion_and_ratios.py", line 2, in <module>
+    from stockstats import StockDataFrame as Sdf
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\stockstats.py", line 94, in <module>
+    def set_dft_window(name: str, windows: Union[int, tuple[int, ...]]):
+TypeError: 'type' object is not subscriptable
+
+WARNING: autodoc: failed to import module 'standard' from module 'src.flows.eval_flows'; the following exception was raised:
+cannot import name 'MailMerge' from 'mailmerge' (C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\mailmerge\__init__.py)
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.train_modelling_procedure_trees:4: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:3: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:19: WARNING: Definition list ends without a blank line; unexpected unindent.
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:37: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:42: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:1: ERROR: Unknown target name: "self.modeller".
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:1: ERROR: Unknown target name: "self.modeller".
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:3: ERROR: Unknown target name: "self.modeller".
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:6: ERROR: Unknown target name: "self.modeller".
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:17: ERROR: Unknown target name: "self.modeller".
+C:\git_temp\jizzmo\src\flows\training_flows\standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:16: ERROR: Unknown target name: "self.modeller".
+WARNING: autodoc: failed to import module 'evaluation' from module 'src.functions'; the following exception was raised:
+cannot import name 'MailMerge' from 'mailmerge' (C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\mailmerge\__init__.py)
+C:\git_temp\jizzmo\src\functions\printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:6: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\functions\printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:12: WARNING: Block quote ends without a blank line; unexpected unindent.
+C:\git_temp\jizzmo\src\functions\data_prep\missing_treatment.py:docstring of src.functions.data_prep.missing_treatment.missing_values:10: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\functions\data_prep\missing_treatment.py:docstring of src.functions.data_prep.missing_treatment.missing_values:20: WARNING: Block quote ends without a blank line; unexpected unindent.
+C:\git_temp\jizzmo\src\functions\data_prep\raw_features_to_list.py:docstring of src.functions.data_prep.raw_features_to_list.raw_features_to_list:7: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\functions\data_prep\raw_features_to_list.py:docstring of src.functions.data_prep.raw_features_to_list.raw_features_to_list:11: WARNING: Block quote ends without a blank line; unexpected unindent.
+C:\git_temp\jizzmo\src\functions\predict\calcula_data_drift.py:docstring of src.functions.predict.calcula_data_drift.calculate_data_drift:9: ERROR: Unexpected indentation.
+C:\git_temp\jizzmo\src\functions\predict\calculate_predictors.py:docstring of src.functions.predict.calculate_predictors.calculate_predictors:6: ERROR: Unexpected indentation.
+WARNING: autodoc: failed to import module 'start'; the following exception was raised:
+Traceback (most recent call last):
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\elements\image.py", line 385, in image_to_url
+    with open(image, "rb") as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'gizmo_logo.png'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\sphinx\ext\autodoc\importer.py", line 66, in import_module
+    return importlib.import_module(modname)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 843, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\git_temp\jizzmo\start.py", line 25, in <module>
+    st.image("gizmo_logo.png")
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\runtime\metrics_util.py", line 397, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\elements\image.py", line 161, in image
+    marshall_images(
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\elements\image.py", line 548, in marshall_images
+    proto_img.url = image_to_url(
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\elements\image.py", line 397, in image_to_url
+    url = runtime.get_instance().media_file_mgr.add(image, mimetype, image_id)
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\runtime\__init__.py", line 28, in get_instance
+    return Runtime.instance()
+  File "C:\Users\MomchilG\AppData\Local\miniconda3\envs\gizmo_sphinx\lib\site-packages\streamlit\runtime\runtime.py", line 162, in instance
+    raise RuntimeError("Runtime hasn't been created!")
+RuntimeError: Runtime hasn't been created!
+
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... copying static files... done
+copying extra files... done
+done
+writing output... [100%] start
+generating indices... genindex py-modindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+
+====================== slowest reading durations =======================
+5.155 api
+2.783 src.classes
+2.338 src.flows.eval_flows
+0.823 start
+0.689 src.flows.data_prep_flows
+build succeeded, 26 warnings.
+
+The HTML pages are in _build\html.
