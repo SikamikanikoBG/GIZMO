@@ -88,6 +88,7 @@ class ModuleClass(SessionManager):
         """
         This method is used in order to run the needed steps and train a model. It is used for tree models since
         their methods are the same.
+
         Args:
             model_type: Needed in order to distinguish slight differences in the training procedure
 
@@ -260,95 +261,96 @@ class ModuleClass(SessionManager):
         print_and_log("Splitting temporal validation dataframes. Done", '')
 
     def training_models_fit_procedure_lr(self):
-        """model_type = 'lr'
-        globals()['self.modeller_' + model_type].model_fit(self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
-                self.loader.y_train_us,
-                self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
-
-        # todo: create training method for lr to be able to do this loop of modelling. BUT with US going to lunch
-        Coefficients = pd.read_html(globals()['self.modeller_' + model_type].lr_table.tables[1].as_html(), header=0, index_col=0)[0]
-        Coefficients = Coefficients.reset_index()
-        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
-        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
-        Coefficients = Coefficients[Coefficients.error < 0.01]
-        Coefficients = Coefficients['index'].tolist()
-        Coefficients.remove('const')
-
-        globals()['self.modeller_' + model_type].model_fit(
-            self.loader.train_X_us[Coefficients],
-            self.loader.y_train_us,
-            self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
-        Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
-        Coefficients = Coefficients.reset_index()
-        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
-        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
-        Coefficients = Coefficients[Coefficients.error < 0.01]
-        Coefficients['coef_abs'] = abs(Coefficients['coef'])
-        Coefficients = Coefficients[Coefficients.coef_abs > 0.00005]
-        Coefficients = Coefficients['index'].tolist()
-        Coefficients.remove('const')
-
-        lr_model, table, train_auc = lr(df_sample[Coefficients], criterion)
-        Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
-        Coefficients = Coefficients.reset_index()
-        Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
-        Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
-        Coefficients = Coefficients['index'].tolist()
-        Coefficients.remove('const')
-        if len(Coefficients) > 8:
-            df_abs = abs(df[Coefficients].corr())
-            df_abs = df_abs.where(df_abs < 1)
-            df_abs = df_abs.where(df_abs > 0.5)
-            df_abs = df_abs.isnull().values.all()
-            if df_abs:
-                if train_auc > auc_max:
-                    tries = 0
-                    auc_max = train_auc
-                print(
-                    '\t After {} attempts: LR Model found with AUC: {} and {} nb of features. AUC max so far {}'.format(
-                        tries, round(train_auc, 2), len(Coefficients), round(auc_max, 2)))
-                results_lr = results_lr.append(
-                    {'auc': train_auc, 'features': Coefficients},
-                    ignore_index=True)
-
-        except:
-        pass"""
-
-
-        """final_features = results_lr[results_lr['auc'] == results_lr['auc'].max()]
-        final_features = final_features['features'].iloc[0]
-        print(len(final_features), final_features)
-        logging.info(f'The number of features is {len(final_features)} for feature {final_features}')
-        
-        lr_model, table, train_auc = lr(df[final_features], criterion)
-        print('\t WINNER AUC: {}'.format(train_auc))
-        logging.info(f'WINNER AUC: {train_auc}')
-        
-        lr_table = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
-        lr_table = lr_table.reset_index()
-        lr_table = lr_table[['index', 'coef', 'P>|z|']]
-        lr_table = lr_table.rename(columns={'P>|z|': 'error'})
-        lr_model.feature_names = final_features
-        
-        else:
-        lr_model = model_to_predict
-        final_features = lr_model.feature_names
-        
-        df = sm.add_constant(df, has_constant='add')  # add constant
-        final_features.insert(0, 'const')
-        df['lr_y_pred'] = lr_model.predict(df[final_features])
-        df['lr_y_pred_prob'] = lr_model.predict(df[final_features])
-        y_pred = lr_model.predict(df[final_features])
-        
-        ac, auc, prec, recall, f1 = get_metrics(y_pred=y_pred, y_true=criterion, y_pred_prob=df['lr_y_pred_prob'])
-        
-        if cut_offs["lr"]:
-            df['lr_bands_predict'] = pd.cut(df['lr_y_pred'], bins=cut_offs["lr"], include_lowest=True).astype('str')
-            df['lr_bands_predict_proba'] = pd.cut(df['lr_y_pred_prob'], bins=cut_offs["lr"], include_lowest=True).astype(
-                'str')
-        else:
-            df['lr_bands_predict'], _ = cut_into_bands(X=df[['lr_y_pred']], y=criterion, depth=3)
-            df['lr_bands_predict_proba'], _ = cut_into_bands(X=df[['lr_y_pred_prob']], y=criterion, depth=3)
-        logging.info('LR: Model found')
-        
-        final_features.remove('const')"""
+        # model_type = 'lr'
+        # globals()['self.modeller_' + model_type].model_fit(self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
+        #         self.loader.y_train_us,
+        #         self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+        #
+        # # todo: create training method for lr to be able to do this loop of modelling. BUT with US going to lunch
+        # Coefficients = pd.read_html(globals()['self.modeller_' + model_type].lr_table.tables[1].as_html(), header=0, index_col=0)[0]
+        # Coefficients = Coefficients.reset_index()
+        # Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        # Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        # Coefficients = Coefficients[Coefficients.error < 0.01]
+        # Coefficients = Coefficients['index'].tolist()
+        # Coefficients.remove('const')
+        #
+        # globals()['self.modeller_' + model_type].model_fit(
+        #     self.loader.train_X_us[Coefficients],
+        #     self.loader.y_train_us,
+        #     self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+        # Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        # Coefficients = Coefficients.reset_index()
+        # Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        # Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        # Coefficients = Coefficients[Coefficients.error < 0.01]
+        # Coefficients['coef_abs'] = abs(Coefficients['coef'])
+        # Coefficients = Coefficients[Coefficients.coef_abs > 0.00005]
+        # Coefficients = Coefficients['index'].tolist()
+        # Coefficients.remove('const')
+        #
+        # lr_model, table, train_auc = lr(df_sample[Coefficients], criterion)
+        # Coefficients = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        # Coefficients = Coefficients.reset_index()
+        # Coefficients = Coefficients[['index', 'coef', 'P>|z|']]
+        # Coefficients = Coefficients.rename(columns={'P>|z|': 'error'})
+        # Coefficients = Coefficients['index'].tolist()
+        # Coefficients.remove('const')
+        # if len(Coefficients) > 8:
+        #     df_abs = abs(df[Coefficients].corr())
+        #     df_abs = df_abs.where(df_abs < 1)
+        #     df_abs = df_abs.where(df_abs > 0.5)
+        #     df_abs = df_abs.isnull().values.all()
+        #     if df_abs:
+        #         if train_auc > auc_max:
+        #             tries = 0
+        #             auc_max = train_auc
+        #         print(
+        #             '\t After {} attempts: LR Model found with AUC: {} and {} nb of features. AUC max so far {}'.format(
+        #                 tries, round(train_auc, 2), len(Coefficients), round(auc_max, 2)))
+        #         results_lr = results_lr.append(
+        #             {'auc': train_auc, 'features': Coefficients},
+        #             ignore_index=True)
+        #
+        # except:
+        # pass
+        #
+        #
+        # final_features = results_lr[results_lr['auc'] == results_lr['auc'].max()]
+        # final_features = final_features['features'].iloc[0]
+        # print(len(final_features), final_features)
+        # logging.info(f'The number of features is {len(final_features)} for feature {final_features}')
+        #
+        # lr_model, table, train_auc = lr(df[final_features], criterion)
+        # print('\t WINNER AUC: {}'.format(train_auc))
+        # logging.info(f'WINNER AUC: {train_auc}')
+        #
+        # lr_table = pd.read_html(table.tables[1].as_html(), header=0, index_col=0)[0]
+        # lr_table = lr_table.reset_index()
+        # lr_table = lr_table[['index', 'coef', 'P>|z|']]
+        # lr_table = lr_table.rename(columns={'P>|z|': 'error'})
+        # lr_model.feature_names = final_features
+        #
+        # else:
+        # lr_model = model_to_predict
+        # final_features = lr_model.feature_names
+        #
+        # df = sm.add_constant(df, has_constant='add')  # add constant
+        # final_features.insert(0, 'const')
+        # df['lr_y_pred'] = lr_model.predict(df[final_features])
+        # df['lr_y_pred_prob'] = lr_model.predict(df[final_features])
+        # y_pred = lr_model.predict(df[final_features])
+        #
+        # ac, auc, prec, recall, f1 = get_metrics(y_pred=y_pred, y_true=criterion, y_pred_prob=df['lr_y_pred_prob'])
+        #
+        # if cut_offs["lr"]:
+        #     df['lr_bands_predict'] = pd.cut(df['lr_y_pred'], bins=cut_offs["lr"], include_lowest=True).astype('str')
+        #     df['lr_bands_predict_proba'] = pd.cut(df['lr_y_pred_prob'], bins=cut_offs["lr"], include_lowest=True).astype(
+        #         'str')
+        # else:
+        #     df['lr_bands_predict'], _ = cut_into_bands(X=df[['lr_y_pred']], y=criterion, depth=3)
+        #     df['lr_bands_predict_proba'], _ = cut_into_bands(X=df[['lr_y_pred_prob']], y=criterion, depth=3)
+        # logging.info('LR: Model found')
+        #
+        # final_features.remove('const')
+        return None
