@@ -19,12 +19,12 @@ def under_sampling_df_based_on_params(input_df, params):
     9. Log the completion of under-sampling with the new dataset information.
 
     Parameters:
-    - input_df: DataFrame, input DataFrame to under-sample
-    - params: dict, parameters for under-sampling
+        input_df: DataFrame, input DataFrame to under-sample
+        params: dict, parameters for under-sampling
 
     Returns:
-    - input_df: DataFrame, under-sampled DataFrame
-    - input_df_full: DataFrame, original full DataFrame
+        input_df: DataFrame, under-sampled DataFrame
+        input_df_full: DataFrame, original full DataFrame
     """
     is_multiclass = input_df[params['criterion_column']].nunique() > 2
     criterion_rate = input_df[params['criterion_column']].value_counts(dropna=False, normalize=True)

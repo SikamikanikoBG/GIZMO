@@ -1,3 +1,4 @@
+7.4.0 - revamped sphinx implementation, added specific folder for it
 7.3.0 - docstrings added everywhere
 7.2.2 - missing treatment - removed tremoval of columns with 99% missing values
 7.2.1 - train standard flow - remove removal of strong and weak predictors

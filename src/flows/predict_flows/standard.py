@@ -7,7 +7,6 @@ import pandas as pd
 
 import definitions
 from src.classes.SessionManager import SessionManager
-from src.functions import api_communication
 from src.functions.predict.calcula_data_drift import calculate_data_drift
 from src.functions.printing_and_logging import print_end, print_and_log
 
@@ -209,29 +208,12 @@ class ModuleClass(SessionManager):
                     index=False)
                 print_and_log("[ PREDICT ] Predictions saved as csv, second time", "")
 
-                if definitions.api_url_post_results_predict:
-                    try:
-                        api_communication.api_post(definitions.api_url_post_results_predict,
-                                                   self.output_df[predict_columns])
-                    except Exception as e:
-                        print(f"ERROR API: {e}")
-                        pass
-                    print_and_log("[ PREDICT ] Predictions posted to API", "")
             except:
                 # store results
                 self.output_df[predict_columns_minimum].to_csv(
                     f"{self.implemented_folder}/{self.project_name}/predictions.csv",
                     index=False)
                 print_and_log("[ PREDICT ] Predictions saved as csv, second time", "")
-
-                if definitions.api_url_post_results_predict:
-                    try:
-                        api_communication.api_post(definitions.api_url_post_results_predict,
-                                                   self.output_df[predict_columns_minimum])
-                    except Exception as e:
-                        print(f"ERROR API: {e}")
-                        pass
-                    print_and_log("[ PREDICT ] Predictions posted to API", "")
 
             print_end()
             print_and_log(f"{self.output_df.time.max(), self.output_df.time.dtype}", "")

@@ -38,12 +38,14 @@ def log_graph_to_mlflow(run_id, graph, mlflow_path="graphs"):
     Log a graph artifact to MLflow for the specified run.
 
     Parameters:
-    - run_id: str, ID of the MLflow run
-    - graph: str, path to the graph artifact
-    - mlflow_path: str, path within MLflow to log the artifact (default is "graphs")
+        run_id: str, ID of the MLflow run
+
+        graph: str, path to the graph artifact
+
+        mlflow_path: str, path within MLflow to log the artifact (default is "graphs")
 
     Returns:
-    - None
+        None
     """
     mlflow.start_run(run_id=run_id)
     mlflow.log_artifact(graph, mlflow_path)
@@ -55,14 +57,18 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
     Save a graph to a document file after logging it to MLflow.
 
     Parameters:
-    - graph: str, name of the graph
-    - session_id_folder: str, path to the session folder
-    - tpl: DocxTemplate object, template for the document
-    - run_id: str, ID of the MLflow run
-    - doc_file: str, path to the document file
+        graph: str, name of the graph
+
+        session_id_folder: str, path to the session folder
+
+        tpl: DocxTemplate object, template for the document
+
+        run_id: str, ID of the MLflow run
+
+        doc_file: str, path to the document file
 
     Returns:
-    - None
+        None
     """
     # Insert graphs
 
@@ -108,25 +114,41 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     10. Save the final document.
 
     Parameters:
-    - project_name (str): The name of the project.
-    - input_data_folder_name (str): The name of the input data folder.
-    - input_data_project_folder (str): The name of the input data project folder.
-    - session_to_eval (str): The name of the session to evaluate.
-    - session_folder_name (str): The name of the session folder.
-    - session_id_folder (str): The name of the session ID folder.
-    - criterion_column (str): The name of the criterion column.
-    - observation_date_column (str): The name of the observation date column.
-    - columns_to_exclude (list): A list of columns to exclude.
-    - periods_to_exclude (list): A list of periods to exclude.
-    - t1df_period (str): The period for the t1df dataset.
-    - t2df_period (str): The period for the t2df dataset.
-    - t3df_period (str): The period for the t3df dataset.
-    - model_arg (str): The model argument.
-    - missing_treatment (str): The missing data treatment.
-    - params (dict): A dictionary of parameters.
+        project_name (str): The name of the project.
+
+        input_data_folder_name (str): The name of the input data folder.
+
+        input_data_project_folder (str): The name of the input data project folder.
+
+        session_to_eval (str): The name of the session to evaluate.
+
+        session_folder_name (str): The name of the session folder.
+
+        session_id_folder (str): The name of the session ID folder.
+
+        criterion_column (str): The name of the criterion column.
+
+        observation_date_column (str): The name of the observation date column.
+
+        columns_to_exclude (list): A list of columns to exclude.
+
+        periods_to_exclude (list): A list of periods to exclude.
+
+        t1df_period (str): The period for the t1df dataset.
+
+        t2df_period (str): The period for the t2df dataset.
+
+        t3df_period (str): The period for the t3df dataset.
+
+        model_arg (str): The model argument.
+
+        missing_treatment (str): The missing data treatment.
+
+        params (dict): A dictionary of parameters.
+
 
     Returns:
-    None
+        None
     """
     experiment = mlflow.set_experiment(definitions.mlflow_prefix + "_" + project_name)
     parent_run_id = ""

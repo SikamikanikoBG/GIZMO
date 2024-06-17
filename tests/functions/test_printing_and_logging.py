@@ -6,7 +6,6 @@ import definitions
 class TestPrintingAndLogging(unittest.TestCase):
 
     @patch('src.functions.printing_and_logging.logging')
-    @patch('src.functions.printing_and_logging.api_post_string')
     @patch('src.functions.printing_and_logging.print')
     def test_print_and_log_red(self, mock_print, mock_api_post_string, mock_logging):
         text = "Error message"

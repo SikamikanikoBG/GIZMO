@@ -15,7 +15,9 @@ def load_from_csv(input_data_folder_name, input_data_project_folder, file):
 
     Args:
         input_data_folder_name (str): The name of the input data folder.
+
         input_data_project_folder (str): The name of the input data project folder.
+
         file (str): The name of the CSV file to load.
 
     Returns:
@@ -31,7 +33,9 @@ def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
 
     Args:
         input_data_folder_name (str): The name of the input data folder.
+
         input_data_project_folder (str): The name of the input data project folder.
+
         file (str): The name of the Parquet file to load.
 
     Returns:
@@ -49,17 +53,26 @@ class BaseLoader:
 
         Args:
             params (dict): Dictionary of parameters.
+
             predict_module: The prediction module.
 
         Attributes:
             additional_files_df_dict (list): List to store additional files as DataFrames.
+
             in_df (pandas.DataFrame): DataFrame for input data.
+
             in_df_f (pandas.DataFrame): DataFrame for input data with under-sampling.
+
             params (dict): Dictionary of parameters.
+
             main_table (str): Name of the main table.
+
             final_features: Placeholder for final features.
+
             train_X, train_X_us, test_X, test_X_us, t1df, t2df, t3df (pandas.DataFrame): DataFrames for training and testing.
+
             y_train, y_train_us, y_test, y_test_us, t1df_y, t2df_y, t3df_y: Placeholders for target variables.
+
             predict_module: The prediction module.
         """
         self.additional_files_df_dict = []
@@ -79,6 +92,7 @@ class BaseLoader:
 
         Args:
             in_data_folder (str): Input data folder.
+
             in_data_proj_folder (str): Input data project folder.
         """
 
@@ -129,6 +143,7 @@ class BaseLoader:
 
         Args:
             output_data_folder_name (str): The name of the output data folder.
+
             input_data_project_folder (str): The name of the input data project folder.
 
         Loads the data, checks for duplicated columns, handles under-sampling if specified, and loads final features.

@@ -1,5 +1,0 @@
-@reboot nohup sh /srv/share/jizzmo/run_api.sh &
-0 0 * * 2-6 /bin/bash /srv/share/jizzmo/run_simulation_parallel.sh
-#9 10 * * 0 /bin/bash /srv/share/jizzmo/run_simulation_parallel.sh
-0 */2 * * * rm -rf /srv/share/jizzmo_data/sessions/*
-5 11-22 * * 1-5 /bin/bash /srv/share/jizzmo/run_gridsearch_refresh_winners.sh
