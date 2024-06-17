@@ -1,0 +1,55 @@
+Running Sphinx v7.1.2
+making output directory... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 16 source files that are out of date
+updating environment: [new config] 16 added, 0 changed, 0 removed
+[2Kreading sources... [  6%] definitions[2Kreading sources... [ 12%] index[2Kreading sources... [ 19%] main[2Kreading sources... [ 25%] modules[2Kreading sources... [ 31%] src[2Kreading sources... [ 38%] src.classes[2Kreading sources... [ 44%] src.custom_calculations[2Kreading sources... [ 50%] src.flows[2Kreading sources... [ 56%] src.flows.data_prep_flows[2Kreading sources... [ 62%] src.flows.eval_flows[2Kreading sources... [ 69%] src.flows.predict_flows[2Kreading sources... [ 75%] src.flows.training_flows[2Kreading sources... [ 81%] src.functions[2Kreading sources... [ 88%] src.functions.data_prep[2Kreading sources... [ 94%] src.functions.modelling[2Kreading sources... [100%] src.functions.predict
+WARNING: autodoc: failed to import module 'standard' from module 'src.flows.data_prep_flows'; the following exception was raised:
+No module named 'ppscore'
+WARNING: autodoc: failed to import module 'standard' from module 'src.flows.eval_flows'; the following exception was raised:
+cannot import name 'ensure_async' from 'jupyter_core.utils' (/home/mandalorian/anaconda3/envs/gizmo_ar/lib/python3.8/site-packages/jupyter_core/utils/__init__.py)
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.train_modelling_procedure_trees:4: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:3: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:19: WARNING: Definition list ends without a blank line; unexpected unindent.
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:37: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:42: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:1: ERROR: Unknown target name: "self.modeller".
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:1: ERROR: Unknown target name: "self.modeller".
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:3: ERROR: Unknown target name: "self.modeller".
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:6: ERROR: Unknown target name: "self.modeller".
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:17: ERROR: Unknown target name: "self.modeller".
+/home/mandalorian/Projects/jizzmo/src/flows/training_flows/standard_lr.py:docstring of src.flows.training_flows.standard_lr.ModuleClass.training_models_fit_procedure_lr:16: ERROR: Unknown target name: "self.modeller".
+WARNING: autodoc: failed to import module 'evaluation' from module 'src.functions'; the following exception was raised:
+cannot import name 'ensure_async' from 'jupyter_core.utils' (/home/mandalorian/anaconda3/envs/gizmo_ar/lib/python3.8/site-packages/jupyter_core/utils/__init__.py)
+/home/mandalorian/Projects/jizzmo/src/functions/printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:6: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/functions/printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:12: WARNING: Block quote ends without a blank line; unexpected unindent.
+/home/mandalorian/Projects/jizzmo/src/functions/data_prep/missing_treatment.py:docstring of src.functions.data_prep.missing_treatment.missing_values:10: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/functions/data_prep/missing_treatment.py:docstring of src.functions.data_prep.missing_treatment.missing_values:20: WARNING: Block quote ends without a blank line; unexpected unindent.
+/home/mandalorian/Projects/jizzmo/src/functions/data_prep/raw_features_to_list.py:docstring of src.functions.data_prep.raw_features_to_list.raw_features_to_list:7: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/functions/data_prep/raw_features_to_list.py:docstring of src.functions.data_prep.raw_features_to_list.raw_features_to_list:11: WARNING: Block quote ends without a blank line; unexpected unindent.
+/home/mandalorian/Projects/jizzmo/src/functions/predict/calcula_data_drift.py:docstring of src.functions.predict.calcula_data_drift.calculate_data_drift:9: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/functions/predict/calculate_predictors.py:docstring of src.functions.predict.calculate_predictors.calculate_predictors:6: ERROR: Unexpected indentation.
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... /home/mandalorian/Projects/jizzmo/docs/modules.rst: WARNING: document isn't included in any toctree
+done
+preparing documents... done
+copying assets... copying static files... done
+copying extra files... done
+done
+[2Kwriting output... [  6%] definitions[2Kwriting output... [ 12%] index[2Kwriting output... [ 19%] main[2Kwriting output... [ 25%] modules[2Kwriting output... [ 31%] src[2Kwriting output... [ 38%] src.classes[2Kwriting output... [ 44%] src.custom_calculations[2Kwriting output... [ 50%] src.flows[2Kwriting output... [ 56%] src.flows.data_prep_flows[2Kwriting output... [ 62%] src.flows.eval_flows[2Kwriting output... [ 69%] src.flows.predict_flows[2Kwriting output... [ 75%] src.flows.training_flows[2Kwriting output... [ 81%] src.functions[2Kwriting output... [ 88%] src.functions.data_prep[2Kwriting output... [ 94%] src.functions.modelling[2Kwriting output... [100%] src.functions.predict
+generating indices... genindex py-modindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+
+====================== slowest reading durations =======================
+1.214 src.classes
+1.208 main
+0.356 src.functions.data_prep
+0.258 src.flows.training_flows
+0.248 src.flows.eval_flows
+build succeeded, 23 warnings.
+
+The HTML pages are in _build/html.
