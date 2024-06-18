@@ -47,14 +47,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">jizzmo</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="api.html">api module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app.html">app module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conf.html">conf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="definitions.html">definitions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="grid_search.html">grid_search module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load_data.html">load_data module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_manipulation.html">source_manipulation module</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="src.html">src package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="src.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">src.classes package</a></li>
@@ -66,7 +60,6 @@
 <li class="toctree-l3"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="start.html">start module</a></li>
 </ul>
 </li>
 </ul>
@@ -112,9 +105,9 @@
 <dt class="sig sig-object py" id="src.classes.BaseLoader.BaseLoader.data_load_prep">
 <span class="sig-name descname"><span class="pre">data_load_prep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_data_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_data_proj_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseLoader.BaseLoader.data_load_prep" title="Permalink to this definition"></a></dt>
 <dd><p>Load and prepare data without manipulation. Check for binary criterion and apply under-sampling if needed.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>in_data_folder (str): Input data folder.
-in_data_proj_folder (str): Input data project folder.</p>
+<dl>
+<dt>Args:</dt><dd><p>in_data_folder (str): Input data folder.</p>
+<p>in_data_proj_folder (str): Input data project folder.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -123,9 +116,9 @@ in_data_proj_folder (str): Input data project folder.</p>
 <dt class="sig sig-object py" id="src.classes.BaseLoader.BaseLoader.data_load_train">
 <span class="sig-name descname"><span class="pre">data_load_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseLoader.BaseLoader.data_load_train" title="Permalink to this definition"></a></dt>
 <dd><p>Load training data from the specified output data folder and input data project folder.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>output_data_folder_name (str): The name of the output data folder.
-input_data_project_folder (str): The name of the input data project folder.</p>
+<dl>
+<dt>Args:</dt><dd><p>output_data_folder_name (str): The name of the output data folder.</p>
+<p>input_data_project_folder (str): The name of the input data project folder.</p>
 </dd>
 </dl>
 <p>Loads the data, checks for duplicated columns, handles under-sampling if specified, and loads final features.</p>
@@ -137,10 +130,10 @@ input_data_project_folder (str): The name of the input data project folder.</p>
 <dt class="sig sig-object py" id="src.classes.BaseLoader.load_from_csv">
 <span class="sig-prename descclassname"><span class="pre">src.classes.BaseLoader.</span></span><span class="sig-name descname"><span class="pre">load_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseLoader.load_from_csv" title="Permalink to this definition"></a></dt>
 <dd><p>Load a CSV file from the specified input data folder and project folder.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>input_data_folder_name (str): The name of the input data folder.
-input_data_project_folder (str): The name of the input data project folder.
-file (str): The name of the CSV file to load.</p>
+<dl>
+<dt>Args:</dt><dd><p>input_data_folder_name (str): The name of the input data folder.</p>
+<p>input_data_project_folder (str): The name of the input data project folder.</p>
+<p>file (str): The name of the CSV file to load.</p>
 </dd>
 <dt>Returns:</dt><dd><p>pandas.DataFrame: The loaded CSV file as a DataFrame.</p>
 </dd>
@@ -151,10 +144,10 @@ file (str): The name of the CSV file to load.</p>
 <dt class="sig sig-object py" id="src.classes.BaseLoader.load_from_parquet">
 <span class="sig-prename descclassname"><span class="pre">src.classes.BaseLoader.</span></span><span class="sig-name descname"><span class="pre">load_from_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseLoader.load_from_parquet" title="Permalink to this definition"></a></dt>
 <dd><p>Load a Parquet file from the specified input data folder and project folder.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>input_data_folder_name (str): The name of the input data folder.
-input_data_project_folder (str): The name of the input data project folder.
-file (str): The name of the Parquet file to load.</p>
+<dl>
+<dt>Args:</dt><dd><p>input_data_folder_name (str): The name of the input data folder.</p>
+<p>input_data_project_folder (str): The name of the input data project folder.</p>
+<p>file (str): The name of the Parquet file to load.</p>
 </dd>
 <dt>Returns:</dt><dd><p>pandas.DataFrame: The loaded Parquet file as a DataFrame.</p>
 </dd>

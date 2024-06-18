@@ -12,11 +12,9 @@ Welcome to Gizmo's documentation!
 
    modules
 
-Current non-empty modules:
+Current empty modules:
 
-* api
-* api.module
-* some of src
+* src.flows.eval_flows
 
 Known Issues
 ------------
@@ -24,16 +22,10 @@ Some modules are not compiled by autodoc, therefor may not documented. The issue
 that while compiling, the environment that the doc is compiled in, has to have the required packages used
 in the documented code. Not having them installed results in an empty doc page.
 
-If one wants to rebuild the html via ``./docs./make.bat html`` make sure
+If one wants to rebuild the html via ``./docs./make.bat html`` (on Windows) or ``make html`` (on Linux) make sure
 to have the required packages used in the source code!
 
-Other errors include missing files and bad indexing. Examples:
-
-* ``FileNotFoundError: [Errno 2] No such file or directory: './input_data/input_source_original.parquet'``.
-* ``FileNotFoundError: [Errno 2] No such file or directory: 'gizmo_logo.png'``.
-* ``TypeError: 'type' object is not subscriptable``.
-
-Full error message in ``./docs/logs/log_11_06_2024_1303_manual.txt``
+``./docs/auto_make_html.sh`` also builds the doc with added logging functionality!
 
 Indices and tables
 ------------------

@@ -1,15 +1,6 @@
-import importlib
 import os
-import pickle
-import sys
 
-import numpy as np
-import pandas as pd
-
-import definitions
 from src.classes.SessionManager import SessionManager
-from src.functions import api_communication
-from src.functions.predict.calcula_data_drift import calculate_data_drift
 from src.functions.printing_and_logging import print_end, print_and_log
 from src.functions.evaluation import merge_word
 

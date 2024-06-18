@@ -7,22 +7,12 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   src.functions.api
    src.functions.data_prep
-   src.functions.grid_search
    src.functions.modelling
    src.functions.predict
 
 Submodules
 ----------
-
-src.functions.api\_communication module
----------------------------------------
-
-.. automodule:: src.functions.api_communication
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 src.functions.data\_load\_functions module
 ------------------------------------------

@@ -18,13 +18,13 @@ def calculate_data_drift(selected_proj):
        - Extract top 5 data drift metrics and calculate their mean and weighted mean.
 
     Parameters:
-    - selected_proj: str, selected project for data drift calculation
+        selected_proj: str, selected project for data drift calculation
 
     Returns:
-    - mean_drift: float, mean data drift
-    - mean_drift_weighted: float, weighted mean data drift
-    - mean_drift_top5: float, mean data drift of top 5 features
-    - mean_drift_weighted_top5: float, weighted mean data drift of top 5 features
+        mean_drift: float, mean data drift
+        mean_drift_weighted: float, weighted mean data drift
+        mean_drift_top5: float, mean data drift of top 5 features
+        mean_drift_weighted_top5: float, weighted mean data drift of top 5 features
     """
     # load data
     path = f"{definitions.EXTERNAL_DIR}/implemented_models/{selected_proj}"

@@ -17,10 +17,10 @@ def raw_features_to_list(final_features):
     7. Return the list of raw features.
 
     Parameters:
-    - final_features: list of str, final list of features
+        final_features: list of str, final list of features
 
     Returns:
-    - raw_features: list of str, extracted raw features
+        raw_features: list of str, extracted raw features
     """
 
     raw_features = []

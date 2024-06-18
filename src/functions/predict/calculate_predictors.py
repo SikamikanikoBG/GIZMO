@@ -21,11 +21,11 @@ def calculate_predictors(df, final_features_calcs):
         - For unrecognized types: Log an error message.
 
     Parameters:
-    - df: DataFrame, input DataFrame
-    - final_features_calcs: dict, calculations for each feature
+        df: DataFrame, input DataFrame
+        final_features_calcs: dict, calculations for each feature
 
     Returns:
-    - df: DataFrame with calculated predictors
+        df: DataFrame with calculated predictors
     """
 
     for feature in final_features_calcs:

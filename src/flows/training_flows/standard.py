@@ -1,7 +1,6 @@
 import os
 import pickle
 import definitions
-
 use_mlflow = False
 try:
     import mlflow
@@ -15,7 +14,6 @@ import numpy as np
 from matplotlib import pyplot
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-
 
 from src.classes.BaseModeller import BaseModeller
 from src.classes.SessionManager import SessionManager
@@ -266,15 +264,23 @@ class ModuleClass(SessionManager):
             model_type (str): Type of the model being trained.
 
         This method performs the following steps:
-        1. Loads the model for the specified model type.
-        2. Fits the training models procedure.
-        3. Calculates feature importances and selects top features based on importance.
-        4. Optionally removes specified features from the final feature list.
-        5. Fits the model again with the selected final features.
-        6. Saves cost function graphs, AUC curves, and error curves.
-        7. Generates predictions and metrics for the training data.
-        8. Appends the metrics to the model's metrics dataframe.
-        9. Calculates correlation matrix for the final features.
+            1. Loads the model for the specified model type.
+
+            2. Fits the training models procedure.
+
+            3. Calculates feature importances and selects top features based on importance.
+
+            4. Optionally removes specified features from the final feature list.
+
+            5. Fits the model again with the selected final features.
+
+            6. Saves cost function graphs, AUC curves, and error curves.
+
+            7. Generates predictions and metrics for the training data.
+
+            8. Appends the metrics to the model's metrics dataframe.
+
+            9. Calculates correlation matrix for the final features.
 
         Returns:
             None
@@ -420,7 +426,7 @@ class ModuleClass(SessionManager):
             model_type (str): Type of the model being trained.
 
         This method performs the following steps:
-        - Fits the model with the training data and evaluates on the test data.
+            Fits the model with the training data and evaluates on the test data.
 
         Returns:
             None

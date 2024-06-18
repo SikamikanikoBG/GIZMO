@@ -28,12 +28,12 @@ def missing_values(df, missing_treatment, input_data_project_folder):
     7. Calculate the number of rows removed due to missing values and the percentage removed.
 
     Parameters:
-    - df: DataFrame, input DataFrame
-    - missing_treatment: str, method to handle missing values
-    - input_data_project_folder: str, folder path for output data
+        df: DataFrame, input DataFrame
+        missing_treatment: str, method to handle missing values
+        input_data_project_folder: str, folder path for output data
 
     Returns:
-    - df: DataFrame with missing values treated
+        df: DataFrame with missing values treated
     """
 
     # logging

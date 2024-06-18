@@ -4,8 +4,6 @@ from colorama import Fore
 from colorama import Style
 
 import definitions
-from src.functions.api_communication import api_post_string
-
 
 def print_and_log(text, colour):
     """
@@ -25,24 +23,18 @@ def print_and_log(text, colour):
         b. Log the text as information using `logging.info()`.
 
     Parameters:
-    - text (str): The text to be printed and logged.
-    - colour (str): The color to be used for printing the text. Can be 'RED' or any other color supported by the `Fore` module from `colorama`.
+        text (str): The text to be printed and logged.
+
+        colour (str): The color to be used for printing the text. Can be 'RED' or any other color supported by the `Fore` module from `colorama`.
 
     Returns:
-    None
+        None
     """
     text = str(text)
     if colour:
         print(getattr(Fore, colour) + text + Style.RESET_ALL)
         if colour == 'RED':
             logging.error(text)
-            try:
-                text_api = f'"[ {definitions.args.project} ] {text}"'
-                request = api_post_string(url=definitions.api_url_post_error, string=text_api)
-                print(request)
-            except Exception as e:
-                logging.error(f"API log not possible: {e}")
-                pass
         else:
             logging.info(text)
     else:
@@ -50,6 +42,11 @@ def print_and_log(text, colour):
         logging.info(text)
 
 def print_load():
+    """
+
+    Prints a load message.
+
+    """
     print_and_log("""\
 
                      _             
@@ -79,6 +76,11 @@ def print_load():
 
 
 def print_train():
+    """
+
+    Prints a train message.
+
+    """
     print_and_log("""\
 
                      _             
@@ -108,6 +110,11 @@ def print_train():
 
 
 def print_eval():
+    """
+
+    Prints an eval message.
+
+    """
     print_and_log("""\
 
                      _                                  
@@ -134,6 +141,11 @@ def print_eval():
 
 
 def print_end():
+    """
+
+    Prints an end message.
+
+    """
     print_and_log("""\
 
      _      ______ _   _ _____       _    

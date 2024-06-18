@@ -78,40 +78,25 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">jizzmo</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html">api module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="app.html">app module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="conf.html">conf module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="definitions.html">definitions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="grid_search.html">grid_search module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="load_data.html">load_data module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source_manipulation.html">source_manipulation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.html">src package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start.html">start module</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p>Current non-empty modules:</p>
+<p>Current empty modules:</p>
 <ul class="simple">
-<li><p>api</p></li>
-<li><p>api.module</p></li>
-<li><p>some of src</p></li>
+<li><p>src.flows.eval_flows</p></li>
 </ul>
 <section id="known-issues">
 <h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this heading"></a></h2>
 <p>Some modules are not compiled by autodoc, therefor may not documented. The issue comes from the fact
 that while compiling, the environment that the doc is compiled in, has to have the required packages used
 in the documented code. Not having them installed results in an empty doc page.</p>
-<p>If one wants to rebuild the html via <code class="docutils literal notranslate"><span class="pre">./docs./make.bat</span> <span class="pre">html</span></code> make sure
+<p>If one wants to rebuild the html via <code class="docutils literal notranslate"><span class="pre">./docs./make.bat</span> <span class="pre">html</span></code> (on Windows) or <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> (on Linux) make sure
 to have the required packages used in the source code!</p>
-<p>Other errors include missing files and bad indexing. Examples:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">FileNotFoundError:</span> <span class="pre">[Errno</span> <span class="pre">2]</span> <span class="pre">No</span> <span class="pre">such</span> <span class="pre">file</span> <span class="pre">or</span> <span class="pre">directory:</span> <span class="pre">'./input_data/input_source_original.parquet'</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">FileNotFoundError:</span> <span class="pre">[Errno</span> <span class="pre">2]</span> <span class="pre">No</span> <span class="pre">such</span> <span class="pre">file</span> <span class="pre">or</span> <span class="pre">directory:</span> <span class="pre">'gizmo_logo.png'</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">TypeError:</span> <span class="pre">'type'</span> <span class="pre">object</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">subscriptable</span></code>.</p></li>
-</ul>
-<p>Full error message in <code class="docutils literal notranslate"><span class="pre">./docs/logs/log_11_06_2024_1303_manual.txt</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">./docs/auto_make_html.sh</span></code> also builds the doc with added logging functionality!</p>
 </section>
 <section id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
