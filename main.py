@@ -1,3 +1,16 @@
+"""
+    This module is the main entry point for the application. It handles command-line arguments, loads and runs the
+    appropriate modules based on the arguments, and logs the execution time.
+
+    Attributes:
+        parser (argparse.ArgumentParser): An instance of the ArgumentParser class to handle command-line arguments.
+
+        args (argparse.Namespace): The parsed command-line arguments.
+
+        help_need (str): The value of the '--h' argument, indicating whether the user needs help.
+
+        module (object): An instance of the ModuleClass, which is determined based on the command-line arguments.
+"""
 import argparse
 import sys
 import warnings
@@ -7,21 +20,10 @@ import definitions
 
 from src.functions.printing_and_logging import print_and_log
 
-"""
-This module is the main entry point for the application. It handles command-line arguments, loads and runs the appropriate modules based on the arguments, and logs the execution time.
-
-Attributes:
-    parser (argparse.ArgumentParser): An instance of the ArgumentParser class to handle command-line arguments.
-    args (argparse.Namespace): The parsed command-line arguments.
-    help_need (str): The value of the '--h' argument, indicating whether the user needs help.
-    module (object): An instance of the ModuleClass, which is determined based on the command-line arguments.
-"""
-
 warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
     # -- session start --
-
 
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Optional app description')
