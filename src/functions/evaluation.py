@@ -88,8 +88,13 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
     print(f"[ EVAL ] Graph {graph} ready")
 
 
-def merge_word(project_name, input_data_folder_name, input_data_project_folder, session_to_eval, session_folder_name,
-               session_id_folder, criterion_column,
+def merge_word(project_name,
+               input_data_folder_name,
+               input_data_project_folder,
+               session_to_eval,
+               session_folder_name,
+               session_id_folder,
+               criterion_column,
                observation_date_column,
                columns_to_exclude,
                periods_to_exclude,
@@ -97,7 +102,8 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
                t2df_period,
                t3df_period,
                model_arg,
-               missing_treatment, params):
+               missing_treatment,
+               params):
     """
     Merge the evaluation results into a Word document.
 
@@ -154,6 +160,9 @@ def merge_word(project_name, input_data_folder_name, input_data_project_folder, 
     parent_run_id = ""
     run_id = ""
     for result in mlflow.search_runs(experiment.experiment_id).iterrows():
+        print("@--------DEBUG_ML_FLOW_RUN_NAME--------@")
+        print(f"Session to eval: {session_to_eval}")
+        print(f"Run Name: {result[1]['tags.mlflow.runName']}")
         if result[1]['tags.mlflow.runName'] == session_to_eval:
             parent_run_id = result[1]['run_id']
             break

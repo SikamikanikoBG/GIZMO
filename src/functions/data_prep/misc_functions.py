@@ -11,7 +11,8 @@ from src.functions.printing_and_logging import print_and_log
 
 def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_cols):
     """
-    Remove columns from numerical_cols that are not in final_features and add columns from keep_cols that are similar to removed columns.
+    Remove columns from numerical_cols that are not in final_features and add columns from keep_cols that are similar to
+    removed columns.
 
     Parameters:
         final_features: list of str, final list of features

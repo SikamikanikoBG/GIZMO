@@ -69,12 +69,20 @@ class BaseModeller:
         """
         if self.model_name == 'xgb':
             eval_metric = ['auc', 'error', 'logloss']
+
             if (train_y.nunique() > 2):
-                eval_metric = ['auc', 'merror', 'mlogloss']
-            
-            self.model.fit(train_X[self.final_features], train_y,
-                           eval_set=[(train_X[self.final_features], train_y), (test_X[self.final_features], test_y)],
-                           early_stopping_rounds=definitions.early_stopping_rounds, verbose=False, eval_metric=eval_metric)
+                # AUC has no place here, only for binary
+                # eval_metric = ['auc', 'merror', 'mlogloss']
+                eval_metric = ['merror', 'mlogloss']
+
+            self.model.fit(train_X[self.final_features],
+                           train_y,
+                           eval_set=[(train_X[self.final_features], train_y),
+                                     (test_X[self.final_features],  test_y)],
+                           early_stopping_rounds=definitions.early_stopping_rounds,
+                           verbose=False,
+                           eval_metric=eval_metric)
+
         elif self.model_name == 'rf':
             self.model.fit(train_X[self.final_features], train_y)
         elif self.model_name == 'dt':
@@ -95,7 +103,18 @@ class BaseModeller:
         Load the model based on the specified model name.
         """
         if self.model_name == 'xgb':
-            self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators, colsample_bytree=.1, subsample=.5, learning_rate=definitions.learning_rate)
+            # TODO add if statement to check if we score multiclasses
+            self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators,
+                                               colsample_bytree=.1,
+                                               subsample=.5,
+                                               learning_rate=definitions.learning_rate)
+            # Debug
+            print(f"@------{self.model_name.upper()}_CONFIG_CHOSEN_BASEMODELLER.PY-----@")
+            # print(self.model.get_params())
+
+            for k, v in self.model.get_params().items():
+                print(f"{k} : {v}")
+
         elif self.model_name == 'rf':
             self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,

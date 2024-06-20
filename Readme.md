@@ -4,6 +4,50 @@ For building sphinx look in ``./conda_envs``
 
 For building sphinx doc look in ``./docs/auto_make_html.sh``
 
+### TODO 
+- Add documentation on how to use main.py with params. Quick example:
+
+  - ``python main.py --project bg_stage2 --data_prep_module standard ``
+  - ``python main.py --project bg_stage2 --train_module standard``
+
+- Basic commands example:
+  - ``python main.py --project bg_stage2 --data_prep_module standard``
+  - ``python main.py --project bg_stage2 --train_module standard``
+  - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_<PROJECT_NAME_AND_DATE>_no_tag"``
+    - Eval example: 
+      - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_bg_stage2_2024-06-18 13:12:00.802211_no_tag"``
+
+- `src.classes.BaseModeller.BaseModeller.model_fit` throws an error if we have multilabel classification task
+and using AUC evaluation. XGBoost documentation says:
+  - `auc`: Receiver Operating Characteristic Area under the Curve. Available for classification and learning-to-rank tasks.
+    - When used with binary classification, the objective should be binary:logistic or similar functions that work on probability.
+    - **When used with multi-class classification**, objective should be `multi:softprob` instead of `multi:softmax`,
+    as the latter doesn’t output probability. Also the AUC is calculated by 1-vs-rest with reference
+    class weighted by class prevalence.
+    - 
+- ML Flow uploads model artifacts, but other metadata files are being blocked
+- 
+- Docx output has about 30% correctly printed graphs. Possible causes:
+  - Since AUC is still not implemented correctly, some of the graphs may be for AUC and thus note plotted
+  - In the code for plotting graphs there are if statements checking if we are plotting a model with multicalss
+    classification accompanied with comments about wondering if multiclass plotting works
+  > Code for plotting is in: `src/functions/evaluation.py`
+
+- More debuggin is needed to make sure that multiclass classification actually works.
+In many places in the package there are constant checks if we are doing mult. cls.
+Those checks lead to running code designied for mult. cls., which is not extensively
+tested.
+
+- Debug prints have to be removed for the final version
+
+- All erros can be found in ./logs
+
+### Progress
+- Eval now works, but the displayed graphs are missing
+- Eval had some issues with getting the right session name. Now that's fixed. 
+  > Reminder: related classes and functions are SessionManager; word_merge, etc
+
+
 ### Multiclass predictions with Gizmo
 
 Now it is possible to build a multiclass models with Scoring Gizmo.

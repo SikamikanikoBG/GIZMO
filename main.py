@@ -38,13 +38,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--data_prep_module', type=str, help='Data prep module to run')
     parser.add_argument('--train_module', type=str, help='Training module to run')
-    parser.add_argument('--predict_module', type=str, help='Training module to run')
-    parser.add_argument('--pred_data_prep', type=str, help='Which data prep to be used for predict')
+    parser.add_argument('--predict_module', type=str, help='Training module to run') # ardi
+    parser.add_argument('--pred_data_prep', type=str, help='Which data prep to be used for predict') # ardi
     parser.add_argument('--eval_module', type=str, help='Which data prep to be used for predict')
 
-    parser.add_argument('--tp', type=str, help='Which data prep to be used for predict')
-    parser.add_argument('--sl', type=str, help='Which data prep to be used for predict')
-    parser.add_argument('--period', type=str, help='Which data prep to be used for predict')
     parser.add_argument('--nb_tree_features', type=int, help='Nb of max features for the tree models')
 
     parser.add_argument('--main_model', type=str, help='Main model to predict')
@@ -63,6 +60,7 @@ if __name__ == '__main__':
     #    print_and_log('[ RAM MEMORY CHECK ] Free RAM memory < 50GB. Program aborted...', '')
     #    sys.exit()
 
+    # Check which module has been selected, imports it from ./src/flows/
     if args.data_prep_module:
         module = args.data_prep_module.lower()
         module_lib = import_module(f'src.flows.data_prep_flows.{module}')

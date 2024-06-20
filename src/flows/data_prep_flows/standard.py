@@ -33,7 +33,11 @@ class ModuleClass(SessionManager):
         """
         Orchestrator for this class. Here you should specify all the actions you want this class to perform.
         """
+        # Check the corresponding param json file which has a criterion_column key
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
+
+        if self.is_multiclass:
+            print("Multiclass detected!")
 
         self.check1_time = datetime.now()
         self.prepare()
@@ -223,14 +227,18 @@ class ModuleClass(SessionManager):
 
         df = df[self.loader.final_features + [self.criterion_column]]
         df = df.drop(
-            df.columns[df.columns.str.contains(self.criterion_column + "_") ].tolist(),
+            df.columns[df.columns.str.contains(self.criterion_column + "_")].tolist(),
             axis=1
         )
         pp = pps.predictors(df, 
-                       self.criterion_column, sorted=True, random_seed=42)
+                            self.criterion_column,
+                            sorted=True,
+                            random_seed=42)
 
-        pp.to_csv(definitions.ROOT_DIR  + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
-        top_100 = pp[pp['ppscore'] >  0.05][['x']][:100]
+        pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
+        # Changed from 0.05 to 0
+        # top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+        top_100 = pp[pp['ppscore'] >= 0.][['x']][:100]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 

@@ -50,21 +50,22 @@ class ModuleClass(SessionManager):
 
         for model in self.models_list:
             print(f"[ EVAL ] Model: {model}")
-            merge_word(project_name=self.project_name,input_data_folder_name=self.input_data_folder_name,
-                   input_data_project_folder=self.input_data_project_folder,
-                   session_to_eval=self.session_to_eval,
-                   session_folder_name = self.session_folder_name,
-               session_id_folder=self.session_id_folder,
-                   criterion_column=self.criterion_column,
-               observation_date_column=self.observation_date_column,
-               columns_to_exclude=self.columns_to_exclude,
-               periods_to_exclude=self.periods_to_exclude,
-               t1df_period=self.t1df_period,
-               t2df_period=self.t2df_period,
-               t3df_period=self.t3df_period,
-               model_arg=model,
-               missing_treatment = 1
-                   , params=self.params)
+            merge_word(project_name=self.project_name,
+                       input_data_folder_name=self.input_data_folder_name,
+                       input_data_project_folder=self.input_data_project_folder,
+                       session_to_eval=self.session_to_eval,
+                       session_folder_name = self.session_folder_name,
+                       session_id_folder=self.session_id_folder,
+                       criterion_column=self.criterion_column,
+                       observation_date_column=self.observation_date_column,
+                       columns_to_exclude=self.columns_to_exclude,
+                       periods_to_exclude=self.periods_to_exclude,
+                       t1df_period=self.t1df_period,
+                       t2df_period=self.t2df_period,
+                       t3df_period=self.t3df_period,
+                       model_arg=model,
+                       missing_treatment=1,
+                       params=self.params)
 
         print_end()
 
