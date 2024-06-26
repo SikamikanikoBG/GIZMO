@@ -197,8 +197,78 @@
 </dd></dl>
 
 </section>
-<section id="src-functions-evaluation-module">
-<h2>src.functions.evaluation module<a class="headerlink" href="#src-functions-evaluation-module" title="Permalink to this heading"></a></h2>
+<section id="module-src.functions.evaluation">
+<span id="src-functions-evaluation-module"></span><h2>src.functions.evaluation module<a class="headerlink" href="#module-src.functions.evaluation" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.evaluation.log_graph_to_mlflow">
+<span class="sig-prename descclassname"><span class="pre">src.functions.evaluation.</span></span><span class="sig-name descname"><span class="pre">log_graph_to_mlflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'graphs'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.evaluation.log_graph_to_mlflow" title="Permalink to this definition"></a></dt>
+<dd><p>Log a graph artifact to MLflow for the specified run.</p>
+<dl>
+<dt>Parameters:</dt><dd><p>run_id: str, ID of the MLflow run</p>
+<p>graph: str, path to the graph artifact</p>
+<p>mlflow_path: str, path within MLflow to log the artifact (default is “graphs”)</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.evaluation.merge_word">
+<span class="sig-prename descclassname"><span class="pre">src.functions.evaluation.</span></span><span class="sig-name descname"><span class="pre">merge_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data_project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_to_eval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_folder_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_date_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_to_exclude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periods_to_exclude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1df_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2df_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3df_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.evaluation.merge_word" title="Permalink to this definition"></a></dt>
+<dd><p>Merge the evaluation results into a Word document.</p>
+<dl>
+<dt>Steps:</dt><dd><ol class="arabic simple">
+<li><p>Set up the MLflow experiment and retrieve the parent and child run IDs.</p></li>
+<li><p>Load the input data and the data from the training session.</p></li>
+<li><p>Concatenate the training, test, and time-based datasets into a single dataset.</p></li>
+<li><p>Load the models, correlation features, and missing values data.</p></li>
+<li><p>Load the evaluation template document.</p></li>
+<li><p>Determine the chosen model and whether the problem is multiclass.</p></li>
+<li><p>Fill in the fields in the evaluation template document.</p></li>
+<li><p>Write the output document and create a DocxTemplate object.</p></li>
+<li><p>Generate and save the graphs, inserting them into the document.</p></li>
+<li><p>Save the final document.</p></li>
+</ol>
+</dd>
+<dt>Parameters:</dt><dd><p>project_name (str): The name of the project.</p>
+<p>input_data_folder_name (str): The name of the input data folder.</p>
+<p>input_data_project_folder (str): The name of the input data project folder.</p>
+<p>session_to_eval (str): The name of the session to evaluate.</p>
+<p>session_folder_name (str): The name of the session folder.</p>
+<p>session_id_folder (str): The name of the session ID folder.</p>
+<p>criterion_column (str): The name of the criterion column.</p>
+<p>observation_date_column (str): The name of the observation date column.</p>
+<p>columns_to_exclude (list): A list of columns to exclude.</p>
+<p>periods_to_exclude (list): A list of periods to exclude.</p>
+<p>t1df_period (str): The period for the t1df dataset.</p>
+<p>t2df_period (str): The period for the t2df dataset.</p>
+<p>t3df_period (str): The period for the t3df dataset.</p>
+<p>model_arg (str): The model argument.</p>
+<p>missing_treatment (str): The missing data treatment.</p>
+<p>params (dict): A dictionary of parameters.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.evaluation.save_graph">
+<span class="sig-prename descclassname"><span class="pre">src.functions.evaluation.</span></span><span class="sig-name descname"><span class="pre">save_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.evaluation.save_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Save a graph to a document file after logging it to MLflow.</p>
+<dl>
+<dt>Parameters:</dt><dd><p>graph: str, name of the graph</p>
+<p>session_id_folder: str, path to the session folder</p>
+<p>tpl: DocxTemplate object, template for the document</p>
+<p>run_id: str, ID of the MLflow run</p>
+<p>doc_file: str, path to the document file</p>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-src.functions.printing_and_logging">
 <span id="src-functions-printing-and-logging-module"></span><h2>src.functions.printing_and_logging module<a class="headerlink" href="#module-src.functions.printing_and_logging" title="Permalink to this heading"></a></h2>

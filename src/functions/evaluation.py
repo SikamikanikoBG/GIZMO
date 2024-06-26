@@ -78,13 +78,15 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
 
     log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
 
+    # Replace old graph with new graph in the document
     tpl.replace_pic(old_im, new_im)
     tpl.render(context)
     tpl.save(doc_file)
     plt.clf()
 
-    if os.path.isfile(session_id_folder + '/' + graph + '.png'):
-        remove(session_id_folder + '/' + graph + '.png')
+    # Remove the graph file
+    # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
+    #     remove(session_id_folder + '/' + graph + '.png')
     print(f"[ EVAL ] Graph {graph} ready")
 
 
@@ -108,16 +110,24 @@ def merge_word(project_name,
     Merge the evaluation results into a Word document.
 
     Steps:
-    1. Set up the MLflow experiment and retrieve the parent and child run IDs.
-    2. Load the input data and the data from the training session.
-    3. Concatenate the training, test, and time-based datasets into a single dataset.
-    4. Load the models, correlation features, and missing values data.
-    5. Load the evaluation template document.
-    6. Determine the chosen model and whether the problem is multiclass.
-    7. Fill in the fields in the evaluation template document.
-    8. Write the output document and create a DocxTemplate object.
-    9. Generate and save the graphs, inserting them into the document.
-    10. Save the final document.
+        1. Set up the MLflow experiment and retrieve the parent and child run IDs.
+        2. Load the input data and the data from the training session.
+
+        3. Concatenate the training, test, and time-based datasets into a single dataset.
+
+        4. Load the models, correlation features, and missing values data.
+
+        5. Load the evaluation template document.
+
+        6. Determine the chosen model and whether the problem is multiclass.
+
+        7. Fill in the fields in the evaluation template document.
+
+        8. Write the output document and create a DocxTemplate object.
+
+        9. Generate and save the graphs, inserting them into the document.
+
+        10. Save the final document.
 
     Parameters:
         project_name (str): The name of the project.
@@ -159,14 +169,18 @@ def merge_word(project_name,
     experiment = mlflow.set_experiment(definitions.mlflow_prefix + "_" + project_name)
     parent_run_id = ""
     run_id = ""
+
+    # Find parent run ID
     for result in mlflow.search_runs(experiment.experiment_id).iterrows():
+        # @debug
         print("@--------DEBUG_ML_FLOW_RUN_NAME--------@")
         print(f"Session to eval: {session_to_eval}")
         print(f"Run Name: {result[1]['tags.mlflow.runName']}")
+
         if result[1]['tags.mlflow.runName'] == session_to_eval:
             parent_run_id = result[1]['run_id']
             break
-    if parent_run_id == "":
+    if parent_run_id == "": # Handle case where parent run is not found
         print_and_log(f"ERROR: No parent run for {session_to_eval} found, aborting", "RED")
         sys.exit()
 
@@ -178,7 +192,7 @@ def merge_word(project_name,
         print_and_log(f"ERROR: Could not find child runs for {model_arg} in session {session_to_eval}", "RED")
         sys.exit()
 
-        # Load train session data
+    # Load train session data
     onlyfiles = [f for f in listdir(input_data_folder_name + input_data_project_folder + '/') if
                  isfile(join(input_data_folder_name + input_data_project_folder + '/', f))]
     if len(onlyfiles) == 0:
@@ -191,8 +205,8 @@ def merge_word(project_name,
     else:
         input_file = onlyfiles[0]
 
-    _, _, extention = str(input_file).partition('.')
-    # if 'csv' not in extention:
+    _, _, extension = str(input_file).partition('.')
+    # if 'csv' not in extension:
     #
     #    print_and_log('ERROR: input data not a csv file.', "RED")
     #    sys.exit()
@@ -208,22 +222,27 @@ def merge_word(project_name,
             print_and_log('ERROR: input data separator not any of the following ,;', "RED")
             sys.exit()"""
 
+    # Data loading -------------------------------------------------------------------------------------------
+    # Load train session data
     df_train_X = pd.read_feather(session_folder_name + session_to_eval + '/df_x_train.feather')
     df_test_X = pd.read_feather(session_folder_name + session_to_eval + '/df_x_test.feather')
     df_t1df = pd.read_feather(session_folder_name + session_to_eval + '/df_t1df.feather')
     df_t2df = pd.read_feather(session_folder_name + session_to_eval + '/df_t2df.feather')
     df_t3df = pd.read_feather(session_folder_name + session_to_eval + '/df_t3df.feather')
 
+    # Combine all datasets for the total scope
     df_total_scope = df_train_X.append(df_test_X, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t1df, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t2df, ignore_index=True)
     df_total_scope = df_total_scope.append(df_t3df, ignore_index=True)
     print("[ EVAL ] Data loaded")
 
+    # Create a combined train and test dataset, adding a 'Dataset' label
     keys = ['Train', 'Test']
     dfs = [df_train_X, df_test_X]
     df_train_test = pd.concat([df.assign(Dataset=key) for key, df in zip(keys, dfs)])
 
+    # Load evaluation-related data
     models = pd.read_csv(session_folder_name + session_to_eval + '/models.csv')
     corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv')
     corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv')
@@ -236,6 +255,7 @@ def merge_word(project_name,
     template = "./template.docx"
     document = MailMerge(template)
 
+    # Choose a model
     if model_arg == 'dt':
         chosen_model = 'Decision Tree Classifier'
     elif model_arg == 'xgb':
@@ -245,8 +265,10 @@ def merge_word(project_name,
     elif model_arg == 'lr':
         chosen_model = 'Logistic regression'
 
+    # Add multiclass flag used mainly in plotting below
     is_multiclass = False
 
+    # Check if we have multiclass classification
     if df_total[criterion_column].nunique() > 2:
         is_multiclass = True
 
@@ -262,7 +284,7 @@ def merge_word(project_name,
         df_t2df_date=str(df_t2df[observation_date_column].min()),
         df_t3df_date=str(df_t3df[observation_date_column].min()),
         excluded_periods=str(periods_to_exclude),
-        statistical_tool=str('Python, Sklearn(Random Forest, Decision tree), Xgboost, Logistic regression'),
+        statistical_tool=str('Python, Sklearn (Random Forest, Decision tree), Xgboost, Logistic regression'),
         nb_of_bands=0 if is_multiclass else str(df_train_X[model_arg + '_y_pred_prob'].nunique()),
         list_of_variables=str(corr_feat['Unnamed: 0'].unique()),
         list_of_raw_variables=str(corr_feat_raw['Unnamed: 0'].unique()),
@@ -289,6 +311,34 @@ def merge_word(project_name,
     DEST_FILE = output_file_name
 
     print("[ EVAL ] Starting graphs")
+
+    """
+        - Graphs 1-3 and 1.1-3.1: These plot the evolution of the criterion rate (average or sum/count)
+        over time for both binary and multiclass cases, using different datasets (df_total and df_total_scope).
+        
+        - Graph 4 & 5: Creates heatmaps to visualize correlations between features, using seaborn's heatmap function.
+        
+        - Graph 5.1: Shows correlations between features and the criterion variable with bar plots.
+        
+        - Graph 6.0: Generates a table for LR model to show the coefficients and error terms of features,
+         and optionally describes these features with a dictionary.
+         
+        - Graph 6, 6.1, 7, 8, 8.1, 8.2: Generates bar plots showing the evolution of the criterion rate,
+         number of cases, and share of bands over time.
+         
+        - Graph 9, 9.1, 9.2, 9.3, 9.4: Generates graphs to visualize the model's performance,
+         such as ROC curves and CAP curves.
+         
+        - Graph 10, 10.1, 10.2, 10.3: Plot distributions and statistics related to deciles of predicted probabilities.
+        
+        - Graph 11, 11.1: Displays the evolution of the criterion rate by deciles,
+         optionally showing a secondary criterion rate if available.
+         
+        - Graph 12: If not in multiclass mode, this generates a table of predictor and the share of the predicted class.
+        
+        - Graph 13: Displays missing values or a logo if no missing values are present.
+    
+    """
     # Graph 0 ---------------------------------------------------------------------------------------------------
     graph = 'graph0'
 
@@ -313,8 +363,7 @@ def merge_word(project_name,
     graph = "graph1"
     if not is_multiclass:
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
-            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
-
+            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), title=graph)
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -322,7 +371,7 @@ def merge_word(project_name,
     else:
         import matplotlib.ticker as mticker
         plot = agg_data.set_index(([observation_date_column, criterion_column])).percentage.unstack().plot(
-            kind='bar', figsize=(15, 10), ylabel='Average Criterion Rate')
+            kind='bar', figsize=(15, 10), ylabel='Average Criterion Rate', title=graph)
 
         # plot.yaxis.set_major_formatter(mticker.PercentFormatter(1.0))
         fig = plot.get_figure()
@@ -336,10 +385,10 @@ def merge_word(project_name,
     if not is_multiclass:
 
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
-            kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
+            kind='bar', ylabel='NB Criterion cases', figsize=(15, 10), title=graph)
     else:
         plot = agg_data.set_index(([observation_date_column, criterion_column])).counts.unstack().plot(
-            kind='bar', figsize=(15, 10), ylabel='NB Criterion cases')
+            kind='bar', figsize=(15, 10), ylabel='NB Criterion cases', title=graph)
 
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -350,10 +399,10 @@ def merge_word(project_name,
     graph = 'graph3'
     if not is_multiclass:
         plot = df_total[[criterion_column, observation_date_column]].groupby(observation_date_column).count().plot(
-            kind='bar', ylabel='NB Total cases', figsize=(15, 10))
+            kind='bar', ylabel='NB Total cases', figsize=(15, 10), title=graph)
     else:
         plot = agg_data[[observation_date_column, 'total']].plot(kind='bar', x=observation_date_column, y='total',
-                                                                 figsize=(25, 10), ylabel='NB Total cases')
+                                                                 figsize=(25, 10), ylabel='NB Total cases', title=graph)
 
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -365,7 +414,7 @@ def merge_word(project_name,
     # TODO: Does it make sense in Multiclass?
     graph = 'graph1.1'
     plot = df_total_scope[[criterion_column, observation_date_column]].groupby(observation_date_column).mean().plot(
-        kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+        kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), title=graph)
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -375,7 +424,7 @@ def merge_word(project_name,
     # TODO: Does it make sense in Multiclass?
     graph = 'graph2.1'
     plot = df_total_scope[[criterion_column, observation_date_column]].groupby(observation_date_column).sum().plot(
-        kind='bar', ylabel='NB Criterion cases', figsize=(15, 10))
+        kind='bar', ylabel='NB Criterion cases', figsize=(15, 10), title=graph)
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -384,7 +433,7 @@ def merge_word(project_name,
     # Graph 3.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph3.1'
     plot = df_total_scope[[criterion_column, observation_date_column]].groupby(observation_date_column).count().plot(
-        kind='bar', ylabel='NB Total cases', figsize=(15, 10))
+        kind='bar', ylabel='NB Total cases', figsize=(15, 10), title=graph)
     fig = plot.get_figure()
     fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -443,7 +492,10 @@ def merge_word(project_name,
     if model_arg == 'lr':
         features = list(lr_table['index'].values)
 
-    for el in features:
+    i = 0                                           # debug
+    print(f"Size of dataset: {df_train_X.shape}")   # debug
+
+    for el in features:                             # This takes time, don't lose hope :)
         temp = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True)
         share = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True, normalize=True)
         share = share[share.columns[2:]]
@@ -470,6 +522,8 @@ def merge_word(project_name,
         temp['mouchard_name'] = prefix
         temp['cut_off_value'] = temp['cut_off_value'].str.replace('_', ' ')
         grid = grid.append(temp)
+        print(i) # debug
+        i += 1   # debug
 
     grid = grid[grid['values'] != 'All']
     grid.reset_index(drop=True, inplace=True)
@@ -483,16 +537,16 @@ def merge_word(project_name,
     grid_raw = grid.copy()
     grid = grid[
         ['mouchard_name', 'values', 'cut_off_value', 'Nb_negative_cases', 'Nb_positive_cases', 'Total cases', 'Share',
-         'criterion_rate', 'coef', 'error']]
+         'criterion_rate', 'coef', 'error']]    # 10 features
 
     try:
-
         dictionary = pd.read_csv(input_data_folder_name + input_data_project_folder + '/dict.csv', sep=';')
         print('Dictionary file found!')
 
         def describe(row):
             mouchard_col = row['mouchard_name']
 
+            # If 'const', no description will be added
             if 'const' in mouchard_col:
                 val = ''
             elif '/' in mouchard_col:
@@ -517,18 +571,30 @@ def merge_word(project_name,
                 val = col1
             return val
 
+        # debug time
+        from timeit import default_timer as timer
+        time_start = timer()
+
+        # Add column 'Description' to grid and grid_raw. This is also observed to take some time
         grid['Description'] = grid.apply(describe, axis=1)
+
+        time_end = timer()                                                                              # debug
+        print(f"Time needed to apply: {time_end - time_start:.2f} for dataset of size {grid.shape}")    # debug
+
         grid_raw['Description'] = grid.apply(describe, axis=1)
+
     except Exception as e:
         print(e)
         logging.info('No dictionary found. Columns wont be described in the grid!')
 
     print(grid)
-    try:
-        dfi.export(grid, session_id_folder + '/' + graph + '.png', table_conversion="matplotlib")
+    try:    # Saves graph
+        dfi.export(grid, session_id_folder + '/' + graph + '.png', table_conversion="matplotlib", max_rows=-1)
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
-    except Exception as e:
+    except Exception as e:  # Gets raised: Your DataFrame has more than 100 rows and will produce a huge image file,
+                            # possibly causing your computer to crash.
+                            # Override this error by explicitly setting `max_rows`. Use -1 for all rows.
         print(e)
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
         pass
@@ -551,7 +617,7 @@ def merge_word(project_name,
 
             df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(kind='bar', figsize=(15, 5),
                                                                                            linewidth=0.1, stacked=True,
-                                                                                           ax=ax_left)
+                                                                                           ax=ax_left, title=graph)
             plt.title(
                 'Average Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -564,7 +630,7 @@ def merge_word(project_name,
                                                                                                 figsize=(
                                                                                                     15, 5),
                                                                                                 linewidth=0.1,
-                                                                                                ax=ax_right)
+                                                                                                ax=ax_right, title=graph)
             plt.xlabel('Bands')
             plt.legend(shadow=True)
             plt.ylabel('Secondary Criterion rate')
@@ -572,7 +638,7 @@ def merge_word(project_name,
 
         else:
             plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).mean().plot(
-                kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+                kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), title=graph)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -583,7 +649,7 @@ def merge_word(project_name,
     graph = 'graph6.1'
     if not is_multiclass:
         plot = df_train_X[[criterion_column, bands_column]].groupby(bands_column).count().plot(
-            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10))
+            kind='bar', ylabel='Average Criterion Rate', figsize=(15, 10), title=graph)
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
@@ -742,7 +808,7 @@ def merge_word(project_name,
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
                                                                                    ylabel='Nb of cases in each Proba',
                                                                                    figsize=(15, 10), edgecolor='white',
-                                                                                   linewidth=0.2)
+                                                                                   linewidth=0.2, title=graph)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -757,7 +823,7 @@ def merge_word(project_name,
         plot = plot[[criterion_column, 'deciles']].groupby('deciles').count().plot(kind='bar',
                                                                                    ylabel='Nb of cases in each Proba',
                                                                                    figsize=(15, 10), edgecolor='white',
-                                                                                   linewidth=0.2)
+                                                                                   linewidth=0.2, title=graph)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -815,7 +881,7 @@ def merge_word(project_name,
             temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
                                                                                   ylabel='Nb of cases in each Proba',
                                                                                   figsize=(15, 10), edgecolor='white',
-                                                                                  linewidth=0.2, ax=ax_left)
+                                                                                  linewidth=0.2, ax=ax_left, title=graph)
             plt.title(
                 'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -828,7 +894,7 @@ def merge_word(project_name,
                                                                                        ylabel='Nb of cases in each Proba',
                                                                                        figsize=(15, 10),
                                                                                        edgecolor='white',
-                                                                                       linewidth=0.2, ax=ax_right)
+                                                                                       linewidth=0.2, ax=ax_right, title=graph)
             plt.xlabel('Bands')
             plt.legend(shadow=True)
             plt.ylabel('Secondary Criterion rate')
@@ -838,14 +904,14 @@ def merge_word(project_name,
             plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
                                                                                ylabel='Nb of cases in each Proba',
                                                                                figsize=(15, 10), edgecolor='white',
-                                                                               linewidth=0.2)
+                                                                               linewidth=0.2, title=graph)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
 
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
-    # Graph 11 ---------------------------------------------------------------------------------------------------
+    # Graph 11.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph11.1'
     if not is_multiclass:
         temp_df = df_test_X.copy()
@@ -866,7 +932,7 @@ def merge_word(project_name,
             temp_df[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
                                                                                   ylabel='Nb of cases in each Proba',
                                                                                   figsize=(15, 10), edgecolor='white',
-                                                                                  linewidth=0.2, ax=ax_left)
+                                                                                  linewidth=0.2, ax=ax_left, title=graph)
             plt.title(
                 'Criterion Rate evolution - primary as described in the document and secondary - {} \ {}'.format(
                     secondary_col1, secondary_col2))
@@ -879,7 +945,7 @@ def merge_word(project_name,
                                                                                        ylabel='Nb of cases in each Proba',
                                                                                        figsize=(15, 10),
                                                                                        edgecolor='white',
-                                                                                       linewidth=0.2, ax=ax_right)
+                                                                                       linewidth=0.2, ax=ax_right, title=graph)
             plt.xlabel('Bands')
             plt.legend(shadow=True)
             plt.ylabel('Secondary Criterion rate')
@@ -889,7 +955,7 @@ def merge_word(project_name,
             plot[[criterion_column, 'deciles']].groupby('deciles').mean().plot(kind='bar',
                                                                                ylabel='Nb of cases in each Proba',
                                                                                figsize=(15, 10), edgecolor='white',
-                                                                               linewidth=0.2)
+                                                                               linewidth=0.2, title=graph)
 
         fig = plot.get_figure()
         fig.savefig(session_id_folder + '/' + graph + '.png')
@@ -956,13 +1022,9 @@ def merge_word(project_name,
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
-
     # todo: fix. Const something
-
-
-"""
     i = 1
-
+    # TODO: [ Graphs error ] Picture graph_a_31 not found in the docx template
     for el in features:
         try:
             if 'const' in el:
@@ -1167,5 +1229,3 @@ def merge_word(project_name,
     for file in os.listdir(session_id_folder):
         if file.endswith('.png'):
             os.remove(session_id_folder + '/' + file)
-
-"""

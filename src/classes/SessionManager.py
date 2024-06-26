@@ -19,33 +19,61 @@ class SessionManager:
 
         Attributes:
             check4_time_runtime: Runtime for check 4.
+
             check3_time_runtime: Runtime for check 3.
+
             check2_time_runtime: Runtime for check 2.
+
             check1_time_runtime: Runtime for check 1.
+
             start_time: Start time of the session.
+
             end_time: End time of the session.
+
             run_time: Total runtime of the session.
+
             data_load_time: Time taken for data loading.
+
             check1_time: Time for check 1.
+
             check2_time: Time for check 2.
+
             check3_time: Time for check 3.
+
             check4_time: Time for check 4.
+
             session_id: Session ID.
+
             params: Parameters.
+
             args: Arguments for the session.
+
             session_to_eval: Session to evaluate.
+
             model_arg: Model argument.
+
             project_name: Project name.
+
             tag: Tag for the session.
+
             log_file_name: Log file name.
+
             log_folder_name: Log folder name.
+
             session_folder_name: Session folder name.
+
             session_id_folder: Session ID folder.
+
             input_data_folder_name: Input data folder name.
+
             input_data_project_folder: Input data project folder.
+
             output_data_folder_name: Output data folder name.
+
             functions_folder_name: Functions folder name.
+
             params_folder_name: Params folder name.
+
             implemented_folder: Implemented models folder.
         """
         self.check4_time_runtime = None
@@ -116,6 +144,9 @@ class SessionManager:
             self.optimal_binning_columns = self.params['optimal_binning_columns']
             self.main_table = self.params["main_table"]
             self.columns_to_include = self.params["columns_to_include"]
+
+            # debug
+            print(self.optimal_binning_columns)
         except Exception as e:
             print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
             print(e)

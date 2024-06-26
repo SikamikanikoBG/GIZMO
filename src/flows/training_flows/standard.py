@@ -8,6 +8,7 @@ try:
     mlflow.set_tracking_uri(definitions.mlflow_tracking_uri)
     use_mlflow = True
     # logging.getLogger("mlflow").setLevel(logging.DEBUG) # for mlflow debug
+    # mlflow.enable_async_logging(enable=True) # debug
 
 except:
     pass
@@ -38,7 +39,7 @@ class ModuleClass(SessionManager):
 
         SessionManager.__init__(self, args)
 
-        if use_mlflow:            
+        if use_mlflow:
             mlflow.set_experiment(definitions.mlflow_prefix + "_" + self.project_name)
         
         self.metrics_df = pd.DataFrame()
@@ -70,19 +71,29 @@ class ModuleClass(SessionManager):
         self.split_train_test_df()
         self.create_train_session_folder()
 
-        """models should be specified as following:
+        """
+        models should be specified as following:
         xgb for XGBoost
         rf for Random forest
         dt for Decision trees
-        lr for Logistic Regression"""
+        lr for Logistic Regression
+        """
 
         mlflow.start_run(run_name=self.session_id)
 
         for model in models:
             if use_mlflow:
                 mlflow.start_run(nested=True, run_name=model)
-                mlflow.autolog()
-            
+                mlflow.xgboost.autolog()
+
+                # Get the tracking URI
+                tracking_uri = mlflow.get_tracking_uri()
+                print("MLflow Tracking URI:", tracking_uri)
+
+                # Get the artifact root URI (if configured)
+                artifact_root = mlflow.get_artifact_uri()
+                print("MLflow Artifact Root URI:", artifact_root)
+
             metrics = self.create_model_procedure(model)
             
             if use_mlflow:
@@ -303,7 +314,7 @@ class ModuleClass(SessionManager):
                 'self.modeller_' + model_type].trees_features_to_include
 
         # load model
-        globals()['self.modeller_' + model_type].load_model()
+        globals()['self.modeller_' + model_type].load_model(self.is_multiclass)
 
         self.training_models_fit_procedure(model_type)
 

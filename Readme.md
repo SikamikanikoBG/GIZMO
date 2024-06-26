@@ -24,19 +24,24 @@ and using AUC evaluation. XGBoost documentation says:
     - **When used with multi-class classification**, objective should be `multi:softprob` instead of `multi:softmax`,
     as the latter doesn’t output probability. Also the AUC is calculated by 1-vs-rest with reference
     class weighted by class prevalence.
-    - 
+     
 - ML Flow uploads model artifacts, but other metadata files are being blocked
-- 
+ 
 - Docx output has about 30% correctly printed graphs. Possible causes:
-  - Since AUC is still not implemented correctly, some of the graphs may be for AUC and thus note plotted
-  - In the code for plotting graphs there are if statements checking if we are plotting a model with multicalss
-    classification accompanied with comments about wondering if multiclass plotting works
+  - Since AUC is still not implemented correctly, some graphs could be for AUC and thus not plotted
+  - In the code for plotting graphs there are if statements checking if we are plotting a model with multiclass
+    classification accompanied by comments about wondering if multiclass plotting works
   > Code for plotting is in: `src/functions/evaluation.py`
 
-- More debuggin is needed to make sure that multiclass classification actually works.
+- More debugging is needed to make sure that multiclass classification actually works.
 In many places in the package there are constant checks if we are doing mult. cls.
-Those checks lead to running code designied for mult. cls., which is not extensively
+Those checks lead to running code designed for mult. cls., which is not extensively
 tested.
+
+- Vera mentioned that when choosing to *not* use undersampling on the dataset after data cleaning and feature filtering 
+  we are left in an empty dataset. Possible causes:
+  - Correlation score is too low
+  - P-value is too high
 
 - Debug prints have to be removed for the final version
 

@@ -85,6 +85,7 @@ class BaseLoader:
         self.y_train, self.y_train_us, self.y_test, self.y_test_us, self.t1df_y, self.t2df_y, self.t3df_y = \
             None, None, None, None, None, None, None
         self.predict_module = predict_module
+        # self.is_multiclass = True if self.y_train.nunique() > 2 else False  # Flag that determines if we have multiclass or not
 
     def data_load_prep(self, in_data_folder, in_data_proj_folder):
         """
@@ -131,7 +132,9 @@ class BaseLoader:
                 self.additional_files_df_dict.append(additional_file_df)
 
         if self.params["under_sampling"]:
-            self.in_df, self.in_df_f = under_sampling_df_based_on_params(self.in_df, self.params)
+            self.in_df, self.in_df_f = under_sampling_df_based_on_params(self.in_df, self.params) # Returns:
+                                                                                                  # input_df: DataFrame, under-sampled DataFrame
+                                                                                                  # input_df_full: DataFrame, original full DataFrame
             # todo: remove after
             self.in_df[self.params['observation_date_column']] = self.in_df[self.params['observation_date_column']].astype('O')
             self.in_df_f[self.params['observation_date_column']] = self.in_df_f[self.params['observation_date_column']].astype('O')
