@@ -26,7 +26,8 @@ class ModuleClass(SessionManager):
             output_df (None or DataFrame): DataFrame to store the output data, initialized as None.
         """
         SessionManager.__init__(self, args)
-        self.main_model = args.main_model.lower()
+        # Commented out because main_model is not specified
+        # self.main_model = args.main_model.lower()
         self.models_list = ['xgb', 'rf', 'dt']
         # self.models_list = ['xgb']
         self.args = args

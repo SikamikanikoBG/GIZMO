@@ -2,6 +2,7 @@
 This is a shorter flow in order to speed up the developments.
 """
 from pickle import dump
+from pickle import load
 
 import pandas as pd
 from datetime import datetime
@@ -25,15 +26,36 @@ from sklearn.model_selection import StratifiedKFold
 import traceback
 
 class ModuleClass(SessionManager):
+    """
+    This class is responsible for the data cleaning and preparation pipeline.
+
+    It handles tasks such as:
+        - Loading input data.
+        - Merging additional data sources.
+        - Performing data cleaning operations (outlier treatment, date conversions, etc.).
+        - Engineering new features (ratios, optimal binning).
+        - Selecting relevant features.
+        - Saving the processed data and a list of final features.
+
+    The class extends the `SessionManager` class to inherit functionality related to
+    managing sessions, configuration parameters, and data loading.
+    """
     def __init__(self, args):
         SessionManager.__init__(self, args)
         self.predict_session_flag = None
 
     def run(self):
         """
-        Orchestrator for this class. Here you should specify all the actions you want this class to perform.
+        Initializes the ModuleClass object.
+
+        Args:
+            args: Arguments containing configuration parameters and settings.
         """
+        # Check the corresponding param json file which has a criterion_column key
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
+
+        if self.is_multiclass:
+            print("Multiclass detected!")
 
         self.check1_time = datetime.now()
         self.prepare()
@@ -52,9 +74,43 @@ class ModuleClass(SessionManager):
         if self.under_sampling:
             self.loader.in_df_f.to_parquet(
                 self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file_full.parquet')
+
+        # Save final_features, numeric + others
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'wb') as f:
             dump(self.loader.final_features, f)
+
+        # ---------------------------------NEW_START--------------------------------- #
+        # Here we are opening the final_features.pkl file, filtering for only binned features and saving it as
+        # with the same name (fina_features.pkl)
+
+        # Question: why are we opening the file two times on lines 79-81 and here, on lines 90-106?
+        # Answer: because when we are saving it the first time (lines 79-81) we are sure that every check and cleaning
+        #         procedure has been done and we can just pick out the binned features with the code from lines 90-106
+
+        # Note: this comment block will be probably redundant in the future so it will be removed @debug
+
+        # Open final_features.pkl
+        with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
+                  'rb') as f:
+            features_pkl = load(f)       # list with the final features
+
+            binned_final_features = []   # empty list where we will put the binned only final features
+
+            # For each feature in final_features.pkl
+            for el in features_pkl:
+                feature = el.split("_")     # this line splits the current feature name by "_"
+                                            # so we can then look for the keyword "binned"
+
+                # If it is binned, add it to binned_final_features
+                if "binned" in feature:
+                    binned_final_features.append(el)
+
+            # Save binned_final_features as the NEW final_features.pkl
+            with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features_only_binned.pkl', 'wb') as f:
+                dump(binned_final_features, f)
+            # ---------------------------------NEW_END--------------------------------- #
+
         self.check4_time = datetime.now()
         print_end()
 
@@ -130,7 +186,7 @@ class ModuleClass(SessionManager):
             self.remove_final_features_with_low_correlation()
         else:
             print_and_log("[ FEATURE SELECTION] Feature selection, based on predictive power", '')
-            self.loader.final_features =  self.select_features_by_predictive_power()
+            self.loader.final_features = self.select_features_by_predictive_power()
 
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
@@ -218,19 +274,23 @@ class ModuleClass(SessionManager):
         Returns:
             list: List of selected features.
         """
-
+        # TODO: Channel here is being dropped
         df = self.loader.in_df.copy()
 
         df = df[self.loader.final_features + [self.criterion_column]]
         df = df.drop(
-            df.columns[df.columns.str.contains(self.criterion_column + "_") ].tolist(),
+            df.columns[df.columns.str.contains(self.criterion_column + "_")].tolist(),
             axis=1
         )
         pp = pps.predictors(df, 
-                       self.criterion_column, sorted=True, random_seed=42)
+                            self.criterion_column,
+                            sorted=True,
+                            random_seed=42)
 
-        pp.to_csv(definitions.ROOT_DIR  + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
-        top_100 = pp[pp['ppscore'] >  0.05][['x']][:100]
+        pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
+        # Changed from 0.05 to 0
+        top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+        # top_100 = pp[pp['ppscore'] >= 0.][['x']][:100]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 
@@ -254,7 +314,9 @@ class ModuleClass(SessionManager):
         cv = StratifiedKFold(5)
 
         le = LabelEncoder()
+
         y = le.fit_transform(self.loader.in_df[self.criterion_column])
+        print_and_log(f"[ FEATURE SELECTION ] Labels encoded", '')
 
         rfecv = RFECV(
                 estimator=clf,
@@ -266,8 +328,7 @@ class ModuleClass(SessionManager):
 
             )
         try:
-            rfecv.fit(self.loader.in_df[self.loader.final_features], 
-                    y
+            rfecv.fit(self.loader.in_df[self.loader.final_features], y
             )
         except:
             traceback.print_exc()
@@ -299,7 +360,6 @@ class ModuleClass(SessionManager):
         Returns:
             None
         """
-
         binned_numerical = self.optimal_binning_columns
         # Optimal binning
         optimal_binning_obj = OptimaBinning(df=self.loader.in_df, df_full=self.loader.in_df_f,
@@ -308,12 +368,14 @@ class ModuleClass(SessionManager):
                                             final_features=self.loader.final_features,
                                             observation_date_column=self.observation_date_column,
                                             params=self.params)
+
         print_and_log(' Starting numerical features Optimal binning (max 4 bins) based on train df_to_aggregate ', '')
         self.loader.in_df, self.loader.in_df_f, binned_numerical = optimal_binning_obj.run_optimal_binning_multiprocess()
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,
-                                                                               self.loader.final_features[:], self.columns_to_include)
+                                                                               self.loader.final_features[:],
+                                                                               self.columns_to_include)
 
         # Check correlation
         print_and_log(' Checking correlation one more time now with binned ', '')
@@ -321,6 +383,8 @@ class ModuleClass(SessionManager):
         self.loader.final_features, binned_numerical = remove_column_if_not_in_final_features(
             self.loader.final_features,
             binned_numerical, self.columns_to_include)
+
+        print_and_log(' Checking correlation done! ', '')
 
     def merging_additional_files_procedure(self):
         """

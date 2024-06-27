@@ -1,0 +1,33 @@
+Running Sphinx v7.1.2
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+writing output... 
+building [html]: targets for 0 source files that are out of date
+updating environment: 0 added, 3 changed, 0 removed
+[2Kreading sources... [ 33%] main[2Kreading sources... [ 67%] src.flows.eval_flows[2Kreading sources... [100%] src.functions
+WARNING: autodoc: failed to import module 'standard' from module 'src.flows.eval_flows'; the following exception was raised:
+cannot import name 'ensure_async' from 'jupyter_core.utils' (/home/mandalorian/anaconda3/envs/gizmo_ar/lib/python3.8/site-packages/jupyter_core/utils/__init__.py)
+WARNING: autodoc: failed to import module 'evaluation' from module 'src.functions'; the following exception was raised:
+cannot import name 'ensure_async' from 'jupyter_core.utils' (/home/mandalorian/anaconda3/envs/gizmo_ar/lib/python3.8/site-packages/jupyter_core/utils/__init__.py)
+/home/mandalorian/Projects/jizzmo/src/functions/printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:6: ERROR: Unexpected indentation.
+/home/mandalorian/Projects/jizzmo/src/functions/printing_and_logging.py:docstring of src.functions.printing_and_logging.print_and_log:12: WARNING: Block quote ends without a blank line; unexpected unindent.
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+copying assets... copying static files... done
+copying extra files... done
+done
+[2Kwriting output... [ 14%] index[2Kwriting output... [ 29%] main[2Kwriting output... [ 43%] modules[2Kwriting output... [ 57%] src[2Kwriting output... [ 71%] src.flows[2Kwriting output... [ 86%] src.flows.eval_flows[2Kwriting output... [100%] src.functions
+generating indices... genindex py-modindex done
+writing additional pages... search done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+
+====================== slowest reading durations =======================
+1.156 main
+0.308 src.flows.eval_flows
+0.068 src.functions
+build succeeded, 4 warnings.
+
+The HTML pages are in _build/html.

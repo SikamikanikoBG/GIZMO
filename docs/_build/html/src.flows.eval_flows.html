@@ -96,8 +96,61 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="src-flows-eval-flows-standard-module">
-<h2>src.flows.eval_flows.standard module<a class="headerlink" href="#src-flows-eval-flows-standard-module" title="Permalink to this heading"></a></h2>
+<section id="module-src.flows.eval_flows.standard">
+<span id="src-flows-eval-flows-standard-module"></span><h2>src.flows.eval_flows.standard module<a class="headerlink" href="#module-src.flows.eval_flows.standard" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.flows.eval_flows.standard.ModuleClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.flows.eval_flows.standard.</span></span><span class="sig-name descname"><span class="pre">ModuleClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.eval_flows.standard.ModuleClass" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="src.classes.html#src.classes.SessionManager.SessionManager" title="src.classes.SessionManager.SessionManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionManager</span></code></a></p>
+<p>A class that inherits from the <cite>SessionManager</cite> class and performs evaluation tasks.</p>
+<p>Attributes:
+- args (object): The arguments passed to the class.
+- models_list (list): A list of models to be evaluated.
+- output_df (pandas.DataFrame): The output DataFrame.</p>
+<p>Methods:
+- __init__(self, args):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Initializes the class by calling the parent class’s <cite>__init__</cite> method.</p></li>
+<li><p>Checks if there are multiclass artifacts from training sessions and sets the <cite>models_list</cite> accordingly.</p></li>
+<li><p>Assigns the <cite>args</cite> parameter to the <cite>args</cite> attribute.</p></li>
+<li><p>Initializes the <cite>output_df</cite> attribute to <cite>None</cite>.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>run(self):</dt><dd><ul>
+<li><p>Orchestrates the evaluation process.</p></li>
+<li><p>Creates an evaluation session folder.</p></li>
+<li><p>Iterates through the models in the <cite>models_list</cite> and calls the <cite>merge_word</cite> function for each model.</p></li>
+<li><p>Prints the end of the evaluation process.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.flows.eval_flows.standard.ModuleClass.create_eval_session_folder">
+<span class="sig-name descname"><span class="pre">create_eval_session_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.eval_flows.standard.ModuleClass.create_eval_session_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an evaluation session folder.</p>
+<p>Steps:
+1. Print and log a message indicating the start of the session folder creation.
+2. Generate the session ID by concatenating ‘<a href="#id1"><span class="problematic" id="id2">EVAL_</span></a>’, the input data project folder, the start time, and the tag.
+3. Set the session ID folder path by concatenating the session folder name and the session ID.
+4. Create the session ID folder using the <cite>os.mkdir()</cite> function.
+5. Print and log a message indicating the completion of the session folder creation.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.flows.eval_flows.standard.ModuleClass.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.eval_flows.standard.ModuleClass.run" title="Permalink to this definition"></a></dt>
+<dd><p>Orchestrator for this class. Here you should specify all the actions you want this class to perform.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-src.flows.eval_flows">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.flows.eval_flows" title="Permalink to this heading"></a></h2>

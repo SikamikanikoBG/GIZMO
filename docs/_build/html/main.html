@@ -81,6 +81,15 @@
              
   <section id="module-main">
 <span id="main-module"></span><h1>main module<a class="headerlink" href="#module-main" title="Permalink to this heading"></a></h1>
+<p>This module is the main entry point for the application. It handles command-line arguments, loads and runs the
+appropriate modules based on the arguments, and logs the execution time.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>parser (argparse.ArgumentParser): An instance of the ArgumentParser class to handle command-line arguments.</p>
+<p>args (argparse.Namespace): The parsed command-line arguments.</p>
+<p>help_need (str): The value of the ‘–h’ argument, indicating whether the user needs help.</p>
+<p>module (object): An instance of the ModuleClass, which is determined based on the command-line arguments.</p>
+</dd>
+</dl>
 </section>
 
 

@@ -1,11 +1,57 @@
 WIP :)
 
-For building sphinx look in ./docs/conda_envs
+For building sphinx look in ``./conda_envs``
 
-- source for making requirements_freeze.txt: [link](https://stackoverflow.com/questions/50777849/from-conda-create-requirements-txt-for-pip3)
+For building sphinx doc look in ``./docs/auto_make_html.sh``
 
-> Note: the environment has some issues with some functions
-> accessing files.
+### TODO 
+- Add documentation on how to use main.py with params. Quick example:
+
+  - ``python main.py --project bg_stage2 --data_prep_module standard ``
+  - ``python main.py --project bg_stage2 --train_module standard``
+
+- Basic commands example:
+  - ``python main.py --project bg_stage2 --data_prep_module standard``
+  - ``python main.py --project bg_stage2 --train_module standard``
+  - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_<PROJECT_NAME_AND_DATE>_no_tag"``
+    - Eval example: 
+      - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_bg_stage2_2024-06-18 13:12:00.802211_no_tag"``
+
+- `src.classes.BaseModeller.BaseModeller.model_fit` throws an error if we have multilabel classification task
+and using AUC evaluation. XGBoost documentation says:
+  - `auc`: Receiver Operating Characteristic Area under the Curve. Available for classification and learning-to-rank tasks.
+    - When used with binary classification, the objective should be binary:logistic or similar functions that work on probability.
+    - **When used with multi-class classification**, objective should be `multi:softprob` instead of `multi:softmax`,
+    as the latter doesn’t output probability. Also the AUC is calculated by 1-vs-rest with reference
+    class weighted by class prevalence.
+     
+- ML Flow uploads model artifacts, but other metadata files are being blocked
+ 
+- Docx output has about 30% correctly printed graphs. Possible causes:
+  - Since AUC is still not implemented correctly, some graphs could be for AUC and thus not plotted
+  - In the code for plotting graphs there are if statements checking if we are plotting a model with multiclass
+    classification accompanied by comments about wondering if multiclass plotting works
+  > Code for plotting is in: `src/functions/evaluation.py`
+
+- More debugging is needed to make sure that multiclass classification actually works.
+In many places in the package there are constant checks if we are doing mult. cls.
+Those checks lead to running code designed for mult. cls., which is not extensively
+tested.
+
+- Vera mentioned that when choosing to *not* use undersampling on the dataset after data cleaning and feature filtering 
+  we are left in an empty dataset. Possible causes:
+  - Correlation score is too low
+  - P-value is too high
+
+- Debug prints have to be removed for the final version
+
+- All erros can be found in ./logs
+
+### Progress
+- Eval now works, but the displayed graphs are missing
+- Eval had some issues with getting the right session name. Now that's fixed. 
+  > Reminder: related classes and functions are SessionManager; word_merge, etc
+
 
 ### Multiclass predictions with Gizmo
 

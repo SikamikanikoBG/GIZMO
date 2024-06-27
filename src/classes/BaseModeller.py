@@ -15,27 +15,46 @@ class BaseModeller:
 
     Args:
         model_name (str): Name of the model.
+
         params (dict): Dictionary of parameters.
+
         final_features (list): List of final features.
+
         cut_offs: Cut-off values.
 
     Attributes:
         model_name (str): Name of the model.
+
         params (dict): Dictionary of parameters.
+
         model: Placeholder for the model.
+
         final_features (list): List of final features.
+
         ac_train, auc_train, prec_train, recall_train, f1_train: Evaluation metrics for training data.
+
         ac_test, auc_test, prec_test, recall_test, f1_test: Evaluation metrics for test data.
+
         ac_t1, auc_t1, prec_t1, recall_t1, f1_t1: Evaluation metrics for t1 data.
+
         ac_t2, auc_t2, prec_t2, recall_t2, f1_t2: Evaluation metrics for t2 data.
+
         ac_t3, auc_t3, prec_t3, recall_t3, f1_t3: Evaluation metrics for t3 data.
+
         trees_features_to_exclude: Features to exclude for tree models.
+
         trees_features_to_include: Features to include for tree models.
+
         lr_features: Features for logistic regression.
+
         lr_features_to_include: Features to include for logistic regression.
+
         cut_offs: Cut-off values.
+
         metrics: DataFrame to store metrics.
+
         lr_logit_roc_auc: Placeholder for logistic regression ROC AUC score.
+
         lr_table: Placeholder for logistic regression summary table.
     """
     def __init__(self, model_name, params, final_features, cut_offs):
@@ -56,6 +75,7 @@ class BaseModeller:
         self.metrics = pd.DataFrame()
         self.lr_logit_roc_auc = None
         self.lr_table = None
+        # self.is_multiclass = False
 
     def model_fit(self, train_X, train_y, test_X, test_y):
         """
@@ -69,18 +89,27 @@ class BaseModeller:
         """
         if self.model_name == 'xgb':
             eval_metric = ['auc', 'error', 'logloss']
+
             if (train_y.nunique() > 2):
-                eval_metric = ['auc', 'merror', 'mlogloss']
-            
-            self.model.fit(train_X[self.final_features], train_y,
-                           eval_set=[(train_X[self.final_features], train_y), (test_X[self.final_features], test_y)],
-                           early_stopping_rounds=definitions.early_stopping_rounds, verbose=False, eval_metric=eval_metric)
-        elif self.model_name == 'rf':
+                print("Multiclass detected!") # debug
+                # AUC has no place here, only for binary
+                # eval_metric = ['auc', 'merror', 'mlogloss']
+                eval_metric = ['merror', 'mlogloss']
+
+            self.model.fit(train_X[self.final_features],
+                           train_y,
+                           eval_set=[(train_X[self.final_features], train_y),
+                                     (test_X[self.final_features],  test_y)],
+                           early_stopping_rounds=definitions.early_stopping_rounds,
+                           verbose=False,
+                           eval_metric=eval_metric)
+
+        elif self.model_name == 'rf':                               # TODO: perhaps implement hyperparameter tuning?
             self.model.fit(train_X[self.final_features], train_y)
         elif self.model_name == 'dt':
             self.model.fit(train_X[self.final_features], train_y)
-        elif self.model_name == 'lr':
-            pass
+        elif self.model_name == 'lr':                               # TODO: lr needs to be implemented or
+            pass                                                    # TODO: removed if chosen
             """train_X = sm.add_constant(train_X)  # add constant
             self.model = sm.Logit(train_y, train_X)  # add model
             self.model = self.model.fit(disp=False)  # fit model
@@ -90,12 +119,31 @@ class BaseModeller:
             print_and_log(f"[ Modelling ] ERROR: Model {self.model_name} not recognized.", "RED")
             quit()
 
-    def load_model(self):
+    def load_model(self, is_multiclass):
         """
         Load the model based on the specified model name.
         """
         if self.model_name == 'xgb':
-            self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators, colsample_bytree=.1, subsample=.5, learning_rate=definitions.learning_rate)
+            # TODO add if statement to check if we score multiclasses
+
+            if is_multiclass:
+                self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators,
+                                                   colsample_bytree=.1,
+                                                   subsample=.5,
+                                                   learning_rate=definitions.learning_rate,
+                                                   objective="multi:softprob")
+            else:
+                self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators,
+                                                   colsample_bytree=.1,
+                                                   subsample=.5,
+                                                   learning_rate=definitions.learning_rate)
+            # Debug
+            print(f"@------{self.model_name.upper()}_CONFIG_CHOSEN_BASEMODELLER.PY-----@")
+            # print(self.model.get_params())
+
+            for k, v in self.model.get_params().items():
+                print(f"{k} : {v}")
+
         elif self.model_name == 'rf':
             self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,
