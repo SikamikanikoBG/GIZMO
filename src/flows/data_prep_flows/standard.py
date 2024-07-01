@@ -103,11 +103,11 @@ class ModuleClass(SessionManager):
                                             # so we can then look for the keyword "binned"
 
                 # If it is binned, add it to binned_final_features
-                if "binned" in feature:
+                if "dummie" in feature:
                     binned_final_features.append(el)
 
             # Save binned_final_features as the NEW final_features.pkl
-            with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features_only_binned.pkl', 'wb') as f:
+            with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl', 'wb') as f:
                 dump(binned_final_features, f)
             # ---------------------------------NEW_END--------------------------------- #
 
@@ -202,6 +202,10 @@ class ModuleClass(SessionManager):
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
 
+        #if self.optimal_binning_columns:
+        # Start optimal binning on all numerical columns
+        self.optimal_binning_procedure(numerical_cols + ratios_cols)
+
         if self.loader.in_df[self.criterion_column].nunique() == 2:
             # Check correlation
             print_and_log('[ DATA CLEANING ] Removing low correlation columns from ratios', '')
@@ -214,8 +218,7 @@ class ModuleClass(SessionManager):
                                                                                             ratios_cols, self.columns_to_include)
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
-        if self.optimal_binning_columns:
-            self.optimal_binning_procedure()
+
 
         # Finalizing the dataframes
         self.loader.in_df = missing_values(df=self.loader.in_df, missing_treatment=self.missing_treatment,
@@ -353,14 +356,15 @@ class ModuleClass(SessionManager):
                                                         session_id_folder=None, model_corr='', flag_raw='',
                                                         keep_cols=self.columns_to_include)
 
-    def optimal_binning_procedure(self):
+    def optimal_binning_procedure(self, cols):
         """
         Executes the optimal binning procedure on numerical columns.
 
         Returns:
             None
         """
-        binned_numerical = self.optimal_binning_columns
+        # binned_numerical = self.optimal_binning_columns
+        binned_numerical = cols
         # Optimal binning
         optimal_binning_obj = OptimaBinning(df=self.loader.in_df, df_full=self.loader.in_df_f,
                                             columns=binned_numerical,
