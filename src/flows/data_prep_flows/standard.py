@@ -195,6 +195,7 @@ class ModuleClass(SessionManager):
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
+        # Makes div by 0!!!
         self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.columns_to_include)
         if self.under_sampling:
             self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.columns_to_include)
@@ -321,6 +322,7 @@ class ModuleClass(SessionManager):
         y = le.fit_transform(self.loader.in_df[self.criterion_column])
         print_and_log(f"[ FEATURE SELECTION ] Labels encoded", '')
 
+        # Feature selection
         rfecv = RFECV(
                 estimator=clf,
                 step=0.5,
