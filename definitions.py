@@ -24,6 +24,7 @@ input_df = None
 n_estimators = 100
 early_stopping_rounds = 10
 learning_rate = 0.01
+max_features = 10
 
 # MLFlow 
 mlflow_tracking_uri = "http://10.128.11.44:8503"
