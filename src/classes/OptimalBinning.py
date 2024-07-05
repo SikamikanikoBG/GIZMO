@@ -68,17 +68,21 @@ class OptimaBinning:
                     ) 
                 ]           
 
-            x_train, _, y_train, _ = train_test_split(
-                temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
+            x_train, _, y_train, _ = train_test_split(temp_df2,
+                                                      temp_df2[self.criterion_column],
+                                                      test_size=0.33,
+                                                      random_state=42)
             x_train = x_train.dropna(subset=[col])
 
             x = x_train[col].values
             y = x_train[self.criterion_column].values
             
             if not self.is_multiclass:
+                # optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
                 optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
             else:
                 optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+
             optb.fit(x, y)
 
             temp_df = temp_df.dropna(subset=[col])
@@ -181,7 +185,8 @@ class OptimaBinning:
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
                 if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
-                self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
+                # TODO Why do nans appear???
+                # self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
                 if self.params["under_sampling"]: 
                     self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(
                         self.df_full[dummies_columns].mean())

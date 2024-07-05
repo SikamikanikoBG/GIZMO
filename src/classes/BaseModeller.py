@@ -108,6 +108,7 @@ class BaseModeller:
             # Hint: https://machinelearningmastery.com/feature-importance-and-feature-selection-with-xgboost-in-python/
             feature_names = self.model.get_booster().feature_names  # Get names of features
             features_importances = self.model.feature_importances_  # Get feature importances
+
             feature_mapping = dict(zip(feature_names, features_importances))  # Create a dict and sort after
 
             # Top K features with len check
@@ -118,7 +119,17 @@ class BaseModeller:
             else:
                 k = len(feature_names)
                 sorted_feature_mapping = dict(
-                    sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
+
+            feature_mapping = dict(zip(feature_names, features_importances))    # Create a dict and sort after
+
+            # Top K features with len check
+            k = definitions.max_features    # default k=10
+            if len(feature_names) >= k:
+                sorted_feature_mapping = dict(sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
+            else:
+                k = len(feature_names)
+                sorted_feature_mapping = dict(sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
+
 
         elif self.model_name == 'rf':                               # TODO: perhaps implement hyperparameter tuning?
             self.model.fit(train_X[self.final_features], train_y)
