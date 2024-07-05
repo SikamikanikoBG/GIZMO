@@ -56,9 +56,11 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
     """
         Save a graph to a document file after logging it to MLflow.
             doc_file: str, path to the document file
+            
             load_png_from_train: str path to a png file from a TRAIN session
-            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the
-                                   train session
+            
+            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the train session
+                                   
         Returns:
             None
         """
@@ -143,11 +145,6 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         tpl.render(context)
         tpl.save(doc_file)
         plt.clf()
-
-        # Remove the graph file
-        # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
-        #     remove(session_id_folder + '/' + graph + '.png')
-        print(f"[ EVAL ] Graph {graph} ready")
 
         # Remove the graph file
         # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
