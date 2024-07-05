@@ -52,43 +52,75 @@ def log_graph_to_mlflow(run_id, graph, mlflow_path="graphs"):
     mlflow.end_run()
 
 
-def save_graph(graph, session_id_folder, tpl, run_id, doc_file):
+def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_train=False, train_session_to_eval=None):
     """
-    Save a graph to a document file after logging it to MLflow.
-
-    Parameters:
-        graph: str, name of the graph
-
-        session_id_folder: str, path to the session folder
-
-        tpl: DocxTemplate object, template for the document
-
-        run_id: str, ID of the MLflow run
-
-        doc_file: str, path to the document file
-
-    Returns:
-        None
-    """
+        Save a graph to a document file after logging it to MLflow.
+            doc_file: str, path to the document file
+            load_png_from_train: str path to a png file from a TRAIN session
+            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the
+                                   train session
+        Returns:
+            None
+        """
     # Insert graphs
 
-    context = {}
-    old_im = graph
-    new_im = session_id_folder + '/' + graph + '.png'
+    if load_png_from_train:
+        context = {}
+        old_im = graph
 
-    log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
+        # Example could be: ./sessions/TRAIN_bg_stage2_2024-07-02 10:03:12.127382_no_tag/auc_graph_xgb.png
+        source_file = "./sessions/" + train_session_to_eval + '/' + graph
 
-    # Replace old graph with new graph in the document
-    tpl.replace_pic(old_im, new_im)
-    tpl.render(context)
-    tpl.save(doc_file)
-    plt.clf()
+        # New filename
+        new_graph_name = "cost_graph.png"
 
-    # Remove the graph file
-    # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
-    #     remove(session_id_folder + '/' + graph + '.png')
-    print(f"[ EVAL ] Graph {graph} ready")
+        # Example format: '/home/mandalorian/Projects/jizzmo/sessions/EVAL_bg_stage2_2024-07-02 11:47:37.433418_no_tag/cost_graph.png'
+        destination_file = os.path.join(session_id_folder, new_graph_name)
 
+        # Try to copy the png to EVAL session and handle exceptions
+        try:
+            shutil.copy(source_file, destination_file)
+            print(f"File copied and renamed successfully to {destination_file}")
+        except FileNotFoundError as e:
+            print(f"Error: Source file not found - {e}")
+        except PermissionError as e:
+            print(f"Error: Permission denied - {e}")
+        except Exception as e:  # Catch-all for other errors
+            print(f"An error occurred: {e}")
+
+        new_im = destination_file
+        # Log img to mlflow
+        log_graph_to_mlflow(run_id,  new_im)
+
+        # Replace old graph with new graph in the document
+        tpl.replace_pic(old_im, new_im)
+        tpl.render(context)
+        tpl.save(doc_file)
+        plt.clf()
+
+        # Remove the graph file
+        # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
+        #     remove(session_id_folder + '/' + graph + '.png')
+        print(f"[ EVAL ] Graph {graph} ready")
+    else:
+        # Load graphs from EVAL session
+        context = {}
+        old_im = graph
+        new_im = session_id_folder + '/' + graph + '.png'
+
+        # Log img to mlflow
+        log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
+
+        # Replace old graph with new graph in the document
+        tpl.replace_pic(old_im, new_im)
+        tpl.render(context)
+        tpl.save(doc_file)
+        plt.clf()
+
+        # Remove the graph file
+        # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
+        #     remove(session_id_folder + '/' + graph + '.png')
+        print(f"[ EVAL ] Graph {graph} ready")
 
 def merge_word(project_name,
                input_data_folder_name,
@@ -339,6 +371,36 @@ def merge_word(project_name,
         - Graph 13: Displays missing values or a logo if no missing values are present.
     
     """
+    # Graph X  ---------------------------------------------------------------------------------------------------
+    # graph = 'graphX'
+    # try:
+    #     for file in os.listdir("./sessions/" + session_to_eval):
+    #
+    #         # Plot cost_graph
+    #         if file == "cost_graph_" + model_arg + ".png":
+    #             cost_graph_name = "cost_graph_" + model_arg + ".png"
+    #             save_graph(cost_graph_name,
+    #                        session_id_folder,
+    #                        tpl,
+    #                        run_id,
+    #                        DEST_FILE,
+    #                        load_png_from_train=True,
+    #                        train_session_to_eval=session_to_eval)
+    #
+    #         # Plot error_graph
+    #         elif file == "error_graph_" + model_arg + ".png":
+    #             cost_graph_name = "error_graph_" + model_arg + ".png"
+    #             save_graph(cost_graph_name,
+    #                        session_id_folder,
+    #                        tpl,
+    #                        run_id,
+    #                        DEST_FILE,
+    #                        load_png_from_train=True,
+    #                        train_session_to_eval=session_to_eval)
+    #
+    # except Exception as e:
+    #     print(f"[ GRAPH ERROR ] Could not load model auc and error graphs: {e}")
+    #     pass
     # Graph 0 ---------------------------------------------------------------------------------------------------
     graph = 'graph0'
 

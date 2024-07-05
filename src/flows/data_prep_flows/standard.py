@@ -186,7 +186,11 @@ class ModuleClass(SessionManager):
             self.remove_final_features_with_low_correlation()
         else:
             print_and_log("[ FEATURE SELECTION] Feature selection, based on predictive power", '')
+            # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
+
+            # TODO: HYPER MEGA IMPORTANT - REMOVE THIS WHEN PUSHING!!!!
+            # numerical_cols_c = numerical_cols
 
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
@@ -217,8 +221,6 @@ class ModuleClass(SessionManager):
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             ratios_cols, self.columns_to_include)
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
-
-
 
         # Finalizing the dataframes
         self.loader.in_df = missing_values(df=self.loader.in_df, missing_treatment=self.missing_treatment,
@@ -292,8 +294,8 @@ class ModuleClass(SessionManager):
 
         pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
         # Changed from 0.05 to 0
-        top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
-        # top_100 = pp[pp['ppscore'] >= 0.][['x']][:100]
+        # top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+        top_100 = pp[pp['ppscore'] >= 0.][['x']][:60]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 
