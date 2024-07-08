@@ -65,26 +65,6 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
             None
         """
     # Insert graphs
-
-    if load_png_from_train:
-        context = {}
-        old_im = graph
-
-        # Example could be: ./sessions/TRAIN_bg_stage2_2024-07-02 10:03:12.127382_no_tag/auc_graph_xgb.png
-        source_file = "./sessions/" + train_session_to_eval + '/' + graph
-
-        # New filename
-        new_graph_name = "cost_graph.png"
-
-        # Example format: '/home/mandalorian/Projects/jizzmo/sessions/EVAL_bg_stage2_2024-07-02 11:47:37.433418_no_tag/cost_graph.png'
-        destination_file = os.path.join(session_id_folder, new_graph_name)
-        
-    # Insert graphs from TRAIN session
-    # Logic: Get the dir of the png plots in a TRAIN session, copy the png images to the EVAL folder and rename
-    #        them (we need basic names for them because we are using these names as tags in the docx template, if we
-    #        have cost_graph_xgb as a tag in the template but we are evaluating rf, the graph will be named cost_graph_rf
-    #        and thus won't be matched to cost_graph_xgb).
-    #        After renaming we are saving the plot as per the original method
     if load_png_from_train:
         context = {}
         old_im = graph
@@ -538,7 +518,7 @@ def merge_word(project_name,
 
     corr_feat = corr_feat.set_index('Unnamed: 0')
 
-    sns.heatmap(corr_feat, annot=True,
+    plot = sns.heatmap(corr_feat, annot=True,
                 xticklabels=corr_feat.columns,
                 yticklabels=corr_feat.columns,
                 linewidths=.1)
@@ -552,7 +532,7 @@ def merge_word(project_name,
 
     corr_feat_raw = corr_feat_raw.set_index('Unnamed: 0')
 
-    sns.heatmap(corr_feat_raw, annot=True,
+    plot = sns.heatmap(corr_feat_raw, annot=True,
                 xticklabels=corr_feat_raw.columns,
                 yticklabels=corr_feat_raw.columns,
                 linewidths=.1)
@@ -1297,21 +1277,25 @@ def merge_word(project_name,
 
                 plt.subplots_adjust(wspace=0.15, hspace=0.7)
 
+
                 # ----------------------------------------
-                fig = plot.get_figure()
-                fig.savefig(session_id_folder + '/' + graph + '.png')
-
-                # Insert graphs
-
-                context = {}
-                old_im = graph
-                new_im = session_id_folder + '/' + graph + '.png'
-
-                tpl.replace_pic(old_im, new_im)
-                tpl.render(context)
-                tpl.save(DEST_FILE)
-                plt.clf()
-                print(f"[ EVAL ] Graph {graph} ready")
+                try:
+                    fig = plot.get_figure()
+                    fig.savefig(session_id_folder + '/' + graph + '.png')
+                    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+                except Exception as e:
+                    print(e)
+                # # Insert graphs
+                #
+                # context = {}
+                # old_im = graph
+                # new_im = session_id_folder + '/' + graph + '.png'
+                #
+                # tpl.replace_pic(old_im, new_im)
+                # tpl.render(context)
+                # tpl.save(DEST_FILE)
+                # plt.clf()
+                # print(f"[ EVAL ] Graph {graph} ready")
         except Exception as e:
             # TODO graph_a_31 exception prints constantly
             print(f"[ Graphs error ] {e}")

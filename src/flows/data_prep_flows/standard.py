@@ -188,18 +188,15 @@ class ModuleClass(SessionManager):
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
 
+        print(self.loader.final_features)
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
-        if len(numerical_cols) == 0:
-            print_and_log(f"[ FEATURE SELECTION ] ERROR: {len(numerical_cols)} numeric columns selected! This will result in errors while binning", 'RED')
-        else:
-            print_and_log(f"[ FEATURE SELECTION ] {len(numerical_cols)} numeric columns selected", '')
 
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
-        # Makes div by 0!!!
+
         self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.columns_to_include)
         if self.under_sampling:
             self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.columns_to_include)
@@ -360,7 +357,7 @@ class ModuleClass(SessionManager):
                                                         session_id_folder=None, model_corr='', flag_raw='',
                                                         keep_cols=self.columns_to_include)
 
-    def optimal_binning_procedure(self, cols):
+    def optimal_binning_procedure(self, cols: list):
         """
         Executes the optimal binning procedure on numerical columns.
 

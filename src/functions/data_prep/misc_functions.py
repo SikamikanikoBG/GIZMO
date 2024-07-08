@@ -23,6 +23,7 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_
         final_features: list of str, updated final features list
         numerical_cols: list of str, updated numerical columns list
     """
+
     removed = []
     for el in numerical_cols[:]:
         if el in final_features:
@@ -42,6 +43,9 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_
         print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {len(removed)}", 'YELLOW')
     else:
         print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {removed}", 'YELLOW')
+
+    assert numerical_cols, "No numeric columns selected for binning in remove_column_if_not_in_final_features()!"  # Simpler assertion
+
     return final_features, numerical_cols
 
 
