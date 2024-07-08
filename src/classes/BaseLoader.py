@@ -79,7 +79,6 @@ class BaseLoader:
         self.in_df, self.in_df_f = pd.DataFrame(), pd.DataFrame()
         self.params = params
         self.main_table = self.params["main_table"]
-        self.params["under_sampling"] = 1   # Always undersample
         self.final_features = None
         self.train_X, self.train_X_us, self.test_X, self.test_X_us, self.t1df, self.t2df, self.t3df = \
             pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()

@@ -172,7 +172,6 @@ class ModuleClass(SessionManager):
         self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
                                                                                     self.loader.in_df_f,
                                                                                     object_cols, self.params)
-
         # create cat and dummies dictionaries
         object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
         object_cols_dummies = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_dummie')
@@ -185,15 +184,16 @@ class ModuleClass(SessionManager):
             print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
             self.remove_final_features_with_low_correlation()
         else:
-            print_and_log("[ FEATURE SELECTION] Feature selection, based on predictive power", '')
+            print_and_log("[ FEATURE SELECTION ] Feature selection, based on predictive power", '')
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
 
-            # TODO: HYPER MEGA IMPORTANT - REMOVE THIS WHEN PUSHING!!!!
-            # numerical_cols_c = numerical_cols
-
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
+        if len(numerical_cols) == 0:
+            print_and_log(f"[ FEATURE SELECTION ] ERROR: {len(numerical_cols)} numeric columns selected! This will result in errors while binning", 'RED')
+        else:
+            print_and_log(f"[ FEATURE SELECTION ] {len(numerical_cols)} numeric columns selected", '')
 
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
@@ -295,7 +295,7 @@ class ModuleClass(SessionManager):
         pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
         # Changed from 0.05 to 0
         # top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
-        top_100 = pp[pp['ppscore'] >= 0.][['x']][:60]
+        top_100 = pp[pp['ppscore'] >= 0.5][['x']][:100]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 

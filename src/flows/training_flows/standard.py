@@ -169,7 +169,7 @@ class ModuleClass(SessionManager):
         #     print(f"{k}")
         # print(self.params)
 
-        if model_type == 'lr':  # Reminder: lr stands for logistic regression
+        if model_type == 'lr':
             pass
         else:
             self.train_modelling_procedure_trees(model_type)
@@ -326,14 +326,14 @@ class ModuleClass(SessionManager):
         print(f"results: {results.shape}")
 
         # Select importances between 0 and 0.95 and keep top args.nb_tree_features features
-        #results = results[results['importances'] > 0]
-        #results = results[results['importances'] < 0.95]
+        results = results[results['importances'] > 0]
+        results = results[results['importances'] < 0.95]
 
         if self.args.nb_tree_features:
             nb_features = int(self.args.nb_tree_features)
             results = results[:nb_features]
         else:
-            results = results[:100]
+            results = results[:definitions.max_features]
         globals()['self.modeller_' + model_type].final_features = results['columns'].unique().tolist()
 
         features_removed = False

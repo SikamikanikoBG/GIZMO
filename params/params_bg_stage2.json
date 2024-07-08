@@ -1,5 +1,5 @@
 {
-  "criterion_column": "Criterion_Multiclass",
+  "criterion_column": "Criterion_15M",
   "missing_treatment": {
     "Info": "Missing"
   },

@@ -76,9 +76,9 @@ class OptimaBinning:
             y = x_train[self.criterion_column].values
             
             if not self.is_multiclass:
-                optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+                optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
             else:
-                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
             optb.fit(x, y)
 
             temp_df = temp_df.dropna(subset=[col])

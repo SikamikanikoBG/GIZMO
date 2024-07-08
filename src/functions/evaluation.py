@@ -403,9 +403,12 @@ def merge_word(project_name,
     #     pass
     # Graph 0 ---------------------------------------------------------------------------------------------------
     graph = 'graph0'
-
-    dfi.export(models[models['Method'] == model_arg], session_id_folder + '/' + graph + '.png', max_rows=-1,
-               max_cols=-1, table_conversion="matplotlib")
+    df_to_export = models[models['Method'] == model_arg].drop_duplicates()
+    dfi.export(df_to_export,
+               session_id_folder + '/' + graph + '.png',
+               max_rows=None,
+               max_cols=None,
+               table_conversion="matplotlib")
 
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
