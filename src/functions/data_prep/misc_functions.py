@@ -259,8 +259,6 @@ def create_ratios(df, columns, columns_to_include):
                 # For some reason NaNs are also generated so we need to replace them also
                 df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf, np.nan],
                                                                                         mean_of_cols)
-
-                df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf, np.nan], mean_of_cols)
     else:
         for col in columns:
             temp.append(col)
@@ -277,9 +275,6 @@ def create_ratios(df, columns, columns_to_include):
                     # For some reason NaNs are also generated so we need to replace them also
                     df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf, np.nan],
                                                                                             mean_of_cols)
-                    df[col + '_div_ratio_' + col2] = df[col + '_div_ratio_' + col2].replace([np.inf, -np.inf, np.nan], mean_of_cols)
-
-
     print_and_log(f'[ RATIOS ] Feat eng: Ratios created:', '')
     return df
 
