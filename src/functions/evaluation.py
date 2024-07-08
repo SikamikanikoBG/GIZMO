@@ -56,9 +56,11 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
     """
         Save a graph to a document file after logging it to MLflow.
             doc_file: str, path to the document file
+            
             load_png_from_train: str path to a png file from a TRAIN session
-            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the
-                                   train session
+            
+            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the train session
+                                   
         Returns:
             None
         """
@@ -76,7 +78,25 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
 
         # Example format: '/home/mandalorian/Projects/jizzmo/sessions/EVAL_bg_stage2_2024-07-02 11:47:37.433418_no_tag/cost_graph.png'
         destination_file = os.path.join(session_id_folder, new_graph_name)
+        
+    # Insert graphs from TRAIN session
+    # Logic: Get the dir of the png plots in a TRAIN session, copy the png images to the EVAL folder and rename
+    #        them (we need basic names for them because we are using these names as tags in the docx template, if we
+    #        have cost_graph_xgb as a tag in the template but we are evaluating rf, the graph will be named cost_graph_rf
+    #        and thus won't be matched to cost_graph_xgb).
+    #        After renaming we are saving the plot as per the original method
+    if load_png_from_train:
+        context = {}
+        old_im = graph
 
+        # Example could be: ./sessions/TRAIN_bg_stage2_2024-07-02 10:03:12.127382_no_tag/auc_graph_xgb.png
+        source_file = "./sessions/" + train_session_to_eval + '/' + graph
+
+        # New filename
+        new_graph_name = "cost_graph.png"
+
+        # Example format: '/home/mandalorian/Projects/jizzmo/sessions/EVAL_bg_stage2_2024-07-02 11:47:37.433418_no_tag/cost_graph.png'
+        destination_file = os.path.join(session_id_folder, new_graph_name)
         # Try to copy the png to EVAL session and handle exceptions
         try:
             shutil.copy(source_file, destination_file)
@@ -107,6 +127,15 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         context = {}
         old_im = graph
         new_im = session_id_folder + '/' + graph + '.png'
+
+        # Log img to mlflow
+        log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
+
+        # Replace old graph with new graph in the document
+        tpl.replace_pic(old_im, new_im)
+        tpl.render(context)
+        tpl.save(doc_file)
+        plt.clf()
 
         # Log img to mlflow
         log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
@@ -557,10 +586,9 @@ def merge_word(project_name,
     if model_arg == 'lr':
         features = list(lr_table['index'].values)
 
-    i = 0                                           # debug
     print(f"Size of dataset: {df_train_X.shape}")   # debug
 
-    for el in features:                             # This takes time, don't lose hope :)
+    for el in features:
         temp = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True)
         share = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True, normalize=True)
         share = share[share.columns[2:]]
@@ -587,8 +615,6 @@ def merge_word(project_name,
         temp['mouchard_name'] = prefix
         temp['cut_off_value'] = temp['cut_off_value'].str.replace('_', ' ')
         grid = grid.append(temp)
-        print(i) # debug
-        i += 1   # debug
 
     grid = grid[grid['values'] != 'All']
     grid.reset_index(drop=True, inplace=True)
@@ -655,13 +681,12 @@ def merge_word(project_name,
     print(grid)
     try:    # Saves graph
         dfi.export(grid, session_id_folder + '/' + graph + '.png', table_conversion="matplotlib", max_rows=-1)
-
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
-    except Exception as e:  # Gets raised: Your DataFrame has more than 100 rows and will produce a huge image file,
-                            # possibly causing your computer to crash.
-                            # Override this error by explicitly setting `max_rows`. Use -1 for all rows.
+
+    except Exception as e:
         print(e)
         print_and_log("WARNING: Some of the predictors are RAW and with too many categories. Exclude them!", "YELLOW")
+
         pass
 
     bands_column = model_arg + '_bands_predict_proba'
@@ -1288,6 +1313,7 @@ def merge_word(project_name,
                 plt.clf()
                 print(f"[ EVAL ] Graph {graph} ready")
         except Exception as e:
+            # TODO graph_a_31 exception prints constantly
             print(f"[ Graphs error ] {e}")
             pass
 
