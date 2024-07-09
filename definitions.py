@@ -24,9 +24,9 @@ input_df = None
 n_estimators = 100
 early_stopping_rounds = 10
 learning_rate = 0.01
-max_features = 10
+max_features = 30
+
 # MLFlow 
 mlflow_tracking_uri = "http://10.128.11.44:8503"
-# mlflow_tracking_uri = "http://127.0.0.1:5000/"    # This was set when changing ML Flow versions from 2.14.0 -> 2.1.0
 
 mlflow_prefix = "Scoring Gizmo"

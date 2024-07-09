@@ -321,6 +321,7 @@ class ModuleClass(SessionManager):
         results['columns'] = self.loader.train_X[globals()['self.modeller_' + model_type].final_features].columns
         results['importances'] = globals()['self.modeller_' + model_type].model.feature_importances_
         results.sort_values(by='importances', ascending=False, inplace=True)
+
         print("@_______DEBUG________@")
         print(f"results: {results}")
         print(f"results: {results.shape}")

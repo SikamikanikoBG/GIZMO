@@ -117,15 +117,6 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         tpl.save(doc_file)
         plt.clf()
 
-        # Log img to mlflow
-        log_graph_to_mlflow(run_id, session_id_folder + '/' + graph + '.png')
-
-        # Replace old graph with new graph in the document
-        tpl.replace_pic(old_im, new_im)
-        tpl.render(context)
-        tpl.save(doc_file)
-        plt.clf()
-
         # Remove the graph file
         # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
         #     remove(session_id_folder + '/' + graph + '.png')
@@ -285,8 +276,9 @@ def merge_word(project_name,
 
     # Load evaluation-related data
     models = pd.read_csv(session_folder_name + session_to_eval + '/models.csv')
-    corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv')
-    corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv')
+    corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv').set_index('Unnamed: 0')
+    corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv').set_index('Unnamed: 0')
+    features = corr_feat.columns
 
     missing_table = pd.read_csv('./output_data/' + input_data_project_folder + '/missing_values.csv')
     if model_arg == 'lr':
@@ -327,8 +319,8 @@ def merge_word(project_name,
         excluded_periods=str(periods_to_exclude),
         statistical_tool=str('Python, Sklearn (Random Forest, Decision tree), Xgboost, Logistic regression'),
         nb_of_bands=0 if is_multiclass else str(df_train_X[model_arg + '_y_pred_prob'].nunique()),
-        list_of_variables=str(corr_feat['Unnamed: 0'].unique()),
-        list_of_raw_variables=str(corr_feat_raw['Unnamed: 0'].unique()),
+        list_of_variables=str(np.unique(corr_feat.index.values)),
+        list_of_raw_variables=str(np.unique(corr_feat_raw.index.values)),
         df_train_volume=str(len(df_train_X)),
         df_test_volume=str(len(df_test_X)),
         df_t1df_volume=str(len(df_t1df)),
@@ -516,7 +508,7 @@ def merge_word(project_name,
     # Graph 4 ---------------------------------------------------------------------------------------------------
     graph = 'graph4'
 
-    corr_feat = corr_feat.set_index('Unnamed: 0')
+    # corr_feat = corr_feat.set_index('Unnamed: 0')
 
     plot = sns.heatmap(corr_feat, annot=True,
                 xticklabels=corr_feat.columns,
@@ -530,7 +522,7 @@ def merge_word(project_name,
     # Graph 5 ---------------------------------------------------------------------------------------------------
     graph = 'graph5'
 
-    corr_feat_raw = corr_feat_raw.set_index('Unnamed: 0')
+    # corr_feat_raw = corr_feat_raw.set_index('Unnamed: 0')
 
     plot = sns.heatmap(corr_feat_raw, annot=True,
                 xticklabels=corr_feat_raw.columns,
@@ -544,7 +536,7 @@ def merge_word(project_name,
     # Graph 5.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph5.1'
     # plot = correl_feat_y[['Unnamed: 0', '0']].groupby('Unnamed: 0').sum().plot(kind='bar', ylabel='Correlation of the features vs Criterion Rate', figsize=(15, 10))
-    features = corr_feat.columns
+    # features = corr_feat.columns
 
     plot = df_train_X[features].corrwith(df_train_X[criterion_column], method='pearson').plot(kind='bar',
                                                                                               ylabel='Correlation of the features vs Criterion Rate',
@@ -1094,7 +1086,7 @@ def merge_word(project_name,
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
     # todo: fix. Const something
     i = 1
-    # TODO: [ Graphs error ] Picture graph_a_31 not found in the docx template
+    # TODO: We have graphs untill 10_a
     for el in features:
         try:
             if 'const' in el:
@@ -1161,6 +1153,7 @@ def merge_word(project_name,
                                                            ax=ax_left_1,
                                                            sharey=False)
                 plt.legend(shadow=True)
+                plt.title(f"{graph}")
                 plt.ylabel('Share of modality')
                 try:
                     plt.title(
@@ -1277,14 +1270,17 @@ def merge_word(project_name,
 
                 plt.subplots_adjust(wspace=0.15, hspace=0.7)
 
-
                 # ----------------------------------------
                 try:
-                    fig = plot.get_figure()
+                    # fig = plot.get_figure()
+                    fig = plt.gcf()
                     fig.savefig(session_id_folder + '/' + graph + '.png')
                     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
+                    plt.close(fig)
                 except Exception as e:
                     print(e)
+
+
                 # # Insert graphs
                 #
                 # context = {}
