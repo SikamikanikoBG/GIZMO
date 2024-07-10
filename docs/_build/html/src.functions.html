@@ -255,14 +255,11 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.functions.evaluation.save_graph">
-<span class="sig-prename descclassname"><span class="pre">src.functions.evaluation.</span></span><span class="sig-name descname"><span class="pre">save_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.evaluation.save_graph" title="Permalink to this definition"></a></dt>
-<dd><p>Save a graph to a document file after logging it to MLflow.</p>
-<dl>
-<dt>Parameters:</dt><dd><p>graph: str, name of the graph</p>
-<p>session_id_folder: str, path to the session folder</p>
-<p>tpl: DocxTemplate object, template for the document</p>
-<p>run_id: str, ID of the MLflow run</p>
-<p>doc_file: str, path to the document file</p>
+<span class="sig-prename descclassname"><span class="pre">src.functions.evaluation.</span></span><span class="sig-name descname"><span class="pre">save_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_png_from_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_session_to_eval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.evaluation.save_graph" title="Permalink to this definition"></a></dt>
+<dd><dl>
+<dt>Save a graph to a document file after logging it to MLflow.</dt><dd><p>doc_file: str, path to the document file</p>
+<p>load_png_from_train: str path to a png file from a TRAIN session</p>
+<p>train_session_to_eval: used with combination with load_png_from_train, it’s a string that shows the dir to the train session</p>
 </dd>
 <dt>Returns:</dt><dd><p>None</p>
 </dd>
