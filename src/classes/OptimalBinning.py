@@ -164,6 +164,7 @@ class OptimaBinning:
             pandas.DataFrame: Processed DataFrame with under-sampling.
             list: List of columns.
         """
+        # TODO: Unit test
         df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
         pool = Pool(30)
         # install_mp_handler()
@@ -173,7 +174,6 @@ class OptimaBinning:
         progress_counter = 1
 
         for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
-
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)
                 if self.params["under_sampling"]: self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
@@ -181,7 +181,7 @@ class OptimaBinning:
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
                 if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
-                self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
+                # self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
                 if self.params["under_sampling"]: 
                     self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(
                         self.df_full[dummies_columns].mean())

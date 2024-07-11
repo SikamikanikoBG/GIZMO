@@ -279,7 +279,6 @@ def merge_word(project_name,
     corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv').set_index('Unnamed: 0')
     corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv').set_index('Unnamed: 0')
     features = corr_feat.columns
-
     missing_table = pd.read_csv('./output_data/' + input_data_project_folder + '/missing_values.csv')
     if model_arg == 'lr':
         lr_table = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/lr_table.csv')
@@ -560,9 +559,17 @@ def merge_word(project_name,
 
     print(f"Size of dataset: {df_train_X.shape}")   # debug
 
+    # TODO: Write asserts that check if we have artifacts in the index of temp
     for el in features:
-        temp = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True)
-        share = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True, normalize=True)
+        x = df_train_X[el]
+        y = df_train_X[criterion_column]
+        temp = pd.crosstab(x, y, margins=True)
+
+        w = temp.index.unique()
+        if len(w) > 3:
+            print("Artifacts found in graph 6.0!")
+
+        share = pd.crosstab(x, y, margins=True, normalize=True)
         share = share[share.columns[2:]]
         share = share.rename(columns={"All": "Share"})
         temp = pd.concat([temp, share], axis=1)
@@ -1149,6 +1156,8 @@ def merge_word(project_name,
                 y2 = temp_df[col_y2]
 
                 plt.subplot(5, 2, 1)
+
+                # Possible div by 0
                 pd.crosstab(x, y1, normalize='index').plot(kind='bar', figsize=(5, 10), linewidth=0.1, stacked=True,
                                                            ax=ax_left_1,
                                                            sharey=False)
@@ -1164,6 +1173,8 @@ def merge_word(project_name,
                 plt.xlabel(f'Graph 1 - Evolution of modalities')
 
                 plt.subplot(5, 2, 2)
+
+                # Possible div by 0
                 (pd.crosstab(x, y1, aggfunc='sum', values=y2) / pd.crosstab(x, y1, aggfunc='count', values=y2)).plot(
                     kind='bar',
                     ax=ax_right_1)

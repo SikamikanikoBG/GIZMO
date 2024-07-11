@@ -1,4 +1,4 @@
-import sys
+import inspect
 
 import numpy as np
 import pandas as pd
@@ -425,4 +425,145 @@ def treating_outliers(input_df, secondary_input_df):
         del input_df["zscore"]
         if len(secondary_input_df) > 0:
             del secondary_input_df["zscore"]
+
     return input_df, secondary_input_df
+
+def print_var_name(var):
+    """
+    Retrieves the name of a variable from the calling scope.
+
+    This function uses the `inspect` module to analyze the call stack and
+    find the first variable in the local scope that matches the given object's identity.
+
+    Args:
+        var: The variable whose name you want to retrieve.
+
+    Returns:
+        str: The name of the variable as a string, or None if it cannot be found.
+    """
+    for fi in reversed(inspect.stack()):
+        names = [var_name for var_name, var_val in fi.frame.f_locals.items() if var_val is var]
+        if names:
+            return names[0]
+def nan_inspector(in_df: pd.DataFrame, cols: list, verbose: bool = False, raise_asserts: bool = False):
+    """
+    Inspects columns in a DataFrame for missing values (NaNs) and prints a report.
+
+    This function checks columns within a DataFrame for NaN values. If `nested` is True,
+    it assumes `cols` is a list of lists of column names and processes each inner list separately.
+    Otherwise, it treats `cols` as a single list of column names.
+
+    The function uses a helper function `print_var_name()`
+
+    For each column or set of columns, it reports:
+    - The variable name containing the column(s).
+    - The number of rows with NaN values.
+    - The names of the columns where NaNs are found.
+
+    Args:
+        cols: A list of column names (or a list of lists of column names if `nested` is True).
+        nested (bool, optional): Indicates whether `cols` is a nested structure. Defaults to False.
+
+    Returns:
+        None: This function does not return a value; it prints a report to the console.
+    """
+    print_and_log(
+        f"[ NAN CHECK ] Checking for NaNs...",
+        colour=""
+    )
+    nested = False
+    columns_with_nan = None
+    df_with_nans_only = None
+
+    # Check if we have a nested list
+    if any(isinstance(i, list) for i in cols):
+        nested = True
+
+    # If nested for every list with cols check if a column has NaNs
+    if nested:
+        for col in cols:
+            # If the list of columns has values:
+            if col:
+                test = in_df[col].isna().any()
+                columns_with_nan = test[test].index
+                df_nans = in_df[columns_with_nan].isna()
+
+                # We are generating a df for easier debugging
+                df_with_nans_only = in_df[columns_with_nan][df_nans.any(axis=1)]
+
+                # If NaNs are found:
+                if not df_with_nans_only.empty:
+                    if verbose:
+                        print_and_log(
+                            f"[ NAN CHECK ] in variable {print_var_name(col)}: {df_with_nans_only.shape[0]} rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
+                            colour=""
+                        )
+                    else:
+                        print_and_log(
+                            f"[ NAN CHECK ] Found NaNs - calling missing_treatment",
+                            colour=""
+                        )
+                    if raise_asserts:  # Raise assertion only if NaNs exist
+                        raise AssertionError(
+                            f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
+                            f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
+                        )
+                # If not:
+                else:
+                    if verbose:
+                        print_and_log(
+                            f"[ NAN CHECK ] No NaNs found in variable {print_var_name(col)}",
+                            colour=""
+                        )
+                    else:
+                        pass
+            # If we get an empty list:
+            else:
+                if verbose:
+                    print_and_log(f"[ NAN CHECK ] {print_var_name(col)} is empty", colour="")
+                else:
+                    pass
+    else:
+        # If the list of columns has values:
+        if cols:
+            # Same logic, but for a single list of columns
+            test = in_df[cols].isna().any()
+            columns_with_nan = test[test].index
+            df_nans = in_df[columns_with_nan].isna()
+            df_with_nans_only = in_df[columns_with_nan][df_nans.any(axis=1)]
+
+            # If NaNs are found:
+            if not df_with_nans_only.empty:
+                if verbose:
+                    print_and_log(
+                        f"[ NAN CHECK ] Variable {print_var_name(cols)}: {df_with_nans_only.shape[0]}\
+                         rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
+                        colour="RED"
+                    )
+                else:
+                    print_and_log(
+                        f"[ NAN CHECK ] Found NaNs",
+                        colour="RED"
+                    )
+                if raise_asserts:  # Raise assertion only if NaNs exist
+                    raise AssertionError(
+                        f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
+                        f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
+                    )
+            # If not:
+            else:
+                if verbose:
+                    print_and_log(
+                        f"[ NAN CHECK ] No NaNs found in variable {print_var_name(cols)}",
+                        colour="YELLOW"
+                    )
+                else:
+                    pass
+        # If we get an empty list:
+        else:
+            if verbose:
+                print_and_log(f"[ NAN CHECK ] {print_var_name(cols)} is empty", colour="YELLOW")
+            else:
+                pass
+
+    return None
