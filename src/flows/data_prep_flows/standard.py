@@ -82,16 +82,7 @@ class ModuleClass(SessionManager):
                   'wb') as f:
             dump(self.loader.final_features, f)
 
-        # ---------------------------------NEW_START--------------------------------- #
-        # Here we are opening the final_features.pkl file, filtering for only binned features and saving it as
-        # with the same name (fina_features.pkl)
-
-        # Question: why are we opening the file two times on lines 79-81 and here, on lines 90-106?
-        # Answer: because when we are saving it the first time (lines 79-81) we are sure that every check and cleaning
-        #         procedure has been done and we can just pick out the binned features with the code from lines 90-106
-
-        # Note: this comment block will be probably redundant in the future so it will be removed @debug
-
+        # ---------------------------------Get only binned features--------------------------------- #
         # Open final_features.pkl
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'rb') as f:
@@ -116,7 +107,7 @@ class ModuleClass(SessionManager):
             # Save binned_final_features as the NEW final_features.pkl
             with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl', 'wb') as f:
                 dump(binned_final_features, f)
-            # ---------------------------------NEW_END--------------------------------- #
+            # ------------------------------------------------------------------------------- #
 
         self.check4_time = datetime.now()
         print_end()

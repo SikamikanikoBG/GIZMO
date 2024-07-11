@@ -118,8 +118,8 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         plt.clf()
 
         # Remove the graph file
-        # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
-        #     remove(session_id_folder + '/' + graph + '.png')
+        if os.path.isfile(session_id_folder + '/' + graph + '.png'):
+            remove(session_id_folder + '/' + graph + '.png')
         print(f"[ EVAL ] Graph {graph} ready")
 
 def merge_word(project_name,
@@ -204,11 +204,6 @@ def merge_word(project_name,
 
     # Find parent run ID
     for result in mlflow.search_runs(experiment.experiment_id).iterrows():
-        # @debug
-        print("@--------DEBUG_ML_FLOW_RUN_NAME--------@")
-        print(f"Session to eval: {session_to_eval}")
-        print(f"Run Name: {result[1]['tags.mlflow.runName']}")
-
         if result[1]['tags.mlflow.runName'] == session_to_eval:
             parent_run_id = result[1]['run_id']
             break
@@ -557,9 +552,6 @@ def merge_word(project_name,
     if model_arg == 'lr':
         features = list(lr_table['index'].values)
 
-    print(f"Size of dataset: {df_train_X.shape}")   # debug
-
-    # TODO: Write asserts that check if we have artifacts in the index of temp
     for el in features:
         x = df_train_X[el]
         y = df_train_X[criterion_column]
@@ -641,15 +633,8 @@ def merge_word(project_name,
                 val = col1
             return val
 
-        # debug time
-        from timeit import default_timer as timer
-        time_start = timer()
-
         # Add column 'Description' to grid and grid_raw. This is also observed to take some time
         grid['Description'] = grid.apply(describe, axis=1)
-
-        time_end = timer()                                                                              # debug
-        print(f"Time needed to apply: {time_end - time_start:.2f} for dataset of size {grid.shape}")    # debug
 
         grid_raw['Description'] = grid.apply(describe, axis=1)
 

@@ -162,13 +162,6 @@ class BaseModeller:
                                                    colsample_bytree=.1,
                                                    subsample=.5,
                                                    learning_rate=definitions.learning_rate)
-            # Debug
-            print(f"@------{self.model_name.upper()}_CONFIG_CHOSEN_BASEMODELLER.PY-----@")
-            # print(self.model.get_params())
-
-            for k, v in self.model.get_params().items():
-                print(f"{k} : {v}")
-
         elif self.model_name == 'rf':
             self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,
