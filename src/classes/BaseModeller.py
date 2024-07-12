@@ -97,6 +97,15 @@ class BaseModeller:
                 # eval_metric = ['auc', 'merror', 'mlogloss']
                 eval_metric = ['merror', 'mlogloss']
 
+            # from sklearn.preprocessing import Normalizer
+            # normalizer = Normalizer()
+            #
+            # try:
+            #     train_X[self.final_features] = normalizer.fit_transform(train_X[self.final_features])
+            #     test_X[self.final_features] = normalizer.fit_transform(test_X[self.final_features])
+            # except Exception as e:
+            #     print(e)
+
             self.model.fit(train_X[self.final_features],
                            train_y,
                            eval_set=[(train_X[self.final_features], train_y),

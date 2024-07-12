@@ -346,17 +346,64 @@ class ModuleClass(SessionManager):
         self.training_models_fit_procedure(model_type)
 
         try:
-            # Saving cost function graphs:
-            # retrieve performance metrics
+            # ----------------  AUC AND ROC PLOT  ---------------- #
+            try:
+                from sklearn.metrics import roc_curve
+
+                metrics_train, train_X_metrics = globals()[
+                    'self.modeller_' + model_type].generate_predictions_and_metrics(
+                    y_true=self.loader.y_train,
+                    df=self.loader.train_X)
+
+                metrics_test, test_X_metrics = globals()[
+                    'self.modeller_' + model_type].generate_predictions_and_metrics(
+                    y_true=self.loader.y_test,
+                    df=self.loader.test_X)
+
+                y_train_prob = train_X_metrics[f'{model_type}_y_pred_prob']
+                y_test_prob = test_X_metrics[f'{model_type}_y_pred_prob']
+
+                train_fpr, train_tpr, _ = roc_curve(self.loader.y_train, y_train_prob)
+                test_fpr, test_tpr, _ = roc_curve(self.loader.y_test, y_test_prob)
+
+                # Add labels and title
+                pyplot.xlabel('False Positive Rate')
+                pyplot.ylabel('True Positive Rate')
+                pyplot.title(f'ROC Curve ({model_type})')
+                # Plot AUC curves
+                train_auc = metrics_train['AUC'].iloc[0]
+                test_auc = metrics_test['AUC'].iloc[0]
+
+                pyplot.plot(train_fpr, train_tpr, label=f'Train AUC = {train_auc:.2f}')
+                pyplot.plot(test_fpr, test_tpr, label=f'Test AUC = {test_auc:.2f}')
+                pyplot.legend()
+
+                pyplot.savefig(f'{self.session_id_folder}/roc_curve_{model_type}.png')
+                mlflow.log_artifact(f'{self.session_id_folder}/roc_curve_{model_type}.png', 'graphs')
+                pyplot.clf()  # Clear the plot
+
+            except Exception as e:
+                print_and_log(f"AUC + ROC Plotting Error: {e}", "YELLOW")
+            # ---------------- COST FUNCTION PLOT ---------------- #
             results_evals = globals()['self.modeller_' + model_type].model.evals_result()
             print(results)
-            # plot learning curves
+
+            # Add titles and labels
+            pyplot.xlabel('Epochs')  # NEW: added x-label
+            pyplot.ylabel('Log Loss' if not self.is_multiclass else 'Multiclass Log Loss')  # NEW: added y-label
+            pyplot.title(f'Cost Graph ({model_type})')  # NEW: added title
+
+            # Plot learning curves
             pyplot.plot(results_evals['validation_0']['mlogloss' if self.is_multiclass else 'logloss'], label='train')
             pyplot.plot(results_evals['validation_1']['mlogloss' if self.is_multiclass else 'logloss'], label='test')
-            # show the legend
+
+            # Plot the legend
             pyplot.legend()
+
+            # Save plot
             pyplot.savefig(f'{self.session_id_folder}/cost_graph_{model_type}.png')
             mlflow.log_artifact(f'{self.session_id_folder}/cost_graph_{model_type}.png', 'graphs')
+
             try:
                 pyplot.savefig(f'{self.log_folder_name}/cost_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
             except Exception as e:
@@ -370,18 +417,26 @@ class ModuleClass(SessionManager):
             # pyplot.show()
             pyplot.savefig(f'{self.session_id_folder}/auc_graph_{model_type}.png')
             mlflow.log_artifact(f'{self.session_id_folder}/auc_graph_{model_type}.png', 'graphs')
+
             try:
                 pyplot.savefig(f'{self.log_folder_name}/auc_graph_{model_type}_{len(self.loader.train_X)}_{self.session_id}.png')
             except Exception as e:
                 print_and_log(f"{e}", "YELLOW")
                 pass
             pyplot. clf()
-            
-            # plot error curves
+
+            # ---------------- ERROR CURVE PLOT ---------------- #
+            # Add title and labels
+            pyplot.xlabel('Epochs')  # NEW: added x-label
+            pyplot.ylabel('Error Rate' if not self.is_multiclass else 'Multiclass Error Rate')  # NEW: added y-label
+            pyplot.title(f'Error Graph ({model_type})')  # NEW: added title
+
             pyplot.plot(results_evals['validation_0']['merror' if self.is_multiclass else 'error'], label='train')
             pyplot.plot(results_evals['validation_1']['merror' if self.is_multiclass else 'error'], label='test')
+
             # show the legend
             pyplot.legend()
+
             # show the plot
             # pyplot.show()
             pyplot.savefig(f'{self.session_id_folder}/error_graph_{model_type}.png')
@@ -444,18 +499,21 @@ class ModuleClass(SessionManager):
             None
         """
 
-        # x_train = self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features]
-        # y_train = self.loader.y_train_us
-        #
-        # x_test = self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features]
-        # y_test = self.loader.y_test_us
+        x_train = self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features]
+        y_train = self.loader.y_train_us
 
+        x_test = self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features]
+        y_test = self.loader.y_test_us
 
         if self.under_sampling:
-            globals()['self.modeller_' + model_type].model_fit(
-                self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
-                self.loader.y_train_us,
-                self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+                # globals()['self.modeller_' + model_type].model_fit(
+                #     self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
+                #     self.loader.y_train_us,
+                #     self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features], self.loader.y_test_us)
+                globals()['self.modeller_' + model_type].model_fit(train_X=x_train,
+                                                                   train_y=y_train,
+                                                                   test_X=x_test,
+                                                                   test_y=y_test)
         else:
             globals()['self.modeller_' + model_type].model_fit(
                 self.loader.train_X[globals()['self.modeller_' + model_type].final_features],

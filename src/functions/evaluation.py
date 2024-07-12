@@ -56,11 +56,10 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
     """
         Save a graph to a document file after logging it to MLflow.
             doc_file: str, path to the document file
-            
+
             load_png_from_train: str path to a png file from a TRAIN session
-            
+
             train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the train session
-                                   
         Returns:
             None
         """
@@ -834,7 +833,7 @@ def merge_word(project_name,
         plt.savefig(session_id_folder + "/" + graph + '.png')
         save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
-    # Graph 9.3 ---------------------------------------------------------------------------------------------------  
+    # Graph 9.3 ---------------------------------------------------------------------------------------------------
     graph = 'graph9.3'
     if not is_multiclass:
         df = df_train_X[[criterion_column, model_arg_y_pred_prob]]  # .sort_values(by=[bands_column], ascending=True)
