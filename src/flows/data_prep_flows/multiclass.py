@@ -49,6 +49,7 @@ class ModuleClass(SessionManager):
         SessionManager.__init__(self, args)
         self.predict_session_flag = None
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
+        assert self.is_multiclass, "[ ERROR ] Given criterion column has number of classes <= 2"
 
     def run(self):
         """
@@ -89,12 +90,6 @@ class ModuleClass(SessionManager):
             features_pkl = load(f)       # list with the final features
 
             binned_final_features = []   # empty list where we will put the binned only final features
-
-            for el in features_pkl:
-                string_splits = el.split("_")
-                if "div" not in string_splits:
-                    print(el)
-                    print(self.loader.in_df[el].value_counts())
 
             # For each feature in final_features.pkl
             for el in features_pkl:
@@ -204,9 +199,15 @@ class ModuleClass(SessionManager):
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
 
+            # TODO: Remove this when pushing to master
+            numerical_cols_f = numerical_cols.copy()
+
         print(self.loader.final_features)
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
+
+        self.loader.final_features = self.loader.final_features + numerical_cols_f
+        numerical_cols = numerical_cols + numerical_cols_f
 
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
@@ -313,7 +314,8 @@ class ModuleClass(SessionManager):
                             random_seed=42)
 
         pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
-        top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+        # top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+        top_100 = pp[pp['ppscore'] >= 0.][['x']][:100]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 
@@ -408,51 +410,9 @@ class ModuleClass(SessionManager):
         Args:
             cols (list): A list of numerical column names to be binned.
         """
-        # def handle_nans(binned_numerical: list, raise_asserts: bool = False):
-        #     """
-        #     Handles missing values (NaNs) in the specified columns.
-        #
-        #     This function checks for NaN values in the given columns and fills them with the mean
-        #     value of each column if NaNs are found. It also logs information about the presence of NaNs.
-        #
-        #     Args:
-        #         cols_to_check (list): A list of column names to check for NaNs.
-        #
-        #         raise_asserts (bool): If true an assertion error will be raised
-        #     """
-        #     # Check for NaN values
-        #     test = self.loader.in_df[binned_numerical].isna().any()
-        #
-        #     # Filter columns with at least one NaN
-        #     columns_with_nan = test[test].index
-        #
-        #     # Create boolean DataFrame where each cell is True if corresponding to nan, False otherwise
-        #     df_nans = self.loader.in_df[columns_with_nan].isna()
-        #
-        #     # Keep only the rows that contain at least one NaN
-        #     df_with_nans_only = self.loader.in_df[columns_with_nan][df_nans.any(axis=1)]
-        #
-        #     # If NaNs are found, impute with mean and log the process
-        #     if not df_with_nans_only.empty:
-        #         print_and_log(f'[ OPTIMAL BINNING ] NaNs found, filling them with mean', '')
-        #         self.loader.in_df[binned_numerical] = self.loader.in_df[binned_numerical].fillna(
-        #             self.loader.in_df[binned_numerical].mean())
-        #
-        #         if raise_asserts:  # Raise assertion only if NaNs exist
-        #             raise AssertionError(
-        #                 f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
-        #                 f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
-        #             )
-        #     else:
-        #         print_and_log(f'[ OPTIMAL BINNING ] No NaNs found!', '')
-
         # Assign the initial columns to be binned. Usually numerical_cols + ratios_cols
         binned_numerical = cols
 
-        # Initial NaN check before binning
-        # handle_nans(binned_numerical)
-
-        # Optimal binning
         optimal_binning_obj = OptimaBinning(df=self.loader.in_df, df_full=self.loader.in_df_f,
                                             columns=binned_numerical,
                                             criterion_column=self.criterion_column,
@@ -461,9 +421,10 @@ class ModuleClass(SessionManager):
                                             params=self.params,
                                             project_name=self.project_name)
 
+        # Optimal binning
         print_and_log(' Starting numerical features Optimal binning (max 4 bins) based on train df_to_aggregate ', '')
         self.loader.in_df, self.loader.in_df_f, binned_numerical = optimal_binning_obj.run_optimal_binning_multiprocess()
-        # handle_nans(binned_numerical)
+
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,

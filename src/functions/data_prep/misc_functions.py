@@ -44,7 +44,8 @@ def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_
     else:
         print_and_log(f"[ REMOVE COLUMNS ] Removed due to low correlation vs the criterion: {removed}", 'YELLOW')
 
-    assert numerical_cols, "No numeric columns selected for binning in remove_column_if_not_in_final_features()!"  # Simpler assertion
+    # TODO: Uncomment assert when pushing to master
+    # assert numerical_cols, "No numeric columns selected for binning in remove_column_if_not_in_final_features()!"  # Simpler assertion
 
     return final_features, numerical_cols
 

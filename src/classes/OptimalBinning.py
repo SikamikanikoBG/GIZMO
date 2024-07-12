@@ -5,10 +5,11 @@ from optbinning import OptimalBinning, MulticlassOptimalBinning
 from sklearn.model_selection import train_test_split
 
 from src import print_and_log
+import definitions
 
 
 class OptimaBinning:
-    def __init__(self, df, df_full, columns, criterion_column, final_features, observation_date_column, params):
+    def __init__(self, df, df_full, columns, criterion_column, final_features, observation_date_column, params, project_name):
         """
         Initialize the OptimaBinning object with the provided parameters.
 
@@ -37,6 +38,8 @@ class OptimaBinning:
         self.criterion_column = criterion_column
         self.final_features = final_features
         self.observation_date_column = observation_date_column
+        self.project_name = project_name
+        self.param_file_name = definitions.EXTERNAL_DIR + '/params/params_' + self.project_name + '.json'
         self.params = params
         self.is_multiclass = True if self.df_full[criterion_column].nunique() > 2 else False
 
@@ -76,33 +79,59 @@ class OptimaBinning:
             y = x_train[self.criterion_column].values
             
             if not self.is_multiclass:
+                # Call model
                 optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
-            else:
-                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
-            optb.fit(x, y)
-
-            temp_df = temp_df.dropna(subset=[col])
-            binned_col_name = col + '_binned'
-            temp_df[binned_col_name] = optb.transform(temp_df[col], metric='bins')
-
-            dummies = pd.get_dummies(temp_df[binned_col_name], prefix=binned_col_name + '_dummie')
-            print_and_log(f'[ OPTIMAL BINNING ] {col} is with the following splits: {optb.splits} and '
-                          f'dummie columns: {list(dummies.columns)}', 'GREEN')
-            temp_df[dummies.columns] = dummies
-
-            if self.params['under_sampling']:
-                temp_df_full = temp_df_full.dropna(subset=[col])
+                # Fit model to data
+                optb.fit(x, y)
+                # Drop nan
+                temp_df = temp_df.dropna(subset=[col])
+                # Set the name of the new binned column
                 binned_col_name = col + '_binned'
-                temp_df_full[binned_col_name] = optb.transform(temp_df_full[col], metric='bins')
+                # Tranform the column at hand, save it to the input df with the new name from binned_col_name
+                temp_df[binned_col_name] = optb.transform(temp_df[col], metric='bins')
+                # ohe the binned column into 4 categories as per the number of bins
+                dummies = pd.get_dummies(temp_df[binned_col_name], prefix=binned_col_name + '_dummie')
+                print_and_log(f'[ OPTIMAL BINNING ] {col} is with the following splits: {optb.splits} and '
+                              f'dummie columns: {list(dummies.columns)}', 'GREEN')
+                # Save the dummies into the input df
+                temp_df[dummies.columns] = dummies
+                # Same protocol if we have undersamplng, if not, full input df will have only ones (?)
+                if self.params['under_sampling']:
+                    temp_df_full = temp_df_full.dropna(subset=[col])
+                    binned_col_name = col + '_binned'
+                    temp_df_full[binned_col_name] = optb.transform(temp_df_full[col], metric='bins')
 
-                dummies = pd.get_dummies(temp_df_full[binned_col_name], prefix=binned_col_name + '_dummie')
-                temp_df_full[dummies.columns] = dummies
+                    dummies = pd.get_dummies(temp_df_full[binned_col_name], prefix=binned_col_name + '_dummie')
+                    temp_df_full[dummies.columns] = dummies
+                else:
+                    for col in list(dummies.columns):
+                        temp_df_full[col] = 1
+
+                # This here is really weird...
+                dummies_list = list(dummies.columns)
+                return temp_df[list(dummies.columns)], temp_df_full[list(dummies.columns)], dummies_list
             else:
-                for col in list(dummies.columns):
-                    temp_df_full[col] = 1
+                from sklearn.preprocessing import KBinsDiscretizer
+                import numpy as np
 
-            dummies_list = list(dummies.columns)
-            return temp_df[list(dummies.columns)], temp_df_full[list(dummies.columns)], dummies_list
+                kbd = KBinsDiscretizer(n_bins=4, encode='onehot', strategy='uniform')
+                x = x.reshape(-1, 1)
+                y = y.reshape(-1, 1)
+                kbd.fit(x, y)
+
+                temp_df, dummies_temp_df = multiclass_binning_transform_and_get_dummies(temp_df, col, kbd)
+
+                if self.params['under_sampling']:
+                    temp_df_full, dummies_temp_df_full = multiclass_binning_transform_and_get_dummies(temp_df_full, col, kbd)
+                else:
+                    # for col in list(dummies.columns):
+                    #     temp_df_full[col] = 1
+                    assert self.params['under_sampling'], f'[ OPTIMAL BINNING ERROR ] "under_sampling" in {self.param_file_name} is not set!'
+
+                dummies_list = list(dummies_temp_df.columns)
+                return temp_df, temp_df_full, dummies_list
+
+
         except Exception as e:
             print_and_log(f'[ OPTIMAL BINNING ] ERROR {e}. Skipping this column {col}', 'RED')
             return pd.DataFrame(), pd.DataFrame(), []
@@ -176,10 +205,12 @@ class OptimaBinning:
         for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)
-                if self.params["under_sampling"]: self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
+                if self.params["under_sampling"]:
+                    self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
 
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
-                if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
+                if self.params["under_sampling"]:
+                    self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
                 # self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
                 if self.params["under_sampling"]: 
@@ -194,6 +225,27 @@ class OptimaBinning:
                     columns_all.append(col)
 
         self.columns = columns_all
-        self.rename_strings_cols_opt_bin()
+
+        if not self.is_multiclass:
+            self.rename_strings_cols_opt_bin()
 
         return self.df, self.df_full, self.columns
+
+
+def multiclass_binning_transform_and_get_dummies(df: pd.DataFrame, col: str, kbd):
+    dummies = pd.DataFrame()
+    df = df.dropna(subset=[col])
+    binned_col_name = col + '_binned'
+    x_from_col = df[col].to_numpy().reshape(-1, 1)
+    x_from_col = kbd.transform(x_from_col).toarray()  # 0 1 2 3
+
+    for ohe_feature_idx in range(1, 4):
+        # e.g. 'SECPTT_div_ratio_SEMREGORIG' + "_dummie_" + "0"
+        dummies[binned_col_name + '_dummie_' + str(ohe_feature_idx)] = x_from_col[:, ohe_feature_idx]
+
+    df[dummies.columns] = dummies
+    print_and_log(
+        f'[ OPTIMAL BINNING ] {col} is with the following dummie columns: {list(dummies.columns)}',
+        'GREEN')
+
+    return df, dummies
