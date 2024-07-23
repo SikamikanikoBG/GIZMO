@@ -75,13 +75,9 @@ class ModuleClass(SessionManager):
 
         Steps:
         1. Print and log a message indicating the start of the session folder creation.
-
         2. Generate the session ID by concatenating 'EVAL_', the input data project folder, the start time, and the tag.
-
         3. Set the session ID folder path by concatenating the session folder name and the session ID.
-
         4. Create the session ID folder using the `os.mkdir()` function.
-
         5. Print and log a message indicating the completion of the session folder creation.
 
         Returns:

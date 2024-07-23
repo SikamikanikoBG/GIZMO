@@ -68,17 +68,21 @@ class OptimaBinning:
                     ) 
                 ]           
 
-            x_train, _, y_train, _ = train_test_split(
-                temp_df2, temp_df2[self.criterion_column], test_size=0.33, random_state=42)
+            x_train, _, y_train, _ = train_test_split(temp_df2,
+                                                      temp_df2[self.criterion_column],
+                                                      test_size=0.33,
+                                                      random_state=42)
             x_train = x_train.dropna(subset=[col])
 
             x = x_train[col].values
             y = x_train[self.criterion_column].values
             
             if not self.is_multiclass:
-                optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
+                # optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+                optb = OptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
             else:
-                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=4, min_bin_size=0.1)
+                optb = MulticlassOptimalBinning(name=col, dtype='numerical', solver='cp', max_n_bins=3, min_bin_size=0.1)
+
             optb.fit(x, y)
 
             temp_df = temp_df.dropna(subset=[col])
@@ -164,7 +168,6 @@ class OptimaBinning:
             pandas.DataFrame: Processed DataFrame with under-sampling.
             list: List of columns.
         """
-        # TODO: Unit test
         df_all, df_full_all, columns_all = pd.DataFrame(), pd.DataFrame(), []
         pool = Pool(30)
         # install_mp_handler()
@@ -174,6 +177,7 @@ class OptimaBinning:
         progress_counter = 1
 
         for temp_df, temp_df_full, dummies_columns in pool.map(self.optimal_binning_procedure, arguments):
+
             if dummies_columns:
                 self.df = pd.concat([self.df, temp_df], axis=1)
                 if self.params["under_sampling"]: self.df_full = pd.concat([self.df_full, temp_df_full], axis=1)
@@ -181,6 +185,7 @@ class OptimaBinning:
                 self.df = self.df.loc[:, ~self.df.columns.duplicated()].copy()
                 if self.params["under_sampling"]: self.df_full = self.df_full.loc[:,~self.df_full.columns.duplicated()].copy()
 
+                # TODO Why do nans appear???
                 # self.df[dummies_columns] = self.df[dummies_columns].fillna(self.df[dummies_columns].mean())
                 if self.params["under_sampling"]: 
                     self.df_full[dummies_columns] = self.df_full[dummies_columns].fillna(

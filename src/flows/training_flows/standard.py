@@ -1,10 +1,10 @@
 import os
 import pickle
 import definitions
+# import logging # for mlflow debug
 use_mlflow = False
 try:
     import mlflow
-    # import logging
     mlflow.set_tracking_uri(definitions.mlflow_tracking_uri)
     use_mlflow = True
     # logging.getLogger("mlflow").setLevel(logging.DEBUG) # for mlflow debug
@@ -162,7 +162,14 @@ class ModuleClass(SessionManager):
                                                                 final_features=self.loader.final_features,
                                                                 cut_offs=self.cut_offs)
 
-        if model_type == 'lr':
+        # Debug
+        # print(f"@------XGB_CONFIG_CHOSEN_STANDARD.PY------@")
+        # print()
+        # for k in globals()['self.modeller_' + model_type].params:
+        #     print(f"{k}")
+        # print(self.params)
+
+        if model_type == 'lr':  # Reminder: lr stands for logistic regression
             pass
         else:
             self.train_modelling_procedure_trees(model_type)
@@ -309,23 +316,24 @@ class ModuleClass(SessionManager):
         # load model
         globals()['self.modeller_' + model_type].load_model(self.is_multiclass)
 
-        # train model
         self.training_models_fit_procedure(model_type)
 
-        # get top K feature importances
         results['columns'] = self.loader.train_X[globals()['self.modeller_' + model_type].final_features].columns
         results['importances'] = globals()['self.modeller_' + model_type].model.feature_importances_
         results.sort_values(by='importances', ascending=False, inplace=True)
+        print("@_______DEBUG________@")
+        print(f"results: {results}")
+        print(f"results: {results.shape}")
 
         # Select importances between 0 and 0.95 and keep top args.nb_tree_features features
-        results = results[results['importances'] > 0]
-        results = results[results['importances'] < 0.95]
+        #results = results[results['importances'] > 0]
+        #results = results[results['importances'] < 0.95]
 
         if self.args.nb_tree_features:
             nb_features = int(self.args.nb_tree_features)
             results = results[:nb_features]
         else:
-            results = results[:definitions.max_features]
+            results = results[:100]
         globals()['self.modeller_' + model_type].final_features = results['columns'].unique().tolist()
 
         features_removed = False
@@ -363,6 +371,11 @@ class ModuleClass(SessionManager):
                 print_and_log(f"{e}", "YELLOW")
                 pass
             pyplot. clf()
+            
+            
+            # plot auc curves @debug
+            # pyplot.plot(results_evals['validation_0']['auc'], label='train')
+            # pyplot.plot(results_evals['validation_1']['auc'], label='test')
 
             # show the legend
             pyplot.legend()
@@ -443,15 +456,21 @@ class ModuleClass(SessionManager):
         Returns:
             None
         """
+        # Debug print statements:
 
-        # x_train = self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features]
-        # y_train = self.loader.y_train_us
-        #
-        # x_test = self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features]
-        # y_test = self.loader.y_test_us
+        print("@-----------------DEBUG PRINT OF FITTING PROCEDURE-----------------@")
+        x_train = self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features]
+        y_train = self.loader.y_train_us
+        print(f"x_train: {x_train.shape}")
+        print(f"y_train: {y_train.shape}")
 
+        x_test = self.loader.test_X_us[globals()['self.modeller_' + model_type].final_features]
+        y_test = self.loader.y_test_us
+        print(f"x_test: {x_test.shape}")
+        print(f"y_test: {y_test.shape}")
 
         if self.under_sampling:
+            # print_and_log('\n\t *** UNDERSAMPLING MODEL ***', 'YELLOW')
             globals()['self.modeller_' + model_type].model_fit(
                 self.loader.train_X_us[globals()['self.modeller_' + model_type].final_features],
                 self.loader.y_train_us,
