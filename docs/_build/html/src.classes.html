@@ -162,29 +162,29 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.classes.BaseModeller.</span></span><span class="sig-name descname"><span class="pre">BaseModeller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_offs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseModeller.BaseModeller" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initialize the BaseModeller object with model information, parameters, features, and cut-offs.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>model_name (str): Name of the model.
-params (dict): Dictionary of parameters.
-final_features (list): List of final features.
-cut_offs: Cut-off values.</p>
+<dl>
+<dt>Args:</dt><dd><p>model_name (str): Name of the model.</p>
+<p>params (dict): Dictionary of parameters.</p>
+<p>final_features (list): List of final features.</p>
+<p>cut_offs: Cut-off values.</p>
 </dd>
-<dt>Attributes:</dt><dd><p>model_name (str): Name of the model.
-params (dict): Dictionary of parameters.
-model: Placeholder for the model.
-final_features (list): List of final features.
-ac_train, auc_train, prec_train, recall_train, f1_train: Evaluation metrics for training data.
-ac_test, auc_test, prec_test, recall_test, f1_test: Evaluation metrics for test data.
-ac_t1, auc_t1, prec_t1, recall_t1, f1_t1: Evaluation metrics for t1 data.
-ac_t2, auc_t2, prec_t2, recall_t2, f1_t2: Evaluation metrics for t2 data.
-ac_t3, auc_t3, prec_t3, recall_t3, f1_t3: Evaluation metrics for t3 data.
-trees_features_to_exclude: Features to exclude for tree models.
-trees_features_to_include: Features to include for tree models.
-lr_features: Features for logistic regression.
-lr_features_to_include: Features to include for logistic regression.
-cut_offs: Cut-off values.
-metrics: DataFrame to store metrics.
-lr_logit_roc_auc: Placeholder for logistic regression ROC AUC score.
-lr_table: Placeholder for logistic regression summary table.</p>
+<dt>Attributes:</dt><dd><p>model_name (str): Name of the model.</p>
+<p>params (dict): Dictionary of parameters.</p>
+<p>model: Placeholder for the model.</p>
+<p>final_features (list): List of final features.</p>
+<p>ac_train, auc_train, prec_train, recall_train, f1_train: Evaluation metrics for training data.</p>
+<p>ac_test, auc_test, prec_test, recall_test, f1_test: Evaluation metrics for test data.</p>
+<p>ac_t1, auc_t1, prec_t1, recall_t1, f1_t1: Evaluation metrics for t1 data.</p>
+<p>ac_t2, auc_t2, prec_t2, recall_t2, f1_t2: Evaluation metrics for t2 data.</p>
+<p>ac_t3, auc_t3, prec_t3, recall_t3, f1_t3: Evaluation metrics for t3 data.</p>
+<p>trees_features_to_exclude: Features to exclude for tree models.</p>
+<p>trees_features_to_include: Features to include for tree models.</p>
+<p>lr_features: Features for logistic regression.</p>
+<p>lr_features_to_include: Features to include for logistic regression.</p>
+<p>cut_offs: Cut-off values.</p>
+<p>metrics: DataFrame to store metrics.</p>
+<p>lr_logit_roc_auc: Placeholder for logistic regression ROC AUC score.</p>
+<p>lr_table: Placeholder for logistic regression summary table.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -219,7 +219,7 @@ df: Updated DataFrame with predictions and probabilities.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.classes.BaseModeller.BaseModeller.load_model">
-<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseModeller.BaseModeller.load_model" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_multiclass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.classes.BaseModeller.BaseModeller.load_model" title="Permalink to this definition"></a></dt>
 <dd><p>Load the model based on the specified model name.</p>
 </dd></dl>
 

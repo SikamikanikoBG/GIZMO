@@ -145,8 +145,6 @@ class SessionManager:
             self.main_table = self.params["main_table"]
             self.columns_to_include = self.params["columns_to_include"]
 
-            # debug
-            print(self.optimal_binning_columns)
         except Exception as e:
             print(Fore.RED + 'ERROR: params file not available' + Style.RESET_ALL)
             print(e)
