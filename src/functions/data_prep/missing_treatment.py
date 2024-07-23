@@ -48,8 +48,8 @@ def missing_values(df, missing_treatment, input_data_project_folder):
                                      'percent_missing': percent_missing})
     missing_value_df.to_csv(definitions.ROOT_DIR + '/output_data/' + input_data_project_folder + '/missing_values.csv',
                             index=False)
-
     #df = df.drop(columns=missing_cols)
+
     # drop rows with na
     len_before = len(df)
 

@@ -60,7 +60,6 @@ class BaseModeller:
     def __init__(self, model_name, params, final_features, cut_offs):
         self.model_name = model_name
         self.params = params
-        self.model_prefit = None
         self.model = None
         self.final_features = final_features
         self.ac_train, self.auc_train, self.prec_train, self.recall_train, self.f1_train = None, None, None, None, None
@@ -109,27 +108,15 @@ class BaseModeller:
             # Hint: https://machinelearningmastery.com/feature-importance-and-feature-selection-with-xgboost-in-python/
             feature_names = self.model.get_booster().feature_names  # Get names of features
             features_importances = self.model.feature_importances_  # Get feature importances
-            feature_mapping = dict(zip(feature_names, features_importances))  # Create a dict and sort after
+            feature_mapping = dict(zip(feature_names, features_importances))    # Create a dict and sort after
 
             # Top K features with len check
-            k = definitions.max_features  # default k=10
+            k = definitions.max_features    # default k=10
             if len(feature_names) >= k:
-                sorted_features_mappig = dict(
-                    sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
+                sorted_feature_mapping = dict(sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
             else:
                 k = len(feature_names)
-                sorted_features_mappig = dict(
-                    sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
-
-            # self.final_features = list(sorted_features_mappig.keys())
-
-            # self.model.fit(train_X[self.final_features],
-            #                train_y,
-            #                eval_set=[(train_X[self.final_features], train_y),
-            #                          (test_X[self.final_features],  test_y)],
-            #                early_stopping_rounds=definitions.early_stopping_rounds,
-            #                verbose=False,
-            #                eval_metric=eval_metric)
+                sorted_feature_mapping = dict(sorted(feature_mapping.items(), key=lambda item: item[1], reverse=True)[:k])
 
         elif self.model_name == 'rf':                               # TODO: perhaps implement hyperparameter tuning?
             self.model.fit(train_X[self.final_features], train_y)
@@ -151,6 +138,8 @@ class BaseModeller:
         Load the model based on the specified model name.
         """
         if self.model_name == 'xgb':
+            # TODO add if statement to check if we score multiclasses
+
             if is_multiclass:
                 self.model = xgboost.XGBClassifier(n_estimators=definitions.n_estimators,
                                                    colsample_bytree=.1,
@@ -162,6 +151,13 @@ class BaseModeller:
                                                    colsample_bytree=.1,
                                                    subsample=.5,
                                                    learning_rate=definitions.learning_rate)
+            # Debug
+            print(f"@------{self.model_name.upper()}_CONFIG_CHOSEN_BASEMODELLER.PY-----@")
+            # print(self.model.get_params())
+
+            for k, v in self.model.get_params().items():
+                print(f"{k} : {v}")
+
         elif self.model_name == 'rf':
             self.model = RandomForestClassifier(n_estimators=300,
                                                 random_state=42,

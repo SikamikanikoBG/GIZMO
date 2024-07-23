@@ -103,20 +103,6 @@
 <dt class="sig sig-object py" id="src.flows.data_prep_flows.standard.ModuleClass">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.flows.data_prep_flows.standard.</span></span><span class="sig-name descname"><span class="pre">ModuleClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.data_prep_flows.standard.ModuleClass" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.classes.html#src.classes.SessionManager.SessionManager" title="src.classes.SessionManager.SessionManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionManager</span></code></a></p>
-<p>This class is responsible for the data cleaning and preparation pipeline.</p>
-<dl class="simple">
-<dt>It handles tasks such as:</dt><dd><ul class="simple">
-<li><p>Loading input data.</p></li>
-<li><p>Merging additional data sources.</p></li>
-<li><p>Performing data cleaning operations (outlier treatment, date conversions, etc.).</p></li>
-<li><p>Engineering new features (ratios, optimal binning).</p></li>
-<li><p>Selecting relevant features.</p></li>
-<li><p>Saving the processed data and a list of final features.</p></li>
-</ul>
-</dd>
-</dl>
-<p>The class extends the <cite>SessionManager</cite> class to inherit functionality related to
-managing sessions, configuration parameters, and data loading.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.flows.data_prep_flows.standard.ModuleClass.data_cleaning">
 <span class="sig-name descname"><span class="pre">data_cleaning</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.data_prep_flows.standard.ModuleClass.data_cleaning" title="Permalink to this definition"></a></dt>
@@ -139,38 +125,10 @@ managing sessions, configuration parameters, and data loading.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.flows.data_prep_flows.standard.ModuleClass.optimal_binning_procedure">
-<span class="sig-name descname"><span class="pre">optimal_binning_procedure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.data_prep_flows.standard.ModuleClass.optimal_binning_procedure" title="Permalink to this definition"></a></dt>
-<dd><p>Executes optimal binning on numerical columns, including NaN handling and correlation checks.</p>
-<p>This function performs the following steps:</p>
-<ol class="arabic simple">
-<li><p>Prepares Data:</p>
-<ul class="simple">
-<li><p>Identifies numerical columns to bin (<cite>binned_numerical</cite>).</p></li>
-<li><p>Handles missing values (NaNs) in the data by filling them with the mean of each column.</p></li>
-</ul>
-</li>
-<li><p>Optimal Binning:</p>
-<ul class="simple">
-<li><p>Initializes the <cite>OptimaBinning</cite> object with data, parameters, and other relevant settings.</p></li>
-<li><p>Performs optimal binning using a multi-process approach to potentially speed up execution.</p></li>
-<li><p>Handles any new NaNs introduced by the binning process.</p></li>
-</ul>
-</li>
-<li><p>Feature Management:</p>
-<ul class="simple">
-<li><p>Updates the list of <cite>final_features</cite> with the binned numerical columns.</p></li>
-<li><p>Removes duplicate features and ensures all features are in the list of allowed columns.</p></li>
-<li><p>Performs a correlation check on the final features and removes those with low correlation.</p></li>
-</ul>
-</li>
-<li><p>Post-Binning NaN Check:</p>
-<ul class="simple">
-<li><p>Performs another NaN check on both the binned numerical columns and all final features.</p></li>
-</ul>
-</li>
-</ol>
+<span class="sig-name descname"><span class="pre">optimal_binning_procedure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.data_prep_flows.standard.ModuleClass.optimal_binning_procedure" title="Permalink to this definition"></a></dt>
+<dd><p>Executes the optimal binning procedure on numerical columns.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>cols (list): A list of numerical column names to be binned.</p>
+<dt>Returns:</dt><dd><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -188,11 +146,7 @@ managing sessions, configuration parameters, and data loading.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.flows.data_prep_flows.standard.ModuleClass.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.data_prep_flows.standard.ModuleClass.run" title="Permalink to this definition"></a></dt>
-<dd><p>Initializes the ModuleClass object.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>args: Arguments containing configuration parameters and settings.</p>
-</dd>
-</dl>
+<dd><p>Orchestrator for this class. Here you should specify all the actions you want this class to perform.</p>
 </dd></dl>
 
 <dl class="py method">

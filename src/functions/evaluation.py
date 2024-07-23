@@ -54,17 +54,32 @@ def log_graph_to_mlflow(run_id, graph, mlflow_path="graphs"):
 
 def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_train=False, train_session_to_eval=None):
     """
-        Save a graph to a document file after logging it to MLflow.
-            doc_file: str, path to the document file
-            
-            load_png_from_train: str path to a png file from a TRAIN session
-            
-            train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the train session
-                                   
-        Returns:
-            None
-        """
-    # Insert graphs
+    Save a graph to a document file after logging it to MLflow.
+
+    Parameters:
+        graph: str, name of the graph
+
+        session_id_folder: str, path to the session folder
+
+        tpl: DocxTemplate object, template for the document
+
+        run_id: str, ID of the MLflow run
+
+        doc_file: str, path to the document file
+
+        load_png_from_train: str path to a png file from a TRAIN session
+
+        train_session_to_eval: used with combination with load_png_from_train, it's a string that shows the dir to the
+                               train session
+    Returns:
+        None
+    """
+    # Insert graphs from TRAIN session
+    # Logic: Get the dir of the png plots in a TRAIN session, copy the png images to the EVAL folder and rename
+    #        them (we need basic names for them because we are using these names as tags in the docx template, if we
+    #        have cost_graph_xgb as a tag in the template but we are evaluating rf, the graph will be named cost_graph_rf
+    #        and thus won't be matched to cost_graph_xgb).
+    #        After renaming we are saving the plot as per the original method
     if load_png_from_train:
         context = {}
         old_im = graph
@@ -77,6 +92,7 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
 
         # Example format: '/home/mandalorian/Projects/jizzmo/sessions/EVAL_bg_stage2_2024-07-02 11:47:37.433418_no_tag/cost_graph.png'
         destination_file = os.path.join(session_id_folder, new_graph_name)
+
         # Try to copy the png to EVAL session and handle exceptions
         try:
             shutil.copy(source_file, destination_file)
@@ -103,6 +119,7 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         #     remove(session_id_folder + '/' + graph + '.png')
         print(f"[ EVAL ] Graph {graph} ready")
     else:
+
         # Load graphs from EVAL session
         context = {}
         old_im = graph
@@ -118,9 +135,10 @@ def save_graph(graph, session_id_folder, tpl, run_id, doc_file, load_png_from_tr
         plt.clf()
 
         # Remove the graph file
-        if os.path.isfile(session_id_folder + '/' + graph + '.png'):
-            remove(session_id_folder + '/' + graph + '.png')
+        # if os.path.isfile(session_id_folder + '/' + graph + '.png'):  # Commented out for debug
+        #     remove(session_id_folder + '/' + graph + '.png')
         print(f"[ EVAL ] Graph {graph} ready")
+
 
 def merge_word(project_name,
                input_data_folder_name,
@@ -204,6 +222,11 @@ def merge_word(project_name,
 
     # Find parent run ID
     for result in mlflow.search_runs(experiment.experiment_id).iterrows():
+        # @debug
+        print("@--------DEBUG_ML_FLOW_RUN_NAME--------@")
+        print(f"Session to eval: {session_to_eval}")
+        print(f"Run Name: {result[1]['tags.mlflow.runName']}")
+
         if result[1]['tags.mlflow.runName'] == session_to_eval:
             parent_run_id = result[1]['run_id']
             break
@@ -271,9 +294,9 @@ def merge_word(project_name,
 
     # Load evaluation-related data
     models = pd.read_csv(session_folder_name + session_to_eval + '/models.csv')
-    corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv').set_index('Unnamed: 0')
-    corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv').set_index('Unnamed: 0')
-    features = corr_feat.columns
+    corr_feat = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_features.csv')
+    corr_feat_raw = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/correl_raw_features.csv')
+
     missing_table = pd.read_csv('./output_data/' + input_data_project_folder + '/missing_values.csv')
     if model_arg == 'lr':
         lr_table = pd.read_csv(session_folder_name + session_to_eval + '/' + model_arg + '/lr_table.csv')
@@ -313,8 +336,8 @@ def merge_word(project_name,
         excluded_periods=str(periods_to_exclude),
         statistical_tool=str('Python, Sklearn (Random Forest, Decision tree), Xgboost, Logistic regression'),
         nb_of_bands=0 if is_multiclass else str(df_train_X[model_arg + '_y_pred_prob'].nunique()),
-        list_of_variables=str(np.unique(corr_feat.index.values)),
-        list_of_raw_variables=str(np.unique(corr_feat_raw.index.values)),
+        list_of_variables=str(corr_feat['Unnamed: 0'].unique()),
+        list_of_raw_variables=str(corr_feat_raw['Unnamed: 0'].unique()),
         df_train_volume=str(len(df_train_X)),
         df_test_volume=str(len(df_test_X)),
         df_t1df_volume=str(len(df_t1df)),
@@ -366,6 +389,7 @@ def merge_word(project_name,
         - Graph 13: Displays missing values or a logo if no missing values are present.
     
     """
+
     # Graph X  ---------------------------------------------------------------------------------------------------
     # graph = 'graphX'
     # try:
@@ -396,14 +420,12 @@ def merge_word(project_name,
     # except Exception as e:
     #     print(f"[ GRAPH ERROR ] Could not load model auc and error graphs: {e}")
     #     pass
+
     # Graph 0 ---------------------------------------------------------------------------------------------------
     graph = 'graph0'
-    df_to_export = models[models['Method'] == model_arg].drop_duplicates()
-    dfi.export(df_to_export,
-               session_id_folder + '/' + graph + '.png',
-               max_rows=None,
-               max_cols=None,
-               table_conversion="matplotlib")
+
+    dfi.export(models[models['Method'] == model_arg], session_id_folder + '/' + graph + '.png', max_rows=-1,
+               max_cols=-1, table_conversion="matplotlib")
 
     save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
 
@@ -502,9 +524,9 @@ def merge_word(project_name,
     # Graph 4 ---------------------------------------------------------------------------------------------------
     graph = 'graph4'
 
-    # corr_feat = corr_feat.set_index('Unnamed: 0')
+    corr_feat = corr_feat.set_index('Unnamed: 0')
 
-    plot = sns.heatmap(corr_feat, annot=True,
+    sns.heatmap(corr_feat, annot=True,
                 xticklabels=corr_feat.columns,
                 yticklabels=corr_feat.columns,
                 linewidths=.1)
@@ -516,9 +538,9 @@ def merge_word(project_name,
     # Graph 5 ---------------------------------------------------------------------------------------------------
     graph = 'graph5'
 
-    # corr_feat_raw = corr_feat_raw.set_index('Unnamed: 0')
+    corr_feat_raw = corr_feat_raw.set_index('Unnamed: 0')
 
-    plot = sns.heatmap(corr_feat_raw, annot=True,
+    sns.heatmap(corr_feat_raw, annot=True,
                 xticklabels=corr_feat_raw.columns,
                 yticklabels=corr_feat_raw.columns,
                 linewidths=.1)
@@ -530,7 +552,7 @@ def merge_word(project_name,
     # Graph 5.1 ---------------------------------------------------------------------------------------------------
     graph = 'graph5.1'
     # plot = correl_feat_y[['Unnamed: 0', '0']].groupby('Unnamed: 0').sum().plot(kind='bar', ylabel='Correlation of the features vs Criterion Rate', figsize=(15, 10))
-    # features = corr_feat.columns
+    features = corr_feat.columns
 
     plot = df_train_X[features].corrwith(df_train_X[criterion_column], method='pearson').plot(kind='bar',
                                                                                               ylabel='Correlation of the features vs Criterion Rate',
@@ -552,16 +574,11 @@ def merge_word(project_name,
     if model_arg == 'lr':
         features = list(lr_table['index'].values)
 
+    print(f"Size of dataset: {df_train_X.shape}")   # debug
+
     for el in features:
-        x = df_train_X[el]
-        y = df_train_X[criterion_column]
-        temp = pd.crosstab(x, y, margins=True)
-
-        w = temp.index.unique()
-        if len(w) > 3:
-            print("Artifacts found in graph 6.0!")
-
-        share = pd.crosstab(x, y, margins=True, normalize=True)
+        temp = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True)
+        share = pd.crosstab(df_train_X[el], df_train_X[criterion_column], margins=True, normalize=True)
         share = share[share.columns[2:]]
         share = share.rename(columns={"All": "Share"})
         temp = pd.concat([temp, share], axis=1)
@@ -633,8 +650,15 @@ def merge_word(project_name,
                 val = col1
             return val
 
+        # debug time
+        from timeit import default_timer as timer
+        time_start = timer()
+
         # Add column 'Description' to grid and grid_raw. This is also observed to take some time
         grid['Description'] = grid.apply(describe, axis=1)
+
+        time_end = timer()                                                                              # debug
+        print(f"Time needed to apply: {time_end - time_start:.2f} for dataset of size {grid.shape}")    # debug
 
         grid_raw['Description'] = grid.apply(describe, axis=1)
 
@@ -1078,7 +1102,7 @@ def merge_word(project_name,
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
     # todo: fix. Const something
     i = 1
-    # TODO: We have graphs untill 10_a
+    # TODO: [ Graphs error ] Picture graph_a_31 not found in the docx template
     for el in features:
         try:
             if 'const' in el:
@@ -1141,13 +1165,10 @@ def merge_word(project_name,
                 y2 = temp_df[col_y2]
 
                 plt.subplot(5, 2, 1)
-
-                # Possible div by 0
                 pd.crosstab(x, y1, normalize='index').plot(kind='bar', figsize=(5, 10), linewidth=0.1, stacked=True,
                                                            ax=ax_left_1,
                                                            sharey=False)
                 plt.legend(shadow=True)
-                plt.title(f"{graph}")
                 plt.ylabel('Share of modality')
                 try:
                     plt.title(
@@ -1158,8 +1179,6 @@ def merge_word(project_name,
                 plt.xlabel(f'Graph 1 - Evolution of modalities')
 
                 plt.subplot(5, 2, 2)
-
-                # Possible div by 0
                 (pd.crosstab(x, y1, aggfunc='sum', values=y2) / pd.crosstab(x, y1, aggfunc='count', values=y2)).plot(
                     kind='bar',
                     ax=ax_right_1)
@@ -1267,27 +1286,20 @@ def merge_word(project_name,
                 plt.subplots_adjust(wspace=0.15, hspace=0.7)
 
                 # ----------------------------------------
-                try:
-                    # fig = plot.get_figure()
-                    fig = plt.gcf()
-                    fig.savefig(session_id_folder + '/' + graph + '.png')
-                    save_graph(graph, session_id_folder, tpl, run_id, DEST_FILE)
-                    plt.close(fig)
-                except Exception as e:
-                    print(e)
+                fig = plot.get_figure()
+                fig.savefig(session_id_folder + '/' + graph + '.png')
 
+                # Insert graphs
 
-                # # Insert graphs
-                #
-                # context = {}
-                # old_im = graph
-                # new_im = session_id_folder + '/' + graph + '.png'
-                #
-                # tpl.replace_pic(old_im, new_im)
-                # tpl.render(context)
-                # tpl.save(DEST_FILE)
-                # plt.clf()
-                # print(f"[ EVAL ] Graph {graph} ready")
+                context = {}
+                old_im = graph
+                new_im = session_id_folder + '/' + graph + '.png'
+
+                tpl.replace_pic(old_im, new_im)
+                tpl.render(context)
+                tpl.save(DEST_FILE)
+                plt.clf()
+                print(f"[ EVAL ] Graph {graph} ready")
         except Exception as e:
             # TODO graph_a_31 exception prints constantly
             print(f"[ Graphs error ] {e}")
