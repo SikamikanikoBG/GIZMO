@@ -5,17 +5,21 @@ from pickle import dump
 from pickle import load
 
 import pandas as pd
+import inspect
+
 from datetime import datetime
 import ppscore as pps
 
-import src.functions.data_prep.dates_manipulation as date_funcs
 from src.classes.DfAggregator import DfAggregator
 from src.classes.OptimalBinning import OptimaBinning
 from src.classes.SessionManager import SessionManager
+
+import src.functions.data_prep.dates_manipulation as date_funcs
 from src.functions.data_prep.misc_functions import split_columns_by_types, switch_numerical_to_object_column, \
     convert_obj_to_cat_and_get_dummies, remove_column_if_not_in_final_features, \
     create_dict_based_on_col_name_contains, create_ratios, correlation_matrix, \
-    remove_categorical_cols_with_too_many_values, treating_outliers
+    remove_categorical_cols_with_too_many_values, treating_outliers, nan_inspector
+
 from src.functions.data_prep.missing_treatment import missing_values
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
 import definitions
@@ -24,6 +28,7 @@ from sklearn.feature_selection import RFECV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import StratifiedKFold
 import traceback
+
 
 class ModuleClass(SessionManager):
     """
@@ -43,16 +48,13 @@ class ModuleClass(SessionManager):
     def __init__(self, args):
         SessionManager.__init__(self, args)
         self.predict_session_flag = None
+        self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
 
     def run(self):
         """
         Initializes the ModuleClass object.
-
-        Args:
-            args: Arguments containing configuration parameters and settings.
         """
         # Check the corresponding param json file which has a criterion_column key
-        self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
 
         if self.is_multiclass:
             print("Multiclass detected!")
@@ -80,16 +82,7 @@ class ModuleClass(SessionManager):
                   'wb') as f:
             dump(self.loader.final_features, f)
 
-        # ---------------------------------NEW_START--------------------------------- #
-        # Here we are opening the final_features.pkl file, filtering for only binned features and saving it as
-        # with the same name (fina_features.pkl)
-
-        # Question: why are we opening the file two times on lines 79-81 and here, on lines 90-106?
-        # Answer: because when we are saving it the first time (lines 79-81) we are sure that every check and cleaning
-        #         procedure has been done and we can just pick out the binned features with the code from lines 90-106
-
-        # Note: this comment block will be probably redundant in the future so it will be removed @debug
-
+        # ---------------------------------Get only binned features--------------------------------- #
         # Open final_features.pkl
         with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
                   'rb') as f:
@@ -97,10 +90,15 @@ class ModuleClass(SessionManager):
 
             binned_final_features = []   # empty list where we will put the binned only final features
 
+            for el in features_pkl:
+                string_splits = el.split("_")
+                if "div" not in string_splits:
+                    print(el)
+                    print(self.loader.in_df[el].value_counts())
+
             # For each feature in final_features.pkl
             for el in features_pkl:
-                feature = el.split("_")     # this line splits the current feature name by "_"
-                                            # so we can then look for the keyword "binned"
+                feature = el.split("_")     # this line splits the current feature name by "_" so we can then look for the keyword "binned"
 
                 # If it is binned, add it to binned_final_features
                 if "dummie" in feature:
@@ -109,7 +107,7 @@ class ModuleClass(SessionManager):
             # Save binned_final_features as the NEW final_features.pkl
             with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl', 'wb') as f:
                 dump(binned_final_features, f)
-            # ---------------------------------NEW_END--------------------------------- #
+            # ------------------------------------------------------------------------------- #
 
         self.check4_time = datetime.now()
         print_end()
@@ -121,9 +119,25 @@ class ModuleClass(SessionManager):
          Returns:
              None
          """
+        def call_missing_treatment():
+            self.loader.in_df = missing_values(df=self.loader.in_df, missing_treatment=self.missing_treatment,
+                                               input_data_project_folder=self.input_data_project_folder)
+            if self.under_sampling:
+                self.loader.in_df_f = missing_values(df=self.loader.in_df_f,
+                                                     missing_treatment=self.missing_treatment,
+                                                     input_data_project_folder=self.input_data_project_folder)
+
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
+        # Check for nans
+        nan_inspector(in_df=self.loader.in_df_f,
+                      cols=[
+                          categorical_cols,
+                          numerical_cols,
+                          object_cols,
+                          dates_cols
+                      ])
 
         print_and_log('[ DATA CLEANING ] Treating outliers', '')
         if self.under_sampling:
@@ -137,25 +151,27 @@ class ModuleClass(SessionManager):
 
         print_and_log('[ DATA CLEANING ] Converting objects to dates', '')
         self.loader.in_df = date_funcs.convert_obj_to_date(self.loader.in_df, object_cols, "_date")
-        if self.under_sampling: self.loader.in_df_f = date_funcs.convert_obj_to_date(self.loader.in_df_f, object_cols,
-                                                                                     "_date")
+        if self.under_sampling:
+            self.loader.in_df_f = date_funcs.convert_obj_to_date(self.loader.in_df_f, object_cols, "_date")
+
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
 
         print_and_log('[ DATA CLEANING ] Calculating date differences between date columns', '')
         self.loader.in_df = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df, dates_cols)
-        if self.under_sampling: self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(
-            self.loader.in_df_f,
-            dates_cols)
+        if self.under_sampling:
+            self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df_f,
+                                                                                      dates_cols)
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
 
         print_and_log('[ DATA CLEANING ] Extracting date characteristics as features', '')
         self.loader.in_df = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df,
                                                                                      dates_cols)
-        if self.under_sampling: self.loader.in_df_f = date_funcs.extract_date_characteristics_from_date_column(
-            self.loader.in_df_f,
-            dates_cols)
+        if self.under_sampling:
+            self.loader.in_df_f = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df_f,
+                                                                                           dates_cols)
+
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
 
@@ -172,7 +188,6 @@ class ModuleClass(SessionManager):
         self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
                                                                                     self.loader.in_df_f,
                                                                                     object_cols, self.params)
-
         # create cat and dummies dictionaries
         object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
         object_cols_dummies = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_dummie')
@@ -185,9 +200,11 @@ class ModuleClass(SessionManager):
             print_and_log('[ DATA CLEANING ]  Removing low correlation columns from numerical', '')
             self.remove_final_features_with_low_correlation()
         else:
-            print_and_log("[ FEATURE SELECTION] Feature selection, based on predictive power", '')
+            print_and_log("[ FEATURE SELECTION ] Feature selection, based on predictive power", '')
+            # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
 
+        print(self.loader.final_features)
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
 
@@ -195,7 +212,7 @@ class ModuleClass(SessionManager):
 
         # Feature engineering
         print_and_log('[ DATA CLEANING ] Creating ratios with numerical columns', '')
-        # Makes div by 0!!!
+
         self.loader.in_df = create_ratios(df=self.loader.in_df, columns=numerical_cols, columns_to_include=self.columns_to_include)
         if self.under_sampling:
             self.loader.in_df_f = create_ratios(df=self.loader.in_df_f, columns=numerical_cols, columns_to_include=self.columns_to_include)
@@ -203,9 +220,15 @@ class ModuleClass(SessionManager):
         ratios_cols = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_ratio_')
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols + ratios_cols
 
-        #if self.optimal_binning_columns:
+        # Fill NaNs as per param policy before binning
+        call_missing_treatment()
+
         # Start optimal binning on all numerical columns
         self.optimal_binning_procedure(numerical_cols + ratios_cols)
+
+        # Check if there are any NaNs after binning, raise assert if there are
+        nan_inspector(in_df=self.loader.in_df_f,
+                      cols=[self.loader.final_features], raise_asserts=True)
 
         if self.loader.in_df[self.criterion_column].nunique() == 2:
             # Check correlation
@@ -217,17 +240,11 @@ class ModuleClass(SessionManager):
 
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             ratios_cols, self.columns_to_include)
+
         print_and_log(f'[ DATA CLEANING ] Final features so far {len(self.loader.final_features)}', '')
 
-
-
         # Finalizing the dataframes
-        self.loader.in_df = missing_values(df=self.loader.in_df, missing_treatment=self.missing_treatment,
-                                           input_data_project_folder=self.input_data_project_folder)
-        if self.under_sampling:
-            self.loader.in_df_f = missing_values(df=self.loader.in_df_f,
-                                                 missing_treatment=self.missing_treatment,
-                                                 input_data_project_folder=self.input_data_project_folder)
+        call_missing_treatment()
 
         for col in self.columns_to_include:
             if col not in self.loader.final_features[:]:
@@ -271,6 +288,10 @@ class ModuleClass(SessionManager):
             except:
                 pass
 
+        nan_inspector(in_df=self.loader.in_df_f,
+                      cols=[self.loader.final_features],
+                      raise_asserts=True)
+
     def select_features_by_predictive_power(self):
         """
         Selects features based on their predictive power using ppscore.
@@ -292,9 +313,7 @@ class ModuleClass(SessionManager):
                             random_seed=42)
 
         pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
-        # Changed from 0.05 to 0
         top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
-        # top_100 = pp[pp['ppscore'] >= 0.][['x']][:100]
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 
@@ -307,8 +326,6 @@ class ModuleClass(SessionManager):
        Returns:
            list: List of selected features.
        """
-
-
 
         min_features_to_select = min(100,  len(self.loader.in_df.columns) / 2)  # Minimum number of features to consider
         print_and_log(f"[ FEATURE SELECTION ] Minimum features to select {min_features_to_select}", '')
@@ -333,16 +350,14 @@ class ModuleClass(SessionManager):
 
             )
         try:
-            rfecv.fit(self.loader.in_df[self.loader.final_features], y
-            )
+            rfecv.fit(self.loader.in_df[self.loader.final_features], y)
+
         except:
             traceback.print_exc()
 
         print(f"Optimal number of features: {rfecv.n_features_}, selecting top 100")
 
-
         return rfecv.get_feature_names_out().tolist()
-
 
     def remove_final_features_with_low_correlation(self):
         """
@@ -358,15 +373,85 @@ class ModuleClass(SessionManager):
                                                         session_id_folder=None, model_corr='', flag_raw='',
                                                         keep_cols=self.columns_to_include)
 
-    def optimal_binning_procedure(self, cols):
+    def optimal_binning_procedure(self, cols: list):
         """
-        Executes the optimal binning procedure on numerical columns.
+        Executes optimal binning on numerical columns, including NaN handling and correlation checks.
 
-        Returns:
-            None
+        This function performs the following steps:
+
+        1. Prepares Data:
+
+           - Identifies numerical columns to bin (`binned_numerical`).
+
+           - Handles missing values (NaNs) in the data by filling them with the mean of each column.
+
+        2. Optimal Binning:
+
+           - Initializes the `OptimaBinning` object with data, parameters, and other relevant settings.
+
+           - Performs optimal binning using a multi-process approach to potentially speed up execution.
+
+           - Handles any new NaNs introduced by the binning process.
+
+        3. Feature Management:
+
+           - Updates the list of `final_features` with the binned numerical columns.
+
+           - Removes duplicate features and ensures all features are in the list of allowed columns.
+
+           - Performs a correlation check on the final features and removes those with low correlation.
+
+        4. Post-Binning NaN Check:
+
+           - Performs another NaN check on both the binned numerical columns and all final features.
+
+        Args:
+            cols (list): A list of numerical column names to be binned.
         """
-        # binned_numerical = self.optimal_binning_columns
+        # def handle_nans(binned_numerical: list, raise_asserts: bool = False):
+        #     """
+        #     Handles missing values (NaNs) in the specified columns.
+        #
+        #     This function checks for NaN values in the given columns and fills them with the mean
+        #     value of each column if NaNs are found. It also logs information about the presence of NaNs.
+        #
+        #     Args:
+        #         cols_to_check (list): A list of column names to check for NaNs.
+        #
+        #         raise_asserts (bool): If true an assertion error will be raised
+        #     """
+        #     # Check for NaN values
+        #     test = self.loader.in_df[binned_numerical].isna().any()
+        #
+        #     # Filter columns with at least one NaN
+        #     columns_with_nan = test[test].index
+        #
+        #     # Create boolean DataFrame where each cell is True if corresponding to nan, False otherwise
+        #     df_nans = self.loader.in_df[columns_with_nan].isna()
+        #
+        #     # Keep only the rows that contain at least one NaN
+        #     df_with_nans_only = self.loader.in_df[columns_with_nan][df_nans.any(axis=1)]
+        #
+        #     # If NaNs are found, impute with mean and log the process
+        #     if not df_with_nans_only.empty:
+        #         print_and_log(f'[ OPTIMAL BINNING ] NaNs found, filling them with mean', '')
+        #         self.loader.in_df[binned_numerical] = self.loader.in_df[binned_numerical].fillna(
+        #             self.loader.in_df[binned_numerical].mean())
+        #
+        #         if raise_asserts:  # Raise assertion only if NaNs exist
+        #             raise AssertionError(
+        #                 f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
+        #                 f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
+        #             )
+        #     else:
+        #         print_and_log(f'[ OPTIMAL BINNING ] No NaNs found!', '')
+
+        # Assign the initial columns to be binned. Usually numerical_cols + ratios_cols
         binned_numerical = cols
+
+        # Initial NaN check before binning
+        # handle_nans(binned_numerical)
+
         # Optimal binning
         optimal_binning_obj = OptimaBinning(df=self.loader.in_df, df_full=self.loader.in_df_f,
                                             columns=binned_numerical,
@@ -377,6 +462,7 @@ class ModuleClass(SessionManager):
 
         print_and_log(' Starting numerical features Optimal binning (max 4 bins) based on train df_to_aggregate ', '')
         self.loader.in_df, self.loader.in_df_f, binned_numerical = optimal_binning_obj.run_optimal_binning_multiprocess()
+        # handle_nans(binned_numerical)
         self.loader.final_features = self.loader.final_features + binned_numerical
         self.loader.final_features = list(set(self.loader.final_features))
         self.loader.final_features, _ = remove_column_if_not_in_final_features(self.loader.final_features,
@@ -387,8 +473,12 @@ class ModuleClass(SessionManager):
         print_and_log(' Checking correlation one more time now with binned ', '')
         self.remove_final_features_with_low_correlation()
         self.loader.final_features, binned_numerical = remove_column_if_not_in_final_features(
-            self.loader.final_features,
-            binned_numerical, self.columns_to_include)
+                                                        self.loader.final_features,
+                                                        binned_numerical,
+                                                        self.columns_to_include)
+
+        # handle_nans(binned_numerical, raise_asserts=True)
+        # handle_nans(self.loader.final_features)
 
         print_and_log(' Checking correlation done! ', '')
 
@@ -399,7 +489,6 @@ class ModuleClass(SessionManager):
         Returns:
             None
         """
-
         count = 0
 
         if self.params["additional_tables"]:
@@ -423,14 +512,15 @@ class ModuleClass(SessionManager):
                 if len(merged_temp) > 1:
                     periods = ['M', 'T']
 
-                    # if 1!=1:
                     if self.observation_date_column in merge_group_cols:
                         for period in periods:
                             merged_temp[self.observation_date_column + '_temp'] = \
                                 pd.to_datetime(merged_temp[self.observation_date_column]).dt.to_period(period)
                             self.loader.in_df[self.observation_date_column + '_temp'] = \
                                 pd.to_datetime(self.loader.in_df[self.observation_date_column]).dt.to_period(period)
-                            if self.under_sampling: self.loader.in_df_f[self.observation_date_column + '_temp'] = \
+
+                            if self.under_sampling:
+                                self.loader.in_df_f[self.observation_date_column + '_temp'] = \
                                 pd.to_datetime(self.loader.in_df_f[self.observation_date_column]).dt.to_period(period)
 
                             merge_group_cols_periods = merge_group_cols.copy()
@@ -442,19 +532,22 @@ class ModuleClass(SessionManager):
                                                                         suffixes=("", f"_{period}{suffix}"))
                             missing_cols = self.loader.in_df[
                                 self.loader.in_df.columns[self.loader.in_df.isnull().mean() > 0.80]].columns.to_list()
+
                             self.loader.in_df = self.loader.in_df.drop(columns=missing_cols)
 
                             if self.under_sampling:
                                 self.loader.in_df_f = self.loader.in_df_f.merge(merged_temp,
-                                                                                                    how='left',
-                                                                                                    on=merge_group_cols,
-                                                                                                    suffixes=("",
-                                                                                                              f"_{period}{suffix}"))
+                                                                                how='left',
+                                                                                on=merge_group_cols,
+                                                                                suffixes=("", f"_{period}{suffix}"))
                     else:
-                        self.loader.in_df = self.loader.in_df.merge(merged_temp, how='left', on=merge_group_cols,
+                        self.loader.in_df = self.loader.in_df.merge(merged_temp,
+                                                                    how='left',
+                                                                    on=merge_group_cols,
                                                                     suffixes=("", f"{suffix}"))
-                        if self.under_sampling: self.loader.in_df_f = self.loader.in_df_f.merge(merged_temp, how='left',
-                                                                                                on=merge_group_cols,
-                                                                                                suffixes=(
-                                                                                                    "", f"{suffix}"))
+                        if self.under_sampling:
+                            self.loader.in_df_f = self.loader.in_df_f.merge(merged_temp,
+                                                                            how='left',
+                                                                            on=merge_group_cols,
+                                                                            suffixes=("", f"{suffix}"))
                 count += 1
