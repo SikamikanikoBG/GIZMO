@@ -127,9 +127,23 @@ class ModuleClass(SessionManager):
                                                      missing_treatment=self.missing_treatment,
                                                      input_data_project_folder=self.input_data_project_folder)
 
+        def save_missing_features_table(df: pd.DataFrame, input_data_project_folder: str) -> None:
+            percent_missing = df.isna().sum() * 100 / len(df)
+            missing_value_df = pd.DataFrame({'column_name': df.columns,
+                                             'percent_missing': percent_missing})
+
+            missing_value_df.to_csv(
+                definitions.ROOT_DIR + '/output_data/' + input_data_project_folder + '/missing_values.csv',
+                index=False)
+
+            return None
+
+        save_missing_features_table(df=self.loader.in_df, input_data_project_folder=self.input_data_project_folder)
+
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
+
         # Check for nans
         nan_inspector(in_df=self.loader.in_df_f,
                       cols=[
