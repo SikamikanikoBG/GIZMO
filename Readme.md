@@ -7,7 +7,7 @@ For building sphinx doc look in ``./docs/auto_make_html.sh``
 ### TODO 
 - Add documentation on how to use main.py with params. Quick example:
 
-  - ``python main.py --project bg_stage2 --data_prep_module standard ``
+  - ``python main.py --project bg_stage2 --data_prep_module standard``
   - ``python main.py --project bg_stage2 --train_module standard``
 
 - Basic commands example:
