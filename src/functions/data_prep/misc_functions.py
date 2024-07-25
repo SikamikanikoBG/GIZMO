@@ -1,4 +1,6 @@
 import inspect
+import traceback
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -445,7 +447,7 @@ def print_var_name(var):
         names = [var_name for var_name, var_val in fi.frame.f_locals.items() if var_val is var]
         if names:
             return names[0]
-def nan_inspector(in_df: pd.DataFrame, cols: list, verbose: bool = False, raise_asserts: bool = False):
+def nan_inspector(in_df: pd.DataFrame, cols: list, verbose: bool = False, raise_asserts: bool = False, return_flag: bool = False) -> Union[None, bool]:
     """
     Inspects columns in a DataFrame for missing values (NaNs) and prints a report.
 
@@ -471,99 +473,116 @@ def nan_inspector(in_df: pd.DataFrame, cols: list, verbose: bool = False, raise_
         f"[ NAN CHECK ] Checking for NaNs...",
         colour=""
     )
+
+    nans_found = False
     nested = False
     columns_with_nan = None
-    df_with_nans_only = None
+    df_with_nans_only = pd.DataFrame()
+    test = pd.DataFrame()
+    df_nans = pd.DataFrame()
 
     # Check if we have a nested list
     if any(isinstance(i, list) for i in cols):
         nested = True
 
-    # If nested for every list with cols check if a column has NaNs
-    if nested:
-        for col in cols:
+    try:
+        # If nested for every list with cols check if a column has NaNs
+        if nested:
+            for col in cols:
+                # If the list of columns has values:
+                if len(col) > 0:
+                    try:
+                        test = in_df[col].isna().any()
+                    except:
+                        pass
+                    columns_with_nan = test[test].index
+                    df_nans = in_df[columns_with_nan].isna()
+                    # We are generating a df for easier debugging
+                    df_with_nans_only = in_df[columns_with_nan][df_nans.any(axis=1)]
+                    # If NaNs are found:
+                    if not df_with_nans_only.empty:
+                        if verbose:
+                            print_and_log(
+                                f"[ NAN CHECK ] in variable {print_var_name(col)}: {df_with_nans_only.shape[0]} rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
+                                colour=""
+                            )
+                        else:
+                            print_and_log(
+                                f"[ NAN CHECK ] Found NaNs",
+                                colour="RED"
+                            )
+                        if raise_asserts:  # Raise assertion only if NaNs exist
+                            raise AssertionError(
+                                f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
+                                f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
+                            )
+                        # Save flag to return later
+                        nans_found = True
+                    # If not:
+                    else:
+                        if verbose:
+                            print_and_log(
+                                f"[ NAN CHECK ] No NaNs found in variable {print_var_name(col)}",
+                                colour=""
+                            )
+                        else:
+                            pass
+                # If we get an empty list:
+                else:
+                    if verbose:
+                        print_and_log(f"[ NAN CHECK ] {print_var_name(col)} is empty", colour="")
+                    else:
+                        pass
+
+        else:
             # If the list of columns has values:
-            if col:
-                test = in_df[col].isna().any()
+            if cols:
+                # Same logic, but for a single list of columns
+                test = in_df[cols].isna().any()
                 columns_with_nan = test[test].index
                 df_nans = in_df[columns_with_nan].isna()
-
-                # We are generating a df for easier debugging
                 df_with_nans_only = in_df[columns_with_nan][df_nans.any(axis=1)]
 
                 # If NaNs are found:
                 if not df_with_nans_only.empty:
                     if verbose:
                         print_and_log(
-                            f"[ NAN CHECK ] in variable {print_var_name(col)}: {df_with_nans_only.shape[0]} rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
-                            colour=""
+                            f"[ NAN CHECK ] Variable {print_var_name(cols)}: {df_with_nans_only.shape[0]}\
+                             rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
+                            colour="RED"
                         )
                     else:
                         print_and_log(
-                            f"[ NAN CHECK ] Found NaNs - calling missing_treatment",
-                            colour=""
+                            f"[ NAN CHECK ] Found NaNs",
+                            colour="RED"
                         )
                     if raise_asserts:  # Raise assertion only if NaNs exist
                         raise AssertionError(
                             f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
                             f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
                         )
+                    # Save flag to return later
+                    nans_found = True
                 # If not:
                 else:
                     if verbose:
                         print_and_log(
-                            f"[ NAN CHECK ] No NaNs found in variable {print_var_name(col)}",
-                            colour=""
+                            f"[ NAN CHECK ] No NaNs found in variable {print_var_name(cols)}",
+                            colour="YELLOW"
                         )
                     else:
                         pass
             # If we get an empty list:
             else:
                 if verbose:
-                    print_and_log(f"[ NAN CHECK ] {print_var_name(col)} is empty", colour="")
+                    print_and_log(f"[ NAN CHECK ] {print_var_name(cols)} is empty", colour="YELLOW")
                 else:
                     pass
+
+    except Exception as e:
+        traceback.print_exc()
+
+    if return_flag:
+        return nans_found
     else:
-        # If the list of columns has values:
-        if cols:
-            # Same logic, but for a single list of columns
-            test = in_df[cols].isna().any()
-            columns_with_nan = test[test].index
-            df_nans = in_df[columns_with_nan].isna()
-            df_with_nans_only = in_df[columns_with_nan][df_nans.any(axis=1)]
-
-            # If NaNs are found:
-            if not df_with_nans_only.empty:
-                if verbose:
-                    print_and_log(
-                        f"[ NAN CHECK ] Variable {print_var_name(cols)}: {df_with_nans_only.shape[0]}\
-                         rows of nans in {len(list(df_with_nans_only.columns))} columns {list(df_with_nans_only.columns)}",
-                        colour="RED"
-                    )
-                else:
-                    print_and_log(
-                        f"[ NAN CHECK ] Found NaNs",
-                        colour="RED"
-                    )
-                if raise_asserts:  # Raise assertion only if NaNs exist
-                    raise AssertionError(
-                        f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
-                        f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
-                    )
-            # If not:
-            else:
-                if verbose:
-                    print_and_log(
-                        f"[ NAN CHECK ] No NaNs found in variable {print_var_name(cols)}",
-                        colour="YELLOW"
-                    )
-                else:
-                    pass
-        # If we get an empty list:
-        else:
-            if verbose:
-                print_and_log(f"[ NAN CHECK ] {print_var_name(cols)} is empty", colour="YELLOW")
-            else:
-                pass
-
-    return None
+        return None

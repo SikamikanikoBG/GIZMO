@@ -28,7 +28,7 @@ from sklearn.feature_selection import RFECV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import StratifiedKFold
 import traceback
-
+import unittest
 
 class ModuleClass(SessionManager):
     """
@@ -90,12 +90,6 @@ class ModuleClass(SessionManager):
 
             binned_final_features = []   # empty list where we will put the binned only final features
 
-            for el in features_pkl:
-                string_splits = el.split("_")
-                if "div" not in string_splits:
-                    print(el)
-                    print(self.loader.in_df[el].value_counts())
-
             # For each feature in final_features.pkl
             for el in features_pkl:
                 feature = el.split("_")     # this line splits the current feature name by "_" so we can then look for the keyword "binned"
@@ -151,7 +145,7 @@ class ModuleClass(SessionManager):
                           numerical_cols,
                           object_cols,
                           dates_cols
-                      ])
+                      ], verbose=True)
 
         print_and_log('[ DATA CLEANING ] Treating outliers', '')
         if self.under_sampling:
@@ -303,7 +297,7 @@ class ModuleClass(SessionManager):
                 pass
 
         nan_inspector(in_df=self.loader.in_df_f,
-                      cols=[self.loader.final_features],
+                      cols=[self.loader.final_features], verbose=True,
                       raise_asserts=True)
 
     def select_features_by_predictive_power(self):
@@ -313,7 +307,6 @@ class ModuleClass(SessionManager):
         Returns:
             list: List of selected features.
         """
-        # TODO: Channel here is being dropped
         df = self.loader.in_df.copy()
 
         df = df[self.loader.final_features + [self.criterion_column]]
@@ -331,6 +324,7 @@ class ModuleClass(SessionManager):
 
         print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
 
+        assert not top_100.empty, "select_features_by_predictive_power() returned an empty list, should be n = 100"
         return top_100['x'].tolist()
 
     def select_features_by_importance(self):
@@ -387,6 +381,9 @@ class ModuleClass(SessionManager):
                                                         session_id_folder=None, model_corr='', flag_raw='',
                                                         keep_cols=self.columns_to_include)
 
+        assert not len(self.loader.final_features) == 0, "remove_final_features_with_low_correlation() returned an empty list with final features"
+
+
     def optimal_binning_procedure(self, cols: list):
         """
         Executes optimal binning on numerical columns, including NaN handling and correlation checks.
@@ -422,44 +419,6 @@ class ModuleClass(SessionManager):
         Args:
             cols (list): A list of numerical column names to be binned.
         """
-        # def handle_nans(binned_numerical: list, raise_asserts: bool = False):
-        #     """
-        #     Handles missing values (NaNs) in the specified columns.
-        #
-        #     This function checks for NaN values in the given columns and fills them with the mean
-        #     value of each column if NaNs are found. It also logs information about the presence of NaNs.
-        #
-        #     Args:
-        #         cols_to_check (list): A list of column names to check for NaNs.
-        #
-        #         raise_asserts (bool): If true an assertion error will be raised
-        #     """
-        #     # Check for NaN values
-        #     test = self.loader.in_df[binned_numerical].isna().any()
-        #
-        #     # Filter columns with at least one NaN
-        #     columns_with_nan = test[test].index
-        #
-        #     # Create boolean DataFrame where each cell is True if corresponding to nan, False otherwise
-        #     df_nans = self.loader.in_df[columns_with_nan].isna()
-        #
-        #     # Keep only the rows that contain at least one NaN
-        #     df_with_nans_only = self.loader.in_df[columns_with_nan][df_nans.any(axis=1)]
-        #
-        #     # If NaNs are found, impute with mean and log the process
-        #     if not df_with_nans_only.empty:
-        #         print_and_log(f'[ OPTIMAL BINNING ] NaNs found, filling them with mean', '')
-        #         self.loader.in_df[binned_numerical] = self.loader.in_df[binned_numerical].fillna(
-        #             self.loader.in_df[binned_numerical].mean())
-        #
-        #         if raise_asserts:  # Raise assertion only if NaNs exist
-        #             raise AssertionError(
-        #                 f"[ OPTIMAL BINNING ] NaNs found in columns: {columns_with_nan.tolist()}. "
-        #                 f"Rows with NaNs: {df_with_nans_only.index.tolist()}"
-        #             )
-        #     else:
-        #         print_and_log(f'[ OPTIMAL BINNING ] No NaNs found!', '')
-
         # Assign the initial columns to be binned. Usually numerical_cols + ratios_cols
         binned_numerical = cols
 
@@ -493,6 +452,20 @@ class ModuleClass(SessionManager):
 
         # handle_nans(binned_numerical, raise_asserts=True)
         # handle_nans(self.loader.final_features)
+
+        # Check if there are any fragments created due to nans:
+        if self.is_multiclass:
+            # This is different from binary because if we have more than 2 different values, the condition will be valid, thus we check for floats in every column
+            check_in_df = any(self.loader.in_df[col].apply(lambda x: isinstance(x, float)).any() for col in binned_numerical)
+            check_in_df_f = any(self.loader.in_df_f[col].apply(lambda x: isinstance(x, float)).any() for col in binned_numerical)
+
+            assert check_in_df and check_in_df_f, "Optimal binning has found float values in the OHE binned features. Check if NaNs are being passed to the function"
+        else:
+            check_in_df = any(len(self.loader.in_df[col].unique()) == 2 for col in binned_numerical)
+            check_in_df_f = any(len(self.loader.in_df_f[col].unique()) == 2 for col in binned_numerical)
+
+            assert check_in_df and check_in_df_f, "Optimal binning has more than two OHE unique values for binary, should be n == 2. Check if NaNs are being passed to the function"
+
 
         print_and_log(' Checking correlation done! ', '')
 
