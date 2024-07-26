@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import sys
+from traceback import print_exc
 from os import listdir, remove
 from os.path import join, isfile
 
@@ -557,9 +558,13 @@ def merge_word(project_name,
         y = df_train_X[criterion_column]
         temp = pd.crosstab(x, y, margins=True)
 
-        w = temp.index.unique()
-        if len(w) > 3:
-            print("Artifacts found in graph 6.0!")
+        unique_classes = temp.index.unique()
+
+        assert not is_multiclass and len(unique_classes) < 4, "Artifacts found in graph 6.0! Check if optimal binning is receiving NaNs inputs"
+
+        if is_multiclass:
+            has_floats = not any(isinstance(cls, float) for cls in unique_classes)
+            assert has_floats, "Graph 6.0 has float values. Check if optimal binning is receiving NaNs inputs"
 
         share = pd.crosstab(x, y, margins=True, normalize=True)
         share = share[share.columns[2:]]
@@ -1078,7 +1083,6 @@ def merge_word(project_name,
     # Graph appendix loop  ---------------------------------------------------------------------------------------------------
     # todo: fix. Const something
     i = 1
-    # TODO: We have graphs untill 10_a
     for el in features:
         try:
             if 'const' in el:
@@ -1130,7 +1134,6 @@ def merge_word(project_name,
 
                 temp_df = df_total_scope.copy()
                 if temp_df[raw_col1].dtype == object:
-
                     pass
                 else:
                     temp_df['deciles_raw1'] = pd.qcut(temp_df[raw_col1], 10, duplicates='drop')
