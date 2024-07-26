@@ -213,25 +213,31 @@ class SessionManager:
 
     def run_time_calc(self):
         """
-        Calculates the time delta that the session took to run
-        Returns:
+        Calculates the time delta that the session took to run, displaying times in minutes
+        if they exceed 60 seconds.
 
+        Returns:
+            None
         """
         self.end_time = datetime.now()
         self.run_time = round(float((self.end_time - self.start_time).total_seconds()), 2)
-        if self.check1_time:
-            self.check1_time_runtime = round(float((self.check1_time - self.start_time).total_seconds()), 2)
-        if self.check2_time:
-            self.check2_time_runtime = round(float((self.check2_time - self.check1_time).total_seconds()), 2)
-        if self.check3_time:
-            self.check3_time_runtime = round(float((self.check3_time - self.check2_time).total_seconds()), 2)
-        if self.check4_time:
-            self.check4_time_runtime = round(float((self.check4_time - self.check3_time).total_seconds()), 2)
 
-        print_and_log(f"RUN time: {self.run_time}, "
-                      f"Check1 time: {self.check1_time_runtime}c, "
-                      f"Check2 time: {self.check2_time_runtime}c, "
-                      f"Check3 time: {self.check3_time_runtime}c, "
-                      f"Check4 time: {self.check4_time_runtime}c, ", "YELLOW")
+        def format_time(seconds):
+            if seconds > 60:
+                return f"{seconds / 60:.2f} minutes"
+            else:
+                return f"{seconds}s"  # Note the 's' for seconds
+
+        check_times = [self.check1_time, self.check2_time, self.check3_time, self.check4_time]
+        check_time_runtimes = []
+        for i, check_time in enumerate(check_times):
+            if check_time:
+                runtime = round(float((check_time - (check_times[i - 1] if i > 0 else self.start_time)).total_seconds()), 2)
+                check_time_runtimes.append(format_time(runtime))  # Format the time
+
+        # String formatting for the log message
+        check_time_log_str = ",\n".join(f"Check{i+1} time: {time}" for i, time in enumerate(check_time_runtimes))
+
+        print_and_log(f"RUN time: {format_time(self.run_time)}, {check_time_log_str}", "YELLOW")
         if self.args.train_module:
             print_and_log(f"Session complete.\nRun standard eval session with: python main.py --project {self.project_name} --eval_module standard --session \"{self.session_id}\"",'GREEN')
