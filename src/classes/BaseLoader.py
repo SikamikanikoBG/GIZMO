@@ -1,5 +1,6 @@
 import pickle
 from importlib import import_module
+import os
 
 import pandas as pd
 from pyarrow import parquet as pq
@@ -9,7 +10,7 @@ from src.functions.data_prep.misc_functions import remove_periods_from_df
 from src.functions.data_prep.under_sampling import under_sampling_df_based_on_params
 
 
-def load_from_csv(input_data_folder_name, input_data_project_folder, file):
+def load_from_csv(input_data_folder_name: str, input_data_project_folder: str, file: str):
     """
     Load a CSV file from the specified input data folder and project folder.
 
@@ -27,7 +28,7 @@ def load_from_csv(input_data_folder_name, input_data_project_folder, file):
     return df
 
 
-def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
+def load_from_parquet(input_data_folder_name: str, input_data_project_folder: str, file: str):
     """
     Load a Parquet file from the specified input data folder and project folder.
 
@@ -87,7 +88,7 @@ class BaseLoader:
         self.predict_module = predict_module
         # self.is_multiclass = True if self.y_train.nunique() > 2 else False  # Flag that determines if we have multiclass or not
 
-    def data_load_prep(self, in_data_folder, in_data_proj_folder):
+    def data_load_prep(self, in_data_folder: str, in_data_proj_folder: str):
         """
         Load and prepare data without manipulation. Check for binary criterion and apply under-sampling if needed.
 
@@ -100,7 +101,6 @@ class BaseLoader:
         # todo: add if logic - when loading from csv and when loading from API
         print_and_log(f"[ LOADING ] Loading file {self.main_table}", "")
         if '.csv' in self.main_table:
-
             self.in_df = load_from_csv(in_data_folder, in_data_proj_folder, self.main_table)
             self.in_df = check_separator_csv_file(in_data_folder, in_data_proj_folder, self.in_df,
                                                   self.main_table)
@@ -139,6 +139,17 @@ class BaseLoader:
             self.in_df[self.params['observation_date_column']] = self.in_df[self.params['observation_date_column']].astype('O')
             self.in_df_f[self.params['observation_date_column']] = self.in_df_f[self.params['observation_date_column']].astype('O')
 
+        # Asserts
+        assert os.path.exists(
+            in_data_folder + in_data_proj_folder), f"Input data path does not exist: {in_data_folder + in_data_proj_folder}"
+
+        assert not self.in_df.empty, "Loaded DataFrame is empty"
+
+        # After under-sampling (if enabled):
+        if self.params["under_sampling"]:
+            assert not self.in_df_f.empty, "Under-sampled DataFrame is empty"
+            assert self.in_df.shape[0] <= self.in_df_f.shape[
+                0], "Under-sampled DataFrame should not be larger than the original DataFrame"
 
     def data_load_train(self, output_data_folder_name, input_data_project_folder):
         """
@@ -167,3 +178,21 @@ class BaseLoader:
         with (open(output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl', "rb")) as openfile:
             self.final_features = pickle.load(openfile)
         print_and_log('[ LOADING ] Data Loaded', 'GREEN')
+
+        # Asserts
+        assert os.path.exists(
+            output_data_folder_name + input_data_project_folder), f"Output data path does not exist: {output_data_folder_name + input_data_project_folder}"
+        assert os.path.exists(
+            output_data_folder_name + input_data_project_folder + '/' + 'output_data_file.parquet'), "Output data file not found"
+
+        assert not self.in_df.empty, "Loaded training DataFrame is empty"
+
+        assert os.path.exists(
+            output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl'), "Final features file not found"
+
+        assert self.final_features is not None, "Final features not loaded correctly"
+
+        if self.params['under_sampling']:
+            assert os.path.exists(
+                output_data_folder_name + input_data_project_folder + '/' + 'output_data_file_full.parquet'), "Output data file (full) not found. Are you undersampling?"
+            assert not self.in_df_f.empty, "Loaded full training DataFrame (for under-sampling) is empty. Are you undersampling?"
