@@ -146,6 +146,8 @@ class BaseModeller:
             print_and_log(f"[ Modelling ] ERROR: Model {self.model_name} not recognized.", "RED")
             quit()
 
+        assert self.model is not None, f"Model {self.model_name} was not fitted correctly"
+
     def load_model(self, is_multiclass):
         """
         Load the model based on the specified model name.
@@ -175,6 +177,8 @@ class BaseModeller:
         else:
             print_and_log('ERROR: No model provided (model_name)', 'RED')
             sys.exit()
+
+        assert self.model is not None, f"Model {self.model_name} was not loaded correctly"
 
     def generate_multiclass_predictions_and_metrics(self, y_true, df, classes, desired_cutoff=0.5):
         """
@@ -232,6 +236,10 @@ class BaseModeller:
 #        metrics['PrecisionScore_cutoff_' + str(desired_cutoff * 100)] = [cr_p_des_cutt]
 #        metrics['Volumes_Criterion_rate_predicted_' + str(desired_cutoff * 100)] = [cr_p_des_vol]
         metrics['Volumes'] = [vol]
+
+        # Asserts
+        assert isinstance(y_true, pd.Series), "y_true must be a Pandas Series"
+        assert isinstance(df, pd.DataFrame), "df must be a Pandas DataFrame"
         return metrics, df
 
 
@@ -294,4 +302,8 @@ class BaseModeller:
         metrics_df['PrecisionScore_cutoff_' + str(desired_cutoff * 100)] = [cr_p_des_cutt]
         metrics_df['Volumes_Criterion_rate_predicted_' + str(desired_cutoff * 100)] = [cr_p_des_vol]
         metrics_df['Volumes'] = [vol]
+
+        # Asserts
+        assert isinstance(y_true, pd.Series), "y_true must be a Pandas Series"
+        assert isinstance(df, pd.DataFrame), "df must be a Pandas DataFrame"
         return metrics_df, df

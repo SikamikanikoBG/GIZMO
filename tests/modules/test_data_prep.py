@@ -17,6 +17,7 @@ class TestDataPrep(unittest.TestCase):
         """Tests data preparation"""
         args = argparse.Namespace(data_prep_module='standard', project='bg_stage2', session=None, model=None, tag=None, predict_module=None)
         module = ModuleClass(args=args, production_or_test="test")
+      
         module.prepare()
         module.run()
 
