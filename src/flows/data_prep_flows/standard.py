@@ -45,8 +45,8 @@ class ModuleClass(SessionManager):
     The class extends the `SessionManager` class to inherit functionality related to
     managing sessions, configuration parameters, and data loading.
     """
-    def __init__(self, args):
-        SessionManager.__init__(self, args)
+    def __init__(self, args, production_or_test=None):
+        SessionManager.__init__(self, args, production_or_test)
         self.predict_session_flag = None
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
 

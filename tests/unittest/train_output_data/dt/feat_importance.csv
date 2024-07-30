@@ -1,0 +1,9 @@
+columns,importances
+SEPHASE_binned_dummie_from_incl_770000496331473264050176.00_to_inf_excl_,0.196175174178871
+SEINACT_dummie_2.0,0.15398834067965317
+SECHAB_dummie_I,0.1505629305998992
+SETODUDOSS_binned_dummie_from_excl_-inf_to_44432.00_excl_,0.13974121996303146
+SEMCRD_div_ratio_SETODUDOSS_binned_dummie_from_excl_-inf_to_0.72_excl_,0.11645101663585954
+EntryMonth_date_WeekDay_NB_dummie_2.0,0.10423587503069943
+EntryMonth_date_WeekDay_NB_dummie_1.0,0.09032418598037821
+EntryMonth_date_WeekDay_NB_dummie_4.0,0.04852125693160815
