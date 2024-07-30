@@ -26,7 +26,7 @@ from src.functions.printing_and_logging import print_end, print_and_log, print_t
 
 
 class ModuleClass(SessionManager):
-    def __init__(self, args):
+    def __init__(self, args, production_or_test=None):
         """
         Initializes the ModuleClass object.
 
@@ -37,7 +37,7 @@ class ModuleClass(SessionManager):
             None
         """
 
-        SessionManager.__init__(self, args)
+        SessionManager.__init__(self, args, production_or_test)
 
         if use_mlflow:
             mlflow.set_experiment(definitions.mlflow_prefix + "_" + self.project_name)

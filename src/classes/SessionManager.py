@@ -118,6 +118,7 @@ class SessionManager:
         if production_or_test is None:
             self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
         else:
+            print("Getting data from ./test/unittest/input_data/")
             self.input_data_folder_name = definitions.ROOT_DIR + '/tests/unittest/input_data/'
             
         self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'

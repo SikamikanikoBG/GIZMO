@@ -1,41 +1,42 @@
 import os
 import pandas as pd
-# import pickle
-from pyarrow import parquet as pq
 
-class CrossValDataLoader():
-
+class CrossValDataLoader:
     def __init__(self, data_dir: str):
-        self.correl = pd.read_csv(os.path.join(data_dir, "correl.csv"))
-        self.final_features = pd.read_pickle(os.path.join(data_dir, "final_features.pkl"))
-        self.missing_values = pd.read_csv(os.path.join(data_dir, "missing_values.csv"))
-        self.output_data_file = pd.read_parquet(os.path.join(data_dir, "output_data_file.parquet"))
-        self.output_data_file_full = pd.read_parquet(os.path.join(data_dir, "output_data_file_full.parquet"))
+        """
+        CrossValDataLoader - A class for loading data from a directory into Pandas DataFrames.
 
-# def parse_input_data(test_input_data_root_dir: str) -> list:
-#     dirs = os.listdir(test_input_data_root_dir)
-#     dirs = [os.path.join(test_input_data_root_dir, dir) for dir in dirs]
-#     return dirs
+        This class streamlines the process of loading multiple files from a single directory into
+        Pandas DataFrames for cross-validation or other data analysis tasks. It supports various file
+        formats and dynamically sets DataFrame attributes based on file names.
 
-def get_data_dir(root_dir: str) -> str:
-    return os.path.abspath(root_dir)
+        Attributes:
+            data_dir (str): The path to the directory containing the data files.
 
-def run_cv():
-    test_data_dir = get_data_dir("./test_data")
-    input_data_dir = get_data_dir("../output_data/bg_stage2/")
+        Methods:
+            load_files(): Loads all supported files (CSV, PKL, Feather, Parquet) into Pandas DataFrames.
+                         DataFrames are named after their filenames (without extension) and set as class attributes.
+        """
 
-    test_loader = CrossValDataLoader(test_data_dir)
-    input_loader = CrossValDataLoader(input_data_dir)
+        self.data_dir = data_dir
 
-    compare_data(test_loader, input_loader)
-    print("Success!")
+        self.load_files()
 
-def compare_data(test_loader: CrossValDataLoader, input_loader: CrossValDataLoader):
-    assert test_loader.correl.equals(input_loader.correl), "Correlation does not match"
-    assert test_loader.final_features == input_loader.final_features, "Final features do not match"
-    assert test_loader.missing_values.equals(input_loader.missing_values), "Missing values table does not match"
-    assert test_loader.output_data_file.equals(input_loader.output_data_file), "Output data does not match"
-    assert test_loader.output_data_file_full.equals(input_loader.output_data_file_full), "Full output data does not match"
+    def load_files(self):
+        for filename in os.listdir(self.data_dir):
+            name, extension = os.path.splitext(filename)
+            file_path = os.path.join(self.data_dir, filename)
 
-
-run_cv()
+            try:
+                if extension == '.csv':
+                    setattr(self, name, pd.read_csv(file_path))
+                elif extension == '.pkl':
+                    setattr(self, name, pd.read_pickle(file_path))
+                elif extension == '.feather':
+                    setattr(self, name, pd.read_feather(file_path))
+                elif extension == '.parquet':
+                    setattr(self, name, pd.read_parquet(file_path))
+                else:
+                    print(f"Skipping unsupported file: {filename}")
+            except Exception as e:
+                print(f"Error loading {filename}: {str(e)}")
