@@ -3,6 +3,7 @@ import argparse
 import unittest
 import sys
 import os
+from tests.cross_validation import CrossValDataLoader
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -20,6 +21,9 @@ class TestDataPrep(unittest.TestCase):
       
         module.prepare()
         module.run()
+
+        module_data = CrossValDataLoader("../unittest/data_prep_output_data")
+        print("Nice!")
 
 
 if __name__ == '__main__':

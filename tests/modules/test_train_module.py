@@ -1,9 +1,13 @@
 """Tests data preparation"""
+import pandas as pd
+
 import argparse
 import unittest
 import glob
 import sys
 import os
+
+from src.flows.training_flows.standard import ModuleClass
 from src.functions.printing_and_logging import print_and_log
 from tests.cross_validation import CrossValDataLoader
 
@@ -11,8 +15,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 parent_parent_dir = os.path.dirname(parent_dir)
 sys.path.append(parent_parent_dir)
-
-from src.flows.training_flows.standard import ModuleClass
 
 class TestTrainModule(unittest.TestCase):
     def test_train_module(self):
@@ -52,8 +54,20 @@ class TestTrainModule(unittest.TestCase):
         return None
 
     def test_shapes_and_dtypes(self):
+        for attr in dir(self.unittest_data):
+            if not attr.startswith('__') and isinstance(getattr(self.unittest_data, attr), pd.DataFrame):
+                unittest_df = getattr(self.unittest_data, attr)
+                input_df = getattr(self.input_data, attr, None)
 
-        return None
+                self.assertIsNotNone(input_df, f"DataFrame {attr} not found in input_data")
+
+                self.assertEqual(unittest_df.shape, input_df.shape,
+                                 f"Shapes do not match for {attr}: {unittest_df.shape} vs {input_df.shape}")
+
+                self.assertTrue(unittest_df.dtypes.equals(input_df.dtypes),
+                                f"Data types do not match for {attr}")
+
+                print(f"Shapes and dtypes in {attr} match between unittest_data and input_data")
 
     def get_latest_session_folder(self, base_dir):
         # Pattern to match session folders
