@@ -10,7 +10,7 @@ from src import BaseLoader, print_and_log
 
 
 class SessionManager:
-    def __init__(self, args):
+    def __init__(self, args, production_or_test):
         """
         Initialize the SessionManager object with the provided arguments.
 
@@ -113,13 +113,18 @@ class SessionManager:
         elif self.args.eval_module:
             self.log_file_name = 'eval_' + self.args.eval_module + '_' + self.project_name + '_' + str(
                 self.start_time) + '_' + self.tag + ".log"
+            
 
+        if production_or_test is None:
+            self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
+        else:
+            self.input_data_folder_name = definitions.ROOT_DIR + '/tests/unittest/input_data/'
+            
+        self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'
+        self.input_data_project_folder = self.project_name
         self.log_folder_name = definitions.EXTERNAL_DIR + '/logs/'
         self.session_folder_name = definitions.EXTERNAL_DIR + '/sessions/'
         self.session_id_folder = None
-        self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
-        self.input_data_project_folder = self.project_name
-        self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'
         self.functions_folder_name = definitions.ROOT_DIR + '/src/'
         self.params_folder_name = definitions.EXTERNAL_DIR + '/params/'
         self.implemented_folder = definitions.EXTERNAL_DIR + '/implemented_models/'
