@@ -332,7 +332,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
     corr_cols = []
     if flag_matrix != 'all':
         a = X.corrwith(y)
-
+        # TODO: saves csv before filtering top 100?
         a.to_csv(definitions.ROOT_DIR  + '/output_data/' + input_data_project_folder + '/correl.csv')
         a = abs(a)
         b = a[a <= 0.05]
@@ -361,7 +361,7 @@ def correlation_matrix(X, y, input_data_project_folder, flag_matrix, session_id_
                     corr_cols.append(col)
                 elif col in col2:
                     corr_cols.append(col)
-
+        # save to csv???
         print_and_log(f'[ CORRELATION ] Feat eng: keep only columns with correlation > 0.05: {len(corr_cols)} columns', '')
     else:
         a = X.corr()
