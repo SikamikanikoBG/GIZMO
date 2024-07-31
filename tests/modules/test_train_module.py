@@ -9,7 +9,7 @@ import os
 
 from src.flows.training_flows.standard import ModuleClass
 from src.functions.printing_and_logging import print_and_log
-from tests.cross_validation import CrossValDataLoader
+from tests.cross_validation import CrossValDataLoader, get_latest_session_folder
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -37,20 +37,21 @@ class TestTrainModule(unittest.TestCase):
         cls.module = ModuleClass(args=args, production_or_test="test")
         cls.module.prepare()
 
-    def setUp(self):
-        # This runs before each test method
-        base_directory = "../../sessions"
-        latest_session_dir = self.get_latest_session_folder(base_directory)
-
-        self.unittest_data = CrossValDataLoader(data_dir="../unittest/train_output_data")
-        self.input_data = CrossValDataLoader(data_dir=latest_session_dir)
-
-    def test_train_module(self):
+        # Init the module, this will create a new folder in ./sessions which will be used for testing
         try:
-            self.module.run()
+            cls.module.run()
         except Exception as e:
             print_and_log(e, "RED")
-            self.fail(f"ModuleClass.run() raised {type(e).__name__} unexpectedly!")
+            cls.fail(f"ModuleClass.run() raised {type(e).__name__} unexpectedly!")
+
+    # def setUp(self):
+        # This runs before each test method
+        base_directory = "../../sessions"
+        latest_session_dir = get_latest_session_folder(base_dir=base_directory)
+
+        cls.unittest_data = CrossValDataLoader(data_dir="../unittest/train_output_data")
+        cls.input_data = CrossValDataLoader(data_dir=latest_session_dir)
+
 
     def test_values(self):
         """Test for exact values"""
@@ -148,20 +149,7 @@ class TestTrainModule(unittest.TestCase):
                     self.assertSetEqual(unittest_uniques, input_uniques,
                                         f"Unique values don't match for {attr}.{col}")
                 print(f"Categorical unique values in {attr} match between unittest_data and input_data")
-    def get_latest_session_folder(self, base_dir):
-        # Pattern to match session folders
-        pattern = os.path.join(base_dir, "TRAIN_bg_stage2_*_no_tag")
 
-        # Get all matching directories
-        sessions = glob.glob(pattern)
-
-        if not sessions:
-            return None  # No matching sessions found
-
-        # Sort sessions by creation time (most recent first)
-        latest_session = max(sessions, key=os.path.getctime)
-
-        return latest_session
 
 if __name__ == '__main__':
     unittest.main()

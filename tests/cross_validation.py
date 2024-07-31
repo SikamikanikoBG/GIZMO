@@ -1,6 +1,8 @@
 import os
 import pandas as pd
+import glob
 
+from typing import Union
 class CrossValDataLoader:
     def __init__(self, data_dir: str):
         """
@@ -40,3 +42,19 @@ class CrossValDataLoader:
                     print(f"Skipping unsupported file: {filename}")
             except Exception as e:
                 print(f"Error loading {filename}: {str(e)}")
+
+
+def get_latest_session_folder(base_dir: str) -> Union[str, None]:
+    # Pattern to match session folders
+    pattern = os.path.join(base_dir, "TRAIN_bg_stage2_*_no_tag")
+
+    # Get all matching directories
+    sessions = glob.glob(pattern)
+
+    if not sessions:
+        return None  # No matching sessions found
+
+    # Sort sessions by creation time (most recent first)
+    latest_session = max(sessions, key=os.path.getctime)
+
+    return latest_session
