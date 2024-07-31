@@ -70,14 +70,24 @@ class TestDataPrep(unittest.TestCase):
             "../../unittest/data_prep_output_data")
         output_data = CrossValDataLoader("../../../output_data/bg_stage2")
 
-        first_column = expected_output_data.correl.columns[0]
-        df_expected_output_data_sorted = expected_output_data.correl.sort_values(
-            by=first_column).reset_index(drop=True)
-        df_output_data_sorted = output_data.correl.sort_values(
-            by=first_column).reset_index(drop=True)
+        def compare(column_name):
+            print(expected_output_data.__getattribute__(column_name))
+            first_column = expected_output_data.__getattribute__(column_name).columns[0]
+            df_expected_output_data_sorted = expected_output_data.__getattribute__(column_name).sort_values(
+                by=first_column).reset_index(drop=True)
+            df_output_data_sorted = output_data.__getattribute__(column_name).sort_values(
+                by=first_column).reset_index(drop=True)
 
-        self.assertTrue(df_expected_output_data_sorted.equals(
-            df_output_data_sorted), "The correl data does not match with the expected")
+            print(df_expected_output_data_sorted.compare(
+                df_output_data_sorted))
+            self.assertTrue(df_expected_output_data_sorted.equals(
+                df_output_data_sorted), f"The {column_name} data does not match with the expected")
+
+        compare("correl")
+        compare("final_features")
+        compare("missing_values")
+        compare("output_data_file_full")
+        compare("output_data_file")
 
 
 if __name__ == '__main__':
