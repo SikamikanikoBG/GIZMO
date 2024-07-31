@@ -38,8 +38,11 @@ class ModuleClass(SessionManager):
         """
 
         SessionManager.__init__(self, args, production_or_test)
-
-        if use_mlflow:
+        if production_or_test == "test":
+            self.production_or_test = production_or_test
+            print("[ UNITTESTING ] MLflow will not be ran")
+            use_mlflow = False
+        else:
             mlflow.set_experiment(definitions.mlflow_prefix + "_" + self.project_name)
         
         self.metrics_df = pd.DataFrame()
@@ -78,8 +81,12 @@ class ModuleClass(SessionManager):
         dt for Decision trees
         lr for Logistic Regression
         """
+        if self.production_or_test == "test":
+            print("[ UNITTESTING ] MLflow will not be ran")
+            use_mlflow = False
 
-        mlflow.start_run(run_name=self.session_id)
+        if use_mlflow:
+            mlflow.start_run(run_name=self.session_id)
 
         for model in models:
             if use_mlflow:

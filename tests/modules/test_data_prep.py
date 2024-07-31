@@ -3,6 +3,7 @@ import argparse
 import unittest
 import sys
 import os
+from tests.cross_validation import CrossValDataLoader
 import pandas as pd
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
