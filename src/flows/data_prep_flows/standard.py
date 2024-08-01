@@ -5,6 +5,7 @@ from pickle import dump
 from pickle import load
 
 import pandas as pd
+import json
 import inspect
 
 from datetime import datetime
@@ -18,7 +19,8 @@ import src.functions.data_prep.dates_manipulation as date_funcs
 from src.functions.data_prep.misc_functions import split_columns_by_types, switch_numerical_to_object_column, \
     convert_obj_to_cat_and_get_dummies, remove_column_if_not_in_final_features, \
     create_dict_based_on_col_name_contains, create_ratios, correlation_matrix, \
-    remove_categorical_cols_with_too_many_values, treating_outliers, nan_inspector
+    remove_categorical_cols_with_too_many_values, treating_outliers,\
+    nan_inspector, create_checkpoint, compare_checkpoints
 
 from src.functions.data_prep.missing_treatment import missing_values
 from src.functions.printing_and_logging import print_end, print_and_log, print_load
@@ -28,7 +30,6 @@ from sklearn.feature_selection import RFECV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import StratifiedKFold
 import traceback
-import unittest
 
 class ModuleClass(SessionManager):
     """
@@ -49,13 +50,14 @@ class ModuleClass(SessionManager):
         SessionManager.__init__(self, args, production_or_test)
         self.predict_session_flag = None
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
+        self.checkpoints = []
+
 
     def run(self):
         """
         Initializes the ModuleClass object.
         """
         # Check the corresponding param json file which has a criterion_column key
-
         if self.is_multiclass:
             print("Multiclass detected!")
 
@@ -66,7 +68,6 @@ class ModuleClass(SessionManager):
 
         self.merging_additional_files_procedure()
         self.check2_time = datetime.now()
-
         self.data_cleaning()
         self.check3_time = datetime.now()
 
@@ -106,6 +107,7 @@ class ModuleClass(SessionManager):
         self.check4_time = datetime.now()
         print_end()
 
+
     def data_cleaning(self):  # start data cleaning
         """
          Performs data cleaning operations on the input data.
@@ -135,9 +137,14 @@ class ModuleClass(SessionManager):
         save_missing_features_table(df=self.loader.in_df, input_data_project_folder=self.input_data_project_folder)
 
         print_and_log('[ DATA CLEANING ] Splitting columns by types ', '')
+
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
-
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'Initial State'
+        ))
         # Check for nans
         nan_inspector(in_df=self.loader.in_df_f,
                       cols=[
@@ -157,22 +164,48 @@ class ModuleClass(SessionManager):
                 input_df=self.loader.in_df[numerical_cols],
                 secondary_input_df=pd.DataFrame())
 
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After Outlier Treatment'
+        ))
+
         print_and_log('[ DATA CLEANING ] Converting objects to dates', '')
         self.loader.in_df = date_funcs.convert_obj_to_date(self.loader.in_df, object_cols, "_date")
         if self.under_sampling:
             self.loader.in_df_f = date_funcs.convert_obj_to_date(self.loader.in_df_f, object_cols, "_date")
 
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After convert_obj_to_date'
+        ))
+
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
-
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After split_columns_by_types'
+        ))
         print_and_log('[ DATA CLEANING ] Calculating date differences between date columns', '')
         self.loader.in_df = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df, dates_cols)
         if self.under_sampling:
             self.loader.in_df_f = date_funcs.calculate_date_diff_between_date_columns(self.loader.in_df_f,
                                                                                       dates_cols)
+
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After calculate_date_diff_between_date_columns'
+        ))
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
-
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After split_columns_by_types 201'
+        ))
         print_and_log('[ DATA CLEANING ] Extracting date characteristics as features', '')
         self.loader.in_df = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df,
                                                                                      dates_cols)
@@ -180,26 +213,57 @@ class ModuleClass(SessionManager):
             self.loader.in_df_f = date_funcs.extract_date_characteristics_from_date_column(self.loader.in_df_f,
                                                                                            dates_cols)
 
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After extract_date_characteristics_from_date_column'
+        ))
         categorical_cols, numerical_cols, object_cols, dates_cols = split_columns_by_types(df=self.loader.in_df,
                                                                                            params=self.params)
-
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After split_columns_by_types 220'
+        ))
         print_and_log('[ DATA CLEANING ]  remove categorical cols with too many values', '')
         object_cols = remove_categorical_cols_with_too_many_values(self.loader.in_df, object_cols)
+
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After remove_categorical_cols_with_too_many_values'
+        ))
 
         # treat specified numerical as objects
         print_and_log('[ DATA CLEANING ]  Switching type from number to object since nb of categories is below 20', "")
         numerical_cols, object_cols = switch_numerical_to_object_column(self.loader.in_df, numerical_cols,
                                                                         object_cols)
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After switch_numerical_to_object_column 238'
+        ))
 
         # convert objects to categories and get dummies
         print_and_log('[ DATA CLEANING ]  Converting objects to dummies', "")
         self.loader.in_df, self.loader.in_df_f = convert_obj_to_cat_and_get_dummies(self.loader.in_df,
                                                                                     self.loader.in_df_f,
                                                                                     object_cols, self.params)
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols},
+            'After convert_obj_to_cat_and_get_dummies 248'
+        ))
         # create cat and dummies dictionaries
         object_cols_cat = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_cat')
         object_cols_dummies = create_dict_based_on_col_name_contains(self.loader.in_df.columns.to_list(), '_dummie')
 
+        self.checkpoints.append(create_checkpoint(
+            self.loader.in_df,
+            {'categorical': categorical_cols, 'numerical': numerical_cols, 'object': object_cols, 'dates': dates_cols,\
+            'object_cols_cat': object_cols_cat, 'object_cols_dummies': object_cols_dummies},
+            'After create_dict_based_on_col_name_contains'
+        ))
         # final features to be processed further
         self.loader.final_features = object_cols_dummies + object_cols_cat + numerical_cols
 
@@ -211,8 +275,10 @@ class ModuleClass(SessionManager):
             print_and_log("[ FEATURE SELECTION ] Feature selection, based on predictive power", '')
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
+        with open("run3.json", "w") as outfile:
+            json.dump(self.checkpoints, outfile)
+        exit(0)
 
-        print(self.loader.final_features)
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
 
@@ -369,11 +435,11 @@ class ModuleClass(SessionManager):
 
     def remove_final_features_with_low_correlation(self):
         """
-       Removes final features with low correlation based on the correlation matrix.
+            Removes final features with low correlation based on the correlation matrix.
 
-       Returns:
-           None
-       """
+            Returns:
+               None
+        """
         self.loader.final_features = correlation_matrix(X=self.loader.in_df[self.loader.final_features],
                                                         y=self.loader.in_df[self.criterion_column],
                                                         input_data_project_folder=self.input_data_project_folder,
