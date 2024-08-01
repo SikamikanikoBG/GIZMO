@@ -275,6 +275,7 @@ class ModuleClass(SessionManager):
             print_and_log("[ FEATURE SELECTION ] Feature selection, based on predictive power", '')
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
+
         with open("run3.json", "w") as outfile:
             json.dump(self.checkpoints, outfile)
         exit(0)
