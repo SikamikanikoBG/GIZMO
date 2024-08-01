@@ -276,9 +276,9 @@ class ModuleClass(SessionManager):
             # Here numerical_cols can be dropped
             self.loader.final_features = self.select_features_by_predictive_power()
 
-        with open("run3.json", "w") as outfile:
-            json.dump(self.checkpoints, outfile)
-        exit(0)
+        # with open("run3.json", "w") as outfile:
+        #     json.dump(self.checkpoints, outfile)
+        # exit(0)
 
         self.loader.final_features, numerical_cols = remove_column_if_not_in_final_features(self.loader.final_features,
                                                                                             numerical_cols, self.columns_to_include)
