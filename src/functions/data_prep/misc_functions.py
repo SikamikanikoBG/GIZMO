@@ -10,6 +10,8 @@ import definitions
 from src.functions.modelling.modelling_functions import cut_into_bands
 from src.functions.printing_and_logging import print_and_log
 
+import hashlib
+from typing import List, Dict, Any
 
 def remove_column_if_not_in_final_features(final_features, numerical_cols, keep_cols):
     """
@@ -586,3 +588,61 @@ def nan_inspector(in_df: pd.DataFrame, cols: list, verbose: bool = False, raise_
         return nans_found
     else:
         return None
+
+
+def create_checkpoint(df: pd.DataFrame, column_lists: Dict[str, List[str]], step_name: str) -> Dict[str, Any]:
+    """
+    Create a checkpoint of the current state of the data and column lists.
+
+    Args:
+    df (pd.DataFrame): The current state of the dataframe
+    column_lists (Dict[str, List[str]]): Dictionary of column lists (e.g., {'numerical': [...], 'categorical': [...]})
+    step_name (str): Name of the current processing step
+
+    Returns:
+    Dict[str, Any]: A dictionary containing the checkpoint information
+    """
+    print("Creating checkpoints....")
+    checkpoint = {
+        'step_name': step_name,
+        'df_shape': df.shape,
+        'df_columns_hash': hashlib.md5(','.join(sorted(df.columns)).encode()).hexdigest(),
+        'column_lists': {k: sorted(v) for k, v in column_lists.items()},
+        'data_sample_hash': hashlib.md5(df.sample(min(1000, len(df)), random_state=42).to_json().encode()).hexdigest(),
+        'column_sizes': {}
+    }
+
+    # Add sizes for each column list
+    for list_name, columns in column_lists.items():
+        checkpoint['column_sizes'][list_name] = len(columns)
+
+    # Add total number of columns
+    # checkpoint['column_sizes']['total'] = len(df.columns)
+
+    return checkpoint
+
+
+def compare_checkpoints(checkpoint1: Dict[str, Any], checkpoint2: Dict[str, Any]) -> None:
+    """
+    Compare two checkpoints and print the differences.
+
+    Args:
+    checkpoint1 (Dict[str, Any]): First checkpoint
+    checkpoint2 (Dict[str, Any]): Second checkpoint
+    """
+    print(f"Comparing {checkpoint1['step_name']} with {checkpoint2['step_name']}:")
+
+    if checkpoint1['df_shape'] != checkpoint2['df_shape']:
+        print(f"  DataFrame shapes differ: {checkpoint1['df_shape']} vs {checkpoint2['df_shape']}")
+
+    if checkpoint1['df_columns_hash'] != checkpoint2['df_columns_hash']:
+        print("  DataFrame columns differ")
+
+    for list_name in checkpoint1['column_lists'].keys():
+        if checkpoint1['column_lists'][list_name] != checkpoint2['column_lists'][list_name]:
+            print(f"  {list_name} columns differ")
+
+    if checkpoint1['data_sample_hash'] != checkpoint2['data_sample_hash']:
+        print("  Data sample differs")
+
+    print()
