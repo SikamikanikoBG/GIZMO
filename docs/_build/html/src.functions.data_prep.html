@@ -231,6 +231,27 @@ criterion: str, column to use as the criterion for decision tree cuts</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.nan_inspector">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">nan_inspector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_asserts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.data_prep.misc_functions.nan_inspector" title="Permalink to this definition"></a></dt>
+<dd><p>Inspects columns in a DataFrame for missing values (NaNs) and prints a report.</p>
+<p>This function checks columns within a DataFrame for NaN values. If <cite>nested</cite> is True,
+it assumes <cite>cols</cite> is a list of lists of column names and processes each inner list separately.
+Otherwise, it treats <cite>cols</cite> as a single list of column names.</p>
+<p>The function uses a helper function <cite>print_var_name()</cite></p>
+<p>For each column or set of columns, it reports:
+- The variable name containing the column(s).
+- The number of rows with NaN values.
+- The names of the columns where NaNs are found.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>cols: A list of column names (or a list of lists of column names if <cite>nested</cite> is True).
+nested (bool, optional): Indicates whether <cite>cols</cite> is a nested structure. Defaults to False.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None: This function does not return a value; it prints a report to the console.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.outlier">
 <span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">outlier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.data_prep.misc_functions.outlier" title="Permalink to this definition"></a></dt>
 <dd><p>Placeholder function for outlier treatment.</p>
@@ -238,6 +259,20 @@ criterion: str, column to use as the criterion for decision tree cuts</p>
 <dt>Parameters:</dt><dd><p>df: DataFrame</p>
 </dd>
 <dt>Returns:</dt><dd><p>df: DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.functions.data_prep.misc_functions.print_var_name">
+<span class="sig-prename descclassname"><span class="pre">src.functions.data_prep.misc_functions.</span></span><span class="sig-name descname"><span class="pre">print_var_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.functions.data_prep.misc_functions.print_var_name" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves the name of a variable from the calling scope.</p>
+<p>This function uses the <cite>inspect</cite> module to analyze the call stack and
+find the first variable in the local scope that matches the given object’s identity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>var: The variable whose name you want to retrieve.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: The name of the variable as a string, or None if it cannot be found.</p>
 </dd>
 </dl>
 </dd></dl>

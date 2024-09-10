@@ -134,11 +134,13 @@
 <span class="sig-name descname"><span class="pre">create_eval_session_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.flows.eval_flows.standard.ModuleClass.create_eval_session_folder" title="Permalink to this definition"></a></dt>
 <dd><p>Creates an evaluation session folder.</p>
 <p>Steps:
-1. Print and log a message indicating the start of the session folder creation.
-2. Generate the session ID by concatenating ‘<a href="#id1"><span class="problematic" id="id2">EVAL_</span></a>’, the input data project folder, the start time, and the tag.
-3. Set the session ID folder path by concatenating the session folder name and the session ID.
-4. Create the session ID folder using the <cite>os.mkdir()</cite> function.
-5. Print and log a message indicating the completion of the session folder creation.</p>
+1. Print and log a message indicating the start of the session folder creation.</p>
+<ol class="arabic simple" start="2">
+<li><p>Generate the session ID by concatenating ‘<a href="#id1"><span class="problematic" id="id2">EVAL_</span></a>’, the input data project folder, the start time, and the tag.</p></li>
+<li><p>Set the session ID folder path by concatenating the session folder name and the session ID.</p></li>
+<li><p>Create the session ID folder using the <cite>os.mkdir()</cite> function.</p></li>
+<li><p>Print and log a message indicating the completion of the session folder creation.</p></li>
+</ol>
 <p>Returns:
 None</p>
 </dd></dl>
