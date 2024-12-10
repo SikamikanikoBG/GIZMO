@@ -1,0 +1,296 @@
+Variable;Description
+SENSOCFIN; firm                                  
+SENAGCAPV; after sale agency                     
+SENAGCRCVT; collection agency                    
+SENAGCCOM; maketing agency                       
+SENAGCFIN; financing agency                      
+SECPRODCOM; code of product                      
+SECPRODBASE; basic product                       
+SECPOLEACT; kind of activity (P/D)               
+SEDJOUR; date of processing day                  
+SEDPRES; date of presentation                    
+SEDTOMB; due date                                
+SEDBILL; billing date                            
+SECTYPEV; reason of calling ES                   
+SECMOMENT; name of the IBM calling program       
+SENBDOS; number of accounts in collection        
+SEPHASEA; curent phase of customer               
+SEDPHASEA; date of current phase                 
+SEPHASEP; previous phase                         
+SECLTRAITA; current procedure                    
+SECLDTRAITA; date of current procedure           
+SEMRESS; incomes of household                    
+SECPSA; code of unknown address                  
+SECTEL; code of phone                            
+SECMOTIFRECH; code of research exit              
+SECLCCRECH; customer on research                 
+SEDENTRECH; date of entrance on research         
+SEDSORRECH; date of exit from research           
+SENBPLAN; number of active plans for customer    
+SEFORCPHAS; proposal of phase change             
+SEVIEINACTD; maximum inactivity customer         
+SEVIEINACTC; inactivity customer                 
+SEVIERET; maximum late of customer               
+SEVIEPHASE; maximum phase of customer            
+SEVIEDUREE; collection duration of customer      
+SEVIEMTREG; total amount paid of customer        
+SEVIEMTFAC; total facilities of customer         
+SEVIEDUROK; duration period ok of customer       
+SEVIEVEHIC; recovery vehicule (cof)              
+SECORRESP; correspondent                         
+SECLIMAT; climate of the last contact            
+SEDCONT; date of last contact                    
+SEDNAIS; birth date                              
+SECSITFAM; cutomer's family situation            
+SEBENF; number of children                       
+SECCSP; profession of customer                   
+SEANCPROF; year of profession entrance           
+SECHAB; code for housing status                  
+SEANCHAB; year housing                           
+SEANCBQ; year entrance to the bank               
+SECPTT; postal code                              
+SECTYPEPROD; kind of product                     
+SECPOSA; current position of account             
+SEDPOSA; date of current position                
+SECPOSP; previous position of account            
+SEDPOSP; date of current position                
+SEMSREC; global srec                             
+SEMSRECCAP; capital srec                         
+SEMSRECASS; sickness insurance srec              
+SEMSRECPCAV; complementary products srec         
+SEMSRECREPORT; report fees srec                  
+SEMSRECRET; late fees srec                       
+SEMSRECAGIOS; fees srec                          
+SEMSRECCOTI; contribution srec                   
+SEMSRECDIVERS; others srec                       
+SEMCRD; capital remaining due                    
+SETODUCONTRAT; total of contract                 
+SETODUDOSS; total of account                     
+SEMDMA; maximum authorised overdraft             
+SEDECOUVERT; financed overdraft                  
+SEDVERROU; date of lock                          
+SECDEGR; degression                              
+SESCONOT; score of account                       
+SESCONUM; number of score                        
+SEMAGIM; unpaid fees                             
+SEDFIN; date of last financing for classical or opening for revolving 
+SEDDFIN; date of last financing for revolving    
+SEQUANT; instalment date                         
+SEBCHQUANT; number of instalment date change     
+SEBRGEAT; next installment rank                  
+SECCHR; irregular code                           
+SEMMENSP; amount last installment                
+SEMMENS; amount next installment                 
+SEMTME; due installments                         
+SEMREGORIG; total payment                        
+SEMIR; total late fees since the beginning       
+SEMIRSSR; total late fees for period             
+SECMODP; payment mode                            
+SEBMENS; credit duration                         
+SEBREPORT; number postponents since the beginning 
+SEMREPORTE; amount postponents since the beginning 
+SEMREPENR; amount last postponent in collection  
+SEBREPRCVT; number postponents in collection on 12 running monthes 
+SEDDREPORT; date of last postponent              
+SERPDATE; date of last postponent in collection  
+SEINDRPSSR; costs of postponents during period of collection   
+SEMFREP; costs postponents since the beginning   
+SEBRAZREA; number of raz since last activation   
+SEMRAZREA; amount of raz for the last activation 
+SEMECONT; amount of contact installment          
+SEMDPRE; amount of last presentation             
+SEMFDMOPREC; amount of financements MO           
+SECMAT; material code                            
+SEDECH1; date of first installment for classsical or date of change of overdraft for revolving 
+SECNEIERTZ; overdebt code                        
+SEDNEIERTZ; date of overdebt change              
+SECCHEQ; cheque code                             
+SECRCVTB; bac collection                         
+SECTITCBL; paiement card code                    
+SECPOSACA1; code of paiement card position if 1 holder 
+SECPOSACA2; code of paiement card position if 2 holders 
+SEDOTRAITA; procedure of account                 
+SEDODTRAITA; date of current procedure of account  
+SEDOTRAITP; procedure of previous account        
+SEDODTRAITP; date of previous procedure of account 
+SEDOTRAITANT; before the last procedure of account 
+SEDODTRAITANT;                           
+SEDOCCRECH; account in research                  
+SEDOCSEL; selectif                               
+SECTRA; litigation proposal                      
+SEMTPER; amount of proposed loss transfer            
+SEPRLVT; stopped direct debit                    
+SENBATT; current battery of letters              
+SELETDERN; last sent letter                      
+SERGNAT; kind of payment countable               
+SEDDREG; date of last payment                    
+SEMDREG; amount of last payment                  
+SERGCPAI1; spontanous payment                    
+SERGCPAI2; importance of the payment             
+SERGCPAI3; origin of the payment                 
+SERGMTSM1; amount of spontanous payment of previous month 
+SERGMTSM;  amount of spontanous payment of current month  
+SERGMTM; amount of monthly payment               
+SEIMPADATE; unpaid date                          
+SEIMPACRET; unpaid reason                        
+SEIMPAMT; unpaid amount                          
+SEIMPANAT; unpaid code                           
+SEIMPNBECH; number of unpaid installments        
+SEIMPNBMSO; number of unpaid under collection plan 
+SEINACT; inactivity of account                   
+SERET; late amount of account                    
+SEDUR; duration of collection account            
+SEINACTMAX; maximum inactivity of the account    
+SERETTMAX; maximum late amount of the account    
+SEBMONTSSR12M; number of entrance in collection during the 12 last months 
+SEBMONTSSR; number of entrance in collection since the beginning 
+SECRMONTEE12; number of research during the 12 last months 
+SECRMONTEE; number of research since entrance in collection 
+SECRNBORIG; number of research since the beginning 
+SECRDDERN; date of last research                 
+SEPHMONTEE12; number of phase1 during the 12 last months 
+SEPHNBORIG; number of phase1 since the beginning  
+SEPHDDERN; date of entrance in phase1             
+SEPHASE; phase x months ago                   
+SEPRDACC; date of plan set up                    
+SEPRCPLAN; situation of direct debit plan        
+SEPRTYP; payment mode of plan                    
+SEPRNBMSO; number of plan installments           
+SEPRCMSO; code of first mso                    
+SEPRDATE; date of first mso                    
+SEPRMT; amount of first mso                  
+SEDENRIMP; date of TOP INCIDENT of classical     
+SEDPASRECAM; date of TOP COLLECTION of classical 
+SEMACHATCHAINE; amount of credit balance of classical 
+SEPRRANG; next mso row                           
+SEPRCFAC;postponement facilities                       
+SEPRCRAP; call back of promess                   
+SEDECHSE; current cut off date                   
+SEDDERSSR; date of last entrance in collection   
+SEDSORT; date of last exit                       
+SEDAREL; date of end of mail stop                
+SEMREGSSR; account amount since entrance in collection 
+SEDACT; date of last collection action           
+SETYPACT; last collection action                 
+SENBRC; number of collection period during the last 18 months  
+SEDURRC; collection duration period during the last 18 months  
+SEDURRC1; duration of last collection period     
+SEDURRC2; duration of before the last collection period 
+SEDURRC3; duration of before of before the last collection period 
+SEDUROK1; duration of last ok period             
+SEDUROK2; duration of before the last ok period  
+SEDUROK3; duration of before of before the last ok period  
+SECRAC; repurchase code (cofica)                 
+SEMLPA; amount of first rent (cofica)            
+SEMDEPO; deposit                                 
+SEMLOY; amount of rents (cofica)                 
+SECPEP; presentation blocking (cofica)           
+SE-TRCLDTRAIT;                           
+SE-TRDODECH; date of account treatment           
+SEMREGSSRPH7; amount of payment in phase 7       
+SEMREGSSRPH2; amount of payment in phase 2       
+SEMREGSSRPH3; amount of payment in phase 3       
+SECNOTQUAENC; SQE value alphanumeric             
+SETSCOQUAENC; SQE value numeric                  
+SEPRECR; preconisation of REA in entrance        
+SEPOZCLIENT;                         
+SECGESTCTX;                         
+SEDGESTCTX;                         
+SECTYPFIN;                         
+SECTRTDTS;                         
+SENCPCBAR;                         
+SENCPD1FIN;                         
+SENODSTUP;                         
+SENODSTUPD;                         
+SESCOREFOY;                         
+SEM12PHASE;                         
+SESCORENOT;                         
+SEPXXPHASE;                         
+SEFOYTODU;                         
+SEFOYSREC;                         
+SECLIRANG;                         
+SECLISOMTODU;                         
+SECLIFIN;                         
+SECLIMAXANCDERREGL;                         
+SECLISOMMONTSSR;                         
+SECLISOMMOISSR;                         
+SEANCCLI;                         
+SECTITU;                         
+SECTXSCORE;                         
+SECTXSCORENOTE;                         
+SE-TDRVMMENS1;                         
+SE-TDRVDMENS1;                         
+SE-TDRVMMENS2;                         
+SE-TDRVDMENS2;                         
+SE-TDOCCCDTEL1;                         
+SE-TDOCCCDTEL2;                         
+SE-TDOCCCDTEL3;                         
+SE-TDOCCCDTEL4;                         
+SE-TDOCCCDTEL5;                         
+SE-TDOCCCDIBM1;                         
+SE-TDOCCCDIBM2;                         
+SE-TDOCCCDIBM3;                         
+SE-TDOCCCDIBM4;                         
+SE-TDOCCCDIBM5;                         
+SEDOSCMARQUEURA;                         
+SEDOSDMARQUEURA;                         
+SEDOSCMARQUEURP;                         
+SEDOSDMARQUEURP;                         
+SECLICMARQUEURA;                         
+SRCRETOUR; come back code                        
+SRPHASEA; phase ibm                              
+SRTRAITA; procedure ibm                          
+SRCCRECH; research ibm                           
+SRCTRADA; transfer litigation da ibm             
+SRCTRAAC; transfer litigation ac ibm             
+SRCALERT; alerts ibm                             
+SRSELECT; selectif ibm                           
+SRNOLET; letter ibm                              
+SRECHAAMMJJ; cut off date  ibm                   
+SRNBATT; battery of mail ibm                     
+SRFACBASE; base of facilites ibm                 
+SRFACTX; rate of facilities ibm                  
+SRIRBASE; base of late fees ibm                  
+SRIRTX; taux ir ibm                              
+SRCPP; loss transfer  ibm                        
+SRPCARRET; direct debit stop ibm                 
+SRPCTYP; kind of direct debit ibm                
+SRPSNB; additional direct debit day + x          
+SRPSQ; due date of additional direct debit       
+SRPSAAMMJJ; date of additional direct debit      
+SRPSTYP; kind of additional direct debit         
+SRMTPP; amount loss transfer                     
+SRSCORERAZ; score raz                            
+SRSCOREPHA; score phase 7                        
+SRSCOREFAC; score facilities                     
+SRQUANT; new due date if change                  
+SRCREL; Number of reminder (1 2)                 
+SRPRECR; preconisation REA                       
+SRPSMT; amount of direct debit to launch for classical 
+SRENTBASE;                           
+SRENTTX;                           
+SRCODSMS;                           
+SRTCTX;                           
+SRSCORENUM;                         
+SRSCORENOT;                         
+SRSCORETYP;                         
+SRCTXSCORE;                         
+SRCTXSCORENOTE;                         
+SRCTXSCOREDATE;                         
+SRCODMAIL;                         
+SRZZZ;                         
+SRNAGCRCVT;                         
+SRCRCVTB;                         
+SRREGLE;                         
+SR-AN;                         
+SRDOSCMARQUEURA;                         
+SRCLICMARQUEURA;                         
+Todu;Outstanding of dossier
+Installment;Installment of dossier
+Outstanding;Outstanding of dossier
+SEPHNBORIG__7;NB Phase7 since beginning
+SETODUCLT;Client Outstanding
+YY_SEDNAIS_EntryDate;Age at enetring
+MM_SEDFIN_EntryDate;Months between financing and entry
+MM_SEDPHASEA_EntryDate;Months between current phase and entry
+MM_SEDDREG_EntryDate;Months between last payment and entry
