@@ -1,3 +1,4 @@
+7.4.3 - bug fix: output directory was crashing. resources monitoring added for main.py
 7.4.2 - requirements updated with imblearn. SessionManager and baseloader updated to support windows and linux folders
 7.4.1 - created setup.bat and requirements.txt to ease the setup
 7.4.0 - revamped sphinx implementation, added specific folder for it

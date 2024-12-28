@@ -3,6 +3,7 @@ This is a shorter flow in order to speed up the developments.
 """
 from pickle import dump
 from pickle import load
+import os
 
 import pandas as pd
 import inspect
@@ -51,60 +52,63 @@ class ModuleClass(SessionManager):
         self.is_multiclass = True if self.loader.in_df[self.criterion_column].nunique() > 2 else False
 
     def run(self):
-        """
-        Initializes the ModuleClass object.
-        """
-        # Check the corresponding param json file which has a criterion_column key
+        """Main execution method with improved error handling."""
+        try:
+            self.check1_time = datetime.now()
+            self.prepare()
+            print_load()
+            print_and_log(f'Starting the session for: {self.input_data_project_folder}', 'GREEN')
 
-        if self.is_multiclass:
-            print("Multiclass detected!")
+            self.merging_additional_files_procedure()
+            self.check2_time = datetime.now()
 
-        self.check1_time = datetime.now()
-        self.prepare()
-        print_load()
-        print_and_log(f'Starting the session for: {self.input_data_project_folder}', 'GREEN')
+            self.data_cleaning()
+            self.check3_time = datetime.now()
 
-        self.merging_additional_files_procedure()
-        self.check2_time = datetime.now()
+            # Save processed data with new method
+            if not self.save_processed_data():
+                raise Exception("Failed to save processed data")
 
-        self.data_cleaning()
-        self.check3_time = datetime.now()
+            self.check4_time = datetime.now()
+            print_end()
+            
+        except Exception as e:
+            print_and_log(f"Error during execution: {str(e)}", "RED")
+            traceback.print_exc()
+            raise
 
-        # Saving processed data
-        self.loader.in_df.to_parquet(
-            self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file.parquet')
-        if self.under_sampling:
-            self.loader.in_df_f.to_parquet(
-                self.output_data_folder_name + self.input_data_project_folder + '/' + 'output_data_file_full.parquet')
-
-        # Save final_features, numeric + others
-        with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
-                  'wb') as f:
-            dump(self.loader.final_features, f)
-
-        # ---------------------------------Get only binned features--------------------------------- #
-        # Open final_features.pkl
-        with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl',
-                  'rb') as f:
-            features_pkl = load(f)       # list with the final features
-
-            binned_final_features = []   # empty list where we will put the binned only final features
-
-            # For each feature in final_features.pkl
-            for el in features_pkl:
-                feature = el.split("_")     # this line splits the current feature name by "_" so we can then look for the keyword "binned"
-
-                # If it is binned, add it to binned_final_features
-                if "dummie" in feature:
-                    binned_final_features.append(el)
-
-            # Save binned_final_features as the NEW final_features.pkl
-            with open(self.output_data_folder_name + self.input_data_project_folder + '/' + 'final_features.pkl', 'wb') as f:
-                dump(binned_final_features, f)
-            # ------------------------------------------------------------------------------- #
-
-        self.check4_time = datetime.now()
-        print_end()
+    def save_processed_data(self):
+        """Safely save processed data to parquet files."""
+        try:
+            # Ensure output directory exists
+            output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
+            os.makedirs(output_dir, exist_ok=True)
+            
+            # Save main dataframe
+            output_path = os.path.join(output_dir, 'output_data_file.parquet')
+            print_and_log(f"Saving processed data to {output_path}", "")
+            self.loader.in_df.to_parquet(output_path)
+            
+            # Save full dataframe if under_sampling is enabled
+            if self.under_sampling:
+                full_output_path = os.path.join(output_dir, 'output_data_file_full.parquet')
+                print_and_log(f"Saving full dataset to {full_output_path}", "")
+                self.loader.in_df_f.to_parquet(full_output_path)
+                
+            # Save final features
+            features_path = os.path.join(output_dir, 'final_features.pkl')
+            print_and_log(f"Saving final features to {features_path}", "")
+            with open(features_path, 'wb') as f:
+                dump(self.loader.final_features, f)
+                
+            return True
+            
+        except Exception as e:
+            print_and_log(f"Error saving processed data: {str(e)}", "RED")
+            print_and_log(f"Attempted paths:\n"
+                        f"Output dir: {output_dir}\n"
+                        f"Data file: {output_path}", "RED")
+            return False
 
     def data_cleaning(self):  # start data cleaning
         """
