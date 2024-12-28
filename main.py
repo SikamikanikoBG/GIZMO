@@ -166,7 +166,7 @@ def main():
     parser = argparse.ArgumentParser(description='Optional app description')
 
     # Add arguments
-    parser.add_argument('--tag', type=str, help='Tag the training_flows session. Optional')
+    parser.add_argument('--tag', type=str, help='Tag the session. Optional')
     parser.add_argument('--project', type=str,
                        help='name of the project. Should be the same as the input folder and the param file.')
     parser.add_argument('--session', type=str, help='Train session folder to generate evaluation docx')
@@ -189,27 +189,40 @@ def main():
 
     # Module selection and execution
     try:
-        if args.data_prep_module:
-            module = args.data_prep_module.lower()
-            module_lib = import_module(f'src.flows.data_prep_flows.{module}')
-        elif args.train_module:
-            module = args.train_module.lower()
-            module_lib = import_module(f'src.flows.training_flows.{module}')
-        elif args.predict_module:
-            module = args.predict_module.lower()
-            module_lib = import_module(f'src.flows.predict_flows.{module}')
-        elif args.eval_module and args.eval_module.lower():
-            module = args.eval_module.lower()
-            module_lib = import_module(f'src.flows.eval_flows.{module}')
-        else:
+        # Determine module type and path
+        module_config = {
+            'data_prep_module': ('data_prep_flows', 'PREP'),
+            'train_module': ('training_flows', 'TRAIN'),
+            'predict_module': ('predict_flows', 'PREDICT'),
+            'eval_module': ('eval_flows', 'EVAL')
+        }
+        
+        module_type = None
+        module_path = None
+        session_type = None
+        
+        for arg_name, (path_suffix, session_prefix) in module_config.items():
+            if getattr(args, arg_name):
+                module = getattr(args, arg_name).lower()
+                module_type = arg_name
+                module_path = f'src.flows.{path_suffix}.{module}'
+                session_type = session_prefix
+                break
+        
+        if not module_path:
             print_and_log("No valid module specified", "RED")
             sys.exit(1)
 
-        # Initialize and run module with resource monitoring
+        print_and_log(f"[ MODULE ] Initializing {session_type} module", "")
+        
+        # Import and initialize module
+        module_lib = import_module(module_path)
         module = module_lib.ModuleClass(args=args)
-        module.prepare()
         
         try:
+            # Initialize session environment
+            module.prepare()
+            
             # Print initial resource state
             print_and_log("\nInitial " + guard.monitor_resources(), "YELLOW")
             
@@ -221,9 +234,8 @@ def main():
             
         except Exception as e:
             print_and_log(str(e), "RED")
-            # Print resource state on error
             print_and_log("\nError state " + guard.monitor_resources(), "RED")
-            raise  # Re-raise the exception for proper error handling
+            raise
         
         module.run_time_calc()
         print_and_log(module.run_time, "")

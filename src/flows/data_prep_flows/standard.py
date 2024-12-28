@@ -78,36 +78,63 @@ class ModuleClass(SessionManager):
             raise
 
     def save_processed_data(self):
-        """Safely save processed data to parquet files."""
+        """
+        Saves processed data in the standard output location.
+        Main data files go to ROOT_DIR/output_data/{project_name}/
+        Analysis artifacts go to the session folder.
+        """
         try:
-            # Ensure output directory exists
-            output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
-            os.makedirs(output_dir, exist_ok=True)
+            # Set up output paths
+            output_project_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
+            os.makedirs(output_project_dir, exist_ok=True)
             
-            # Save main dataframe
-            output_path = os.path.join(output_dir, 'output_data_file.parquet')
+            # Save main data files to output_data directory
+            output_path = os.path.join(output_project_dir, 'output_data_file.parquet')
             print_and_log(f"Saving processed data to {output_path}", "")
             self.loader.in_df.to_parquet(output_path)
             
-            # Save full dataframe if under_sampling is enabled
             if self.under_sampling:
-                full_output_path = os.path.join(output_dir, 'output_data_file_full.parquet')
+                full_output_path = os.path.join(output_project_dir, 'output_data_file_full.parquet')
                 print_and_log(f"Saving full dataset to {full_output_path}", "")
                 self.loader.in_df_f.to_parquet(full_output_path)
-                
-            # Save final features
-            features_path = os.path.join(output_dir, 'final_features.pkl')
+            
+            # Save features and metadata
+            features_path = os.path.join(output_project_dir, 'final_features.pkl')
             print_and_log(f"Saving final features to {features_path}", "")
             with open(features_path, 'wb') as f:
                 dump(self.loader.final_features, f)
                 
+            # Save missing values analysis
+            missing_values_path = os.path.join(output_project_dir, 'missing_values.csv')
+            percent_missing = self.loader.in_df.isna().sum() * 100 / len(self.loader.in_df)
+            missing_value_df = pd.DataFrame({
+                'column_name': self.loader.in_df.columns,
+                'percent_missing': percent_missing
+            })
+            missing_value_df.to_csv(missing_values_path, index=False)
+            
+            # Save analysis artifacts to session folder for reference
+            features_dir = os.path.join(self.session_id_folder, 'features')
+            os.makedirs(features_dir, exist_ok=True)
+            
+            # Copy analysis files to session folder
+            import shutil
+            shutil.copy2(features_path, os.path.join(features_dir, 'final_features.pkl'))
+            shutil.copy2(missing_values_path, os.path.join(features_dir, 'missing_values.csv'))
+            
+            # If ppscore was generated, save it in both locations
+            if self.is_multiclass:
+                ppscore_path = os.path.join(output_project_dir, 'ppscore.csv')
+                if os.path.exists(ppscore_path):
+                    shutil.copy2(ppscore_path, os.path.join(features_dir, 'ppscore.csv'))
+                    
             return True
             
         except Exception as e:
             print_and_log(f"Error saving processed data: {str(e)}", "RED")
             print_and_log(f"Attempted paths:\n"
-                        f"Output dir: {output_dir}\n"
-                        f"Data file: {output_path}", "RED")
+                        f"Output dir: {output_project_dir}\n"
+                        f"Data file: {output_path if 'output_path' in locals() else 'Not created'}", "RED")
             return False
 
     def data_cleaning(self):  # start data cleaning
@@ -307,29 +334,51 @@ class ModuleClass(SessionManager):
     def select_features_by_predictive_power(self):
         """
         Selects features based on their predictive power using ppscore.
+        Saves results in the session features directory.
 
         Returns:
             list: List of selected features.
         """
-        df = self.loader.in_df.copy()
-
-        df = df[self.loader.final_features + [self.criterion_column]]
-        df = df.drop(
-            df.columns[df.columns.str.contains(self.criterion_column + "_")].tolist(),
-            axis=1
-        )
-        pp = pps.predictors(df, 
+        try:
+            df = self.loader.in_df.copy()
+            df = df[self.loader.final_features + [self.criterion_column]]
+            df = df.drop(
+                df.columns[df.columns.str.contains(self.criterion_column + "_")].tolist(),
+                axis=1
+            )
+            
+            # Calculate predictive power scores
+            pp = pps.predictors(df, 
                             self.criterion_column,
                             sorted=True,
                             random_seed=42)
-
-        pp.to_csv(definitions.ROOT_DIR + '/output_data/' + self.input_data_project_folder + '/ppscore.csv')
-        top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
-
-        print_and_log(f" [ FEATURE SELECTION ] Selected {len(top_100)} features", '')
-
-        assert not top_100.empty, "select_features_by_predictive_power() returned an empty list, should be n = 100"
-        return top_100['x'].tolist()
+            
+            # Save results in session directory
+            features_dir = os.path.join(self.session_id_folder, 'features')
+            os.makedirs(features_dir, exist_ok=True)
+            pp.to_csv(os.path.join(features_dir, 'ppscore.csv'))
+            
+            # Also save in output directory for backward compatibility
+            output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
+            os.makedirs(output_dir, exist_ok=True)
+            pp.to_csv(os.path.join(output_dir, 'ppscore.csv'))
+            
+            # Select top features
+            top_100 = pp[pp['ppscore'] > 0.05][['x']][:100]
+            
+            print_and_log(f"[ FEATURE SELECTION ] Selected {len(top_100)} features", '')
+            assert not top_100.empty, "select_features_by_predictive_power() returned an empty list, should be n = 100"
+            
+            # Save selected features list
+            selected_features = top_100['x'].tolist()
+            with open(os.path.join(features_dir, 'selected_features.pkl'), 'wb') as f:
+                dump(selected_features, f)
+                
+            return selected_features
+            
+        except Exception as e:
+            print_and_log(f"Error in feature selection: {str(e)}", "RED")
+            raise
 
     def select_features_by_importance(self):
         """

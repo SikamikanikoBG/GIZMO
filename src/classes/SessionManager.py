@@ -113,6 +113,7 @@ class SessionManager:
         # Set up folder structure using os.path.join
         self.log_folder_name = os.path.join(definitions.EXTERNAL_DIR, 'logs')
         self.session_folder_name = os.path.join(definitions.EXTERNAL_DIR, 'sessions')
+        os.makedirs(self.session_folder_name, exist_ok=True)
         self.session_id_folder = None
         self.input_data_folder_name = os.path.join(definitions.ROOT_DIR, 'input_data')
         self.input_data_project_folder = self.project_name
@@ -122,7 +123,7 @@ class SessionManager:
         self.implemented_folder = os.path.join(definitions.EXTERNAL_DIR, 'implemented_models')
         
         # Create basic folder structure
-        self.create_folders()
+        self.create_base_folders()
         self.start_logging()
 
         # Import parameters
@@ -167,15 +168,28 @@ class SessionManager:
 
     def prepare(self):
         """
-        Orchestrates the preparation of the session run
-        Returns:
-
+        Orchestrates the preparation of the session run by creating necessary folders
+        and initializing the appropriate session type.
         """
-        self.create_folders()
+        # First create base folders
+        self.create_base_folders()
+        
+        # Then create specific session folder based on module type
+        if self.args.train_module:
+            self.create_train_session_folder()
+        elif self.args.eval_module:
+            self.create_eval_session_folder()
+        elif self.args.predict_module:
+            self.create_predict_session_folder()
+        elif self.args.data_prep_module:
+            self.create_data_prep_session_folder()
 
-    def create_folders(self):
-        """Creates the folder structure if some of it is missing"""
-        folders = [
+    def create_base_folders(self):
+        """
+        Creates the base folder structure required for the application.
+        This includes directories for logs, sessions, input/output data, etc.
+        """
+        base_folders = [
             definitions.EXTERNAL_DIR,
             self.log_folder_name,
             self.session_folder_name,
@@ -186,12 +200,153 @@ class SessionManager:
             self.implemented_folder
         ]
         
-        for folder in folders:
-            os.makedirs(folder, exist_ok=True)
+        # Create base folders
+        for folder in base_folders:
+            try:
+                os.makedirs(folder, exist_ok=True)
+                print_and_log(f"[ FOLDERS ] Verified directory: {folder}", "")
+            except Exception as e:
+                print_and_log(f"[ ERROR ] Failed to create directory {folder}: {str(e)}", "RED")
+                raise
 
-        # Create output data project folder
-        project_output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
-        os.makedirs(project_output_dir, exist_ok=True)
+        # Create project-specific output directory
+        try:
+            project_output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
+            os.makedirs(project_output_dir, exist_ok=True)
+            print_and_log(f"[ FOLDERS ] Created project output directory: {project_output_dir}", "")
+        except Exception as e:
+            print_and_log(f"[ ERROR ] Failed to create project output directory: {str(e)}", "RED")
+            raise
+
+    def create_train_session_folder(self):
+        """
+        Creates a training session folder with proper naming and structure.
+        """
+        print_and_log('[ SESSION ] Creating training session folder', 'YELLOW')
+        
+        # Format timestamp without spaces
+        timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+        
+        # Generate session ID
+        self.session_id = f'TRAIN_{self.project_name}_{timestamp}_{self.tag}'
+        
+        # Create full session path with proper separator
+        self.session_id_folder = os.path.join(self.session_folder_name, self.session_id)
+        
+        try:
+            # Create main session directory
+            os.makedirs(self.session_id_folder, exist_ok=True)
+            
+            # Create model subdirectories
+            for model_dir in ['dt', 'rf', 'xgb', 'lr']:
+                model_path = os.path.join(self.session_id_folder, model_dir)
+                plots_path = os.path.join(model_path, 'plots')
+                models_path = os.path.join(model_path, 'models')
+                metrics_path = os.path.join(model_path, 'metrics')
+                
+                for path in [model_path, plots_path, models_path, metrics_path]:
+                    os.makedirs(path, exist_ok=True)
+                
+            # Create data directory
+            data_dir = os.path.join(self.session_id_folder, 'data')
+            os.makedirs(data_dir, exist_ok=True)
+            
+            print_and_log(f'[ SESSION ] Created folder {self.session_id_folder}', '')
+            
+        except Exception as e:
+            print_and_log(f'[ ERROR ] Failed to create training session folder: {str(e)}', 'RED')
+            raise
+
+    def create_eval_session_folder(self):
+        """
+        Creates an evaluation session folder with proper naming and structure.
+        """
+        print_and_log('[ SESSION ] Creating evaluation session folder', 'YELLOW')
+        
+        # Format timestamp without spaces
+        timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+        
+        # Generate session ID
+        self.session_id = f'EVAL_{self.project_name}_{timestamp}_{self.tag}'
+        
+        # Create full session path with proper separator
+        self.session_id_folder = os.path.join(self.session_folder_name, self.session_id)
+        
+        try:
+            # Create evaluation directory structure
+            os.makedirs(self.session_id_folder, exist_ok=True)
+            
+            # Create standard subdirectories
+            subdirs = ['data', 'results', 'metrics']
+            for subdir in subdirs:
+                os.makedirs(os.path.join(self.session_id_folder, subdir), exist_ok=True)
+                
+            print_and_log(f'[ SESSION ] Created folder {self.session_id_folder}', '')
+            
+        except Exception as e:
+            print_and_log(f'[ ERROR ] Failed to create evaluation folder: {str(e)}', 'RED')
+            raise
+
+    def create_predict_session_folder(self):
+        """
+        Creates a prediction session folder with proper naming and structure.
+        """
+        print_and_log('[ SESSION ] Creating prediction session folder', 'YELLOW')
+        
+        # Format timestamp without spaces
+        timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+        
+        # Generate session ID
+        self.session_id = f'PREDICT_{self.project_name}_{timestamp}_{self.tag}'
+        
+        # Create full session path with proper separator
+        self.session_id_folder = os.path.join(self.session_folder_name, self.session_id)
+        
+        try:
+            # Create directory structure
+            os.makedirs(self.session_id_folder, exist_ok=True)
+            
+            # Create subdirectories
+            subdirs = ['predictions', 'metrics', 'models']
+            for subdir in subdirs:
+                os.makedirs(os.path.join(self.session_id_folder, subdir), exist_ok=True)
+                
+            print_and_log(f'[ SESSION ] Created folder {self.session_id_folder}', '')
+            
+        except Exception as e:
+            print_and_log(f'[ ERROR ] Failed to create prediction folder: {str(e)}', 'RED')
+            raise
+
+    def create_data_prep_session_folder(self):
+        """
+        Creates a data preparation session folder with proper naming and structure.
+        """
+        print_and_log('[ SESSION ] Creating data prep session folder', 'YELLOW')
+        
+        # Format timestamp without spaces
+        timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+        
+        # Generate session ID
+        self.session_id = f'PREP_{self.project_name}_{timestamp}_{self.tag}'
+        
+        # Create full session path with proper separator
+        self.session_id_folder = os.path.join(self.session_folder_name, self.session_id)
+        
+        try:
+            # Create directory structure
+            os.makedirs(self.session_id_folder, exist_ok=True)
+            
+            # Create subdirectories
+            subdirs = ['raw', 'processed', 'features']
+            for subdir in subdirs:
+                os.makedirs(os.path.join(self.session_id_folder, subdir), exist_ok=True)
+                
+            print_and_log(f'[ SESSION ] Created folder {self.session_id_folder}', '')
+            
+        except Exception as e:
+            print_and_log(f'[ ERROR ] Failed to create data prep folder: {str(e)}', 'RED')
+            raise
+
 
     def start_logging(self):
         """Starts the logging process for the session"""
