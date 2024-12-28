@@ -1,6 +1,10 @@
-![Gizmo mascot](gizmo_mascot.png)  
+<p align="center">
+  <img src="gizmo_mascot.png" alt="Gizmo mascot" />
+</p>
 
-# Gizmo Project  
+
+# Gizmo Project:
+### Automates data prep, model training, and reporting for machine learning. 
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)  
 ![Conda](https://img.shields.io/badge/Conda-Environment-green)  
@@ -63,7 +67,7 @@ You can use Gizmo on both Windows and Linux/Mac.
 ### Step 1: Clone the Repository  
 
 ```bash  
-git clone https://github.com/sikamikanikoBG/gizmo.git  
+git clone https://github.com/SikamikanikoBG/jizzmo.git  
 cd gizmo  
 ```  
 
