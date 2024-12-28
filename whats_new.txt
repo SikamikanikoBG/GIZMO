@@ -1,3 +1,5 @@
+7.4.2 - requirements updated with imblearn. SessionManager and baseloader updated to support windows and linux folders
+7.4.1 - created setup.bat and requirements.txt to ease the setup
 7.4.0 - revamped sphinx implementation, added specific folder for it
 7.3.0 - docstrings added everywhere
 7.2.2 - missing treatment - removed tremoval of columns with 99% missing values

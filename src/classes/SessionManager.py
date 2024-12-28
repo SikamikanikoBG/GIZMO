@@ -2,12 +2,9 @@ import json
 import logging
 import os
 from datetime import datetime
-
 from colorama import Fore, Style
-
 import definitions
 from src import BaseLoader, print_and_log
-
 
 class SessionManager:
     def __init__(self, args):
@@ -80,7 +77,7 @@ class SessionManager:
         self.check3_time_runtime = None
         self.check2_time_runtime = None
         self.check1_time_runtime = None
-        self.start_time = datetime.now()  # .strftime("%Y-%m-%d_%H:%M:%S")
+        self.start_time = datetime.now()
         self.end_time = None
         self.run_time = None
         self.data_load_time = None
@@ -93,43 +90,49 @@ class SessionManager:
         self.args = args
         self.session_to_eval = self.args.session
         self.model_arg = self.args.model
-        # self.run_info = self.args.run
         self.project_name = self.args.project
-        if not self.args.tag:
-            self.tag = 'no_tag'
-        else:
-            self.tag = self.args.tag
+        self.tag = self.args.tag if self.args.tag else 'no_tag'
 
-        # folder structure properties
+        # Create timestamp without colons and spaces
+        timestamp = self.start_time.strftime("%Y%m%d_%H%M%S")
+
+        # Generate log filename based on module type
         if self.args.data_prep_module:
-            self.log_file_name = 'load_' + self.args.data_prep_module + '_' + self.project_name + '_' + str(
-                self.start_time) + '_' + self.tag + ".log"
+            module_prefix = f'load_{self.args.data_prep_module}'
         elif self.args.train_module:
-            self.log_file_name = 'train_' + self.args.train_module + '_' + self.project_name + '_' + str(
-                self.start_time) + '_' + self.tag + ".log"
+            module_prefix = f'train_{self.args.train_module}'
         elif self.args.predict_module:
-            self.log_file_name = 'predict_' + self.args.predict_module + '_' + self.project_name + '_' + str(
-                self.start_time) + '_' + self.tag + ".log"
+            module_prefix = f'predict_{self.args.predict_module}'
         elif self.args.eval_module:
-            self.log_file_name = 'eval_' + self.args.eval_module + '_' + self.project_name + '_' + str(
-                self.start_time) + '_' + self.tag + ".log"
+            module_prefix = f'eval_{self.args.eval_module}'
+        else:
+            module_prefix = 'unknown'
 
-        self.log_folder_name = definitions.EXTERNAL_DIR + '/logs/'
-        self.session_folder_name = definitions.EXTERNAL_DIR + '/sessions/'
+        self.log_file_name = f"{module_prefix}_{self.project_name}_{timestamp}_{self.tag}.log"
+
+        # Set up folder structure using os.path.join
+        self.log_folder_name = os.path.join(definitions.EXTERNAL_DIR, 'logs')
+        self.session_folder_name = os.path.join(definitions.EXTERNAL_DIR, 'sessions')
         self.session_id_folder = None
-        self.input_data_folder_name = definitions.ROOT_DIR + '/input_data/'
+        self.input_data_folder_name = os.path.join(definitions.ROOT_DIR, 'input_data')
         self.input_data_project_folder = self.project_name
-        self.output_data_folder_name = definitions.ROOT_DIR + '/output_data/'
-        self.functions_folder_name = definitions.ROOT_DIR + '/src/'
-        self.params_folder_name = definitions.EXTERNAL_DIR + '/params/'
-        self.implemented_folder = definitions.EXTERNAL_DIR + '/implemented_models/'
+        self.output_data_folder_name = os.path.join(definitions.ROOT_DIR, 'output_data')
+        self.functions_folder_name = os.path.join(definitions.ROOT_DIR, 'src')
+        self.params_folder_name = os.path.join(definitions.EXTERNAL_DIR, 'params')
+        self.implemented_folder = os.path.join(definitions.EXTERNAL_DIR, 'implemented_models')
+        
+        # Create basic folder structure
+        self.create_folders()
         self.start_logging()
 
         # Import parameters
         try:
-            with open(definitions.EXTERNAL_DIR + '/params/params_' + self.project_name + '.json') as json_file:
+            params_file = os.path.join(self.params_folder_name, f'params_{self.project_name}.json')
+            with open(params_file) as json_file:
                 self.params = json.load(json_file)
                 definitions.params = self.params
+            
+            # Load parameter values
             self.criterion_column = self.params['criterion_column']
             self.missing_treatment = self.params["missing_treatment"]
             self.observation_date_column = self.params["observation_date_column"]
@@ -151,10 +154,11 @@ class SessionManager:
             logging.error(e)
             quit()
 
+        # Initialize loader
         self.loader = BaseLoader(params=self.params, predict_module=self.args.predict_module)
         if self.args.data_prep_module:
             self.loader.data_load_prep(in_data_folder=self.input_data_folder_name,
-                                       in_data_proj_folder=self.input_data_project_folder)
+                                     in_data_proj_folder=self.input_data_project_folder)
         elif self.args.train_module:
             self.loader.data_load_train(output_data_folder_name=self.output_data_folder_name,
                                         input_data_project_folder=self.input_data_project_folder)
@@ -170,55 +174,44 @@ class SessionManager:
         self.create_folders()
 
     def create_folders(self):
-        """
-        Creates the folder structure if some of it is missing
-        Returns:
-
-        """
-        if not os.path.isdir(definitions.EXTERNAL_DIR):
-            os.mkdir(definitions.EXTERNAL_DIR)
-        if not os.path.isdir(self.log_folder_name):
-            os.mkdir(self.log_folder_name)
-        if not os.path.isdir(self.session_folder_name):
-            os.mkdir(self.session_folder_name)
-        if not os.path.isdir(self.input_data_folder_name):
-            os.mkdir(self.input_data_folder_name)
-        if not os.path.isdir(self.output_data_folder_name):
-            os.mkdir(self.output_data_folder_name)
-        if not os.path.isdir(self.functions_folder_name):
-            os.mkdir(self.functions_folder_name)
-        if not os.path.isdir(self.params_folder_name):
-            os.mkdir(self.params_folder_name)
-        if not os.path.isdir(self.implemented_folder):
-            os.mkdir(self.implemented_folder)
+        """Creates the folder structure if some of it is missing"""
+        folders = [
+            definitions.EXTERNAL_DIR,
+            self.log_folder_name,
+            self.session_folder_name,
+            self.input_data_folder_name,
+            self.output_data_folder_name,
+            self.functions_folder_name,
+            self.params_folder_name,
+            self.implemented_folder
+        ]
+        
+        for folder in folders:
+            os.makedirs(folder, exist_ok=True)
 
         # Create output data project folder
-        if not os.path.isdir(self.output_data_folder_name + self.input_data_project_folder + '/'):
-            os.mkdir(self.output_data_folder_name + self.input_data_project_folder + '/')
+        project_output_dir = os.path.join(self.output_data_folder_name, self.input_data_project_folder)
+        os.makedirs(project_output_dir, exist_ok=True)
 
     def start_logging(self):
-        """
-        Starts the logging process for the session and creates the log file
-        Returns:
+        """Starts the logging process for the session"""
+        log_file_path = os.path.join(self.log_folder_name, self.log_file_name)
+        
+        # Create or clear the log file
+        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+        open(log_file_path, 'w').close()
 
-        """
-        # logging
-        if not os.path.isfile(self.log_folder_name + self.log_file_name):
-            open(self.log_folder_name + self.log_file_name, 'w').close()
-
+        # Configure logging
         logging.basicConfig(
-            filename=self.log_folder_name + self.log_file_name,
-            level=logging.INFO, format='%(asctime)s - %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            filename=log_file_path,
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)-8s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
         print_and_log('[ LOGGING ] Start logging', 'YELLOW')
 
     def run_time_calc(self):
-        """
-        Calculates the time delta that the session took to run, displaying times in minutes
-        if they exceed 60 seconds.
-
-        Returns:
-            None
-        """
+        """Calculates session runtime and formats output"""
         self.end_time = datetime.now()
         self.run_time = round(float((self.end_time - self.start_time).total_seconds()), 2)
 
@@ -226,18 +219,21 @@ class SessionManager:
             if seconds > 60:
                 return f"{seconds / 60:.2f} minutes"
             else:
-                return f"{seconds}s"  # Note the 's' for seconds
+                return f"{seconds}s"
 
         check_times = [self.check1_time, self.check2_time, self.check3_time, self.check4_time]
         check_time_runtimes = []
         for i, check_time in enumerate(check_times):
             if check_time:
                 runtime = round(float((check_time - (check_times[i - 1] if i > 0 else self.start_time)).total_seconds()), 2)
-                check_time_runtimes.append(format_time(runtime))  # Format the time
+                check_time_runtimes.append(format_time(runtime))
 
-        # String formatting for the log message
         check_time_log_str = ",\n".join(f"Check{i+1} time: {time}" for i, time in enumerate(check_time_runtimes))
 
         print_and_log(f"RUN time: {format_time(self.run_time)}, {check_time_log_str}", "YELLOW")
         if self.args.train_module:
-            print_and_log(f"Session complete.\nRun standard eval session with: python main.py --project {self.project_name} --eval_module standard --session \"{self.session_id}\"",'GREEN')
+            print_and_log(
+                f"Session complete.\nRun standard eval session with: python main.py --project {self.project_name} "
+                f"--eval_module standard --session \"{self.session_id}\"",
+                'GREEN'
+            )

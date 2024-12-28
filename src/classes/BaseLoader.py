@@ -1,9 +1,8 @@
 import pickle
 from importlib import import_module
-
+import os
 import pandas as pd
 from pyarrow import parquet as pq
-
 from src.functions.data_load_functions import check_separator_csv_file, print_and_log
 from src.functions.data_prep.misc_functions import remove_periods_from_df
 from src.functions.data_prep.under_sampling import under_sampling_df_based_on_params
@@ -15,15 +14,14 @@ def load_from_csv(input_data_folder_name, input_data_project_folder, file):
 
     Args:
         input_data_folder_name (str): The name of the input data folder.
-
         input_data_project_folder (str): The name of the input data project folder.
-
         file (str): The name of the CSV file to load.
 
     Returns:
         pandas.DataFrame: The loaded CSV file as a DataFrame.
     """
-    df = pd.read_csv(input_data_folder_name + input_data_project_folder + '/' + file)
+    file_path = os.path.join(input_data_folder_name, input_data_project_folder, file)
+    df = pd.read_csv(file_path)
     return df
 
 
@@ -33,16 +31,14 @@ def load_from_parquet(input_data_folder_name, input_data_project_folder, file):
 
     Args:
         input_data_folder_name (str): The name of the input data folder.
-
         input_data_project_folder (str): The name of the input data project folder.
-
         file (str): The name of the Parquet file to load.
 
     Returns:
         pandas.DataFrame: The loaded Parquet file as a DataFrame.
     """
-    df = pd.read_parquet(input_data_folder_name + input_data_project_folder + '/' + file,
-                         engine='pyarrow')
+    file_path = os.path.join(input_data_folder_name, input_data_project_folder, file)
+    df = pd.read_parquet(file_path, engine='pyarrow')
     return df
 
 
@@ -85,7 +81,6 @@ class BaseLoader:
         self.y_train, self.y_train_us, self.y_test, self.y_test_us, self.t1df_y, self.t2df_y, self.t3df_y = \
             None, None, None, None, None, None, None
         self.predict_module = predict_module
-        # self.is_multiclass = True if self.y_train.nunique() > 2 else False  # Flag that determines if we have multiclass or not
 
     def data_load_prep(self, in_data_folder, in_data_proj_folder):
         """
@@ -99,11 +94,10 @@ class BaseLoader:
 
         # todo: add if logic - when loading from csv and when loading from API
         print_and_log(f"[ LOADING ] Loading file {self.main_table}", "")
+        
         if '.csv' in self.main_table:
-
             self.in_df = load_from_csv(in_data_folder, in_data_proj_folder, self.main_table)
-            self.in_df = check_separator_csv_file(in_data_folder, in_data_proj_folder, self.in_df,
-                                                  self.main_table)
+            self.in_df = check_separator_csv_file(in_data_folder, in_data_proj_folder, self.in_df, self.main_table)
         else:
             self.in_df = load_from_parquet(in_data_folder, in_data_proj_folder, self.main_table)
 
@@ -117,9 +111,10 @@ class BaseLoader:
         if self.params["additional_tables"]:
             for file in self.params["additional_tables"]:
                 print_and_log(f"[ ADDITIONAL TABLES ] Loading {file}", "")
+                file_path = os.path.join(in_data_folder, in_data_proj_folder, file)
 
                 if '.csv' in file:
-                    additional_file_df = pd.read_csv(in_data_folder + in_data_proj_folder + "/" + file)
+                    additional_file_df = pd.read_csv(file_path)
                 else:
                     additional_file_df = load_from_parquet(in_data_folder, in_data_proj_folder, file)
 
@@ -128,17 +123,14 @@ class BaseLoader:
                         additional_file_df = module_lib.run(additional_file_df)
                 except Exception as e:
                     print_and_log(f"[ ADDITIONAL TABLES ] Cannot process {file} with custom calcs. Skipping...", "RED")
-                    pass
+                
                 self.additional_files_df_dict.append(additional_file_df)
 
         if self.params["under_sampling"]:
-            self.in_df, self.in_df_f = under_sampling_df_based_on_params(self.in_df, self.params) # Returns:
-                                                                                                  # input_df: DataFrame, under-sampled DataFrame
-                                                                                                  # input_df_full: DataFrame, original full DataFrame
-            # todo: remove after
+            self.in_df, self.in_df_f = under_sampling_df_based_on_params(self.in_df, self.params)
+            # Convert observation date column to object type
             self.in_df[self.params['observation_date_column']] = self.in_df[self.params['observation_date_column']].astype('O')
             self.in_df_f[self.params['observation_date_column']] = self.in_df_f[self.params['observation_date_column']].astype('O')
-
 
     def data_load_train(self, output_data_folder_name, input_data_project_folder):
         """
@@ -152,18 +144,22 @@ class BaseLoader:
         Loads the data, checks for duplicated columns, handles under-sampling if specified, and loads final features.
         """
         print_and_log('[ LOADING ] Loading data', 'GREEN')
-        self.in_df = pq.read_table(
-            output_data_folder_name + input_data_project_folder + '/' 'output_data_file.parquet')
-        self.in_df = self.in_df.to_pandas()
-        # checking for duplicated columns and treating them
+        
+        # Load main data file
+        data_file_path = os.path.join(output_data_folder_name, input_data_project_folder, 'output_data_file.parquet')
+        self.in_df = pq.read_table(data_file_path).to_pandas()
+        # Remove duplicated columns
         self.in_df = self.in_df.loc[:, ~self.in_df.columns.duplicated()]
 
+        # Load full data file if under_sampling is enabled
         if self.params['under_sampling']:
-            self.in_df_f = pq.read_table(
-                output_data_folder_name + input_data_project_folder + '/' 'output_data_file_full.parquet')
-            self.in_df_f = self.in_df_f.to_pandas()
+            full_data_path = os.path.join(output_data_folder_name, input_data_project_folder, 'output_data_file_full.parquet')
+            self.in_df_f = pq.read_table(full_data_path).to_pandas()
             self.in_df_f = self.in_df_f.loc[:, ~self.in_df_f.columns.duplicated()]
 
-        with (open(output_data_folder_name + input_data_project_folder + '/' + 'final_features.pkl', "rb")) as openfile:
+        # Load final features
+        features_path = os.path.join(output_data_folder_name, input_data_project_folder, 'final_features.pkl')
+        with open(features_path, "rb") as openfile:
             self.final_features = pickle.load(openfile)
+            
         print_and_log('[ LOADING ] Data Loaded', 'GREEN')
