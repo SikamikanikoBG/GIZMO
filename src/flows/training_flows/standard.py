@@ -4,6 +4,7 @@ import definitions
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import roc_curve, auc
+import shutil
 
 use_mlflow = False
 try:
