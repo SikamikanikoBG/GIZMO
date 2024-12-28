@@ -1,68 +1,189 @@
-WIP :)
+![Gizmo mascot](gizmo_mascot.png)  
 
-For building sphinx look in ``./conda_envs``
+# Gizmo Project  
 
-For building sphinx doc look in ``./docs/auto_make_html.sh``
+![Python](https://img.shields.io/badge/Python-3.11-blue)  
+![Conda](https://img.shields.io/badge/Conda-Environment-green)  
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-orange)  
+![License](https://img.shields.io/badge/License-MIT-brightgreen)  
 
-### TODO 
-- Add documentation on how to use main.py with params. Quick example:
+The **Gizmo Project** automates machine learning workflows from start to finish. It cleans your data, trains models, compares them, and generates professional reports—all with just a few commands.  
 
-  - ``python main.py --project bg_stage2 --data_prep_module standard``
-  - ``python main.py --project bg_stage2 --train_module standard``
+---
 
-- Basic commands example:
-  - ``python main.py --project bg_stage2 --data_prep_module standard``
-  - ``python main.py --project bg_stage2 --train_module standard``
-  - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_<PROJECT_NAME_AND_DATE>_no_tag"``
-    - Eval example: 
-      - ``python main.py --project bg_stage2 --eval_module standard --session "TRAIN_bg_stage2_2024-06-18 13:12:00.802211_no_tag"``
+## Table of Contents  
+1. [What Gizmo Does](#what-gizmo-does)  
+2. [Features](#features)  
+3. [What You Get](#what-you-get)  
+4. [Setup](#setup)  
+5. [How to Use](#how-to-use)  
+6. [Supported Models](#supported-models)  
+7. [System Requirements](#system-requirements)  
+8. [Contributing](#contributing)  
+9. [License](#license)  
 
-- `src.classes.BaseModeller.BaseModeller.model_fit` throws an error if we have multilabel classification task
-and using AUC evaluation. XGBoost documentation says:
-  - `auc`: Receiver Operating Characteristic Area under the Curve. Available for classification and learning-to-rank tasks.
-    - When used with binary classification, the objective should be binary:logistic or similar functions that work on probability.
-    - **When used with multi-class classification**, objective should be `multi:softprob` instead of `multi:softmax`,
-    as the latter doesn’t output probability. Also the AUC is calculated by 1-vs-rest with reference
-    class weighted by class prevalence.
-     
-- ML Flow uploads model artifacts, but other metadata files are being blocked
- 
-- Docx output has about 30% correctly printed graphs. Possible causes:
-  - Since AUC is still not implemented correctly, some graphs could be for AUC and thus not plotted
-  - In the code for plotting graphs there are if statements checking if we are plotting a model with multiclass
-    classification accompanied by comments about wondering if multiclass plotting works
-  > Code for plotting is in: `src/functions/evaluation.py`
+---
 
-- More debugging is needed to make sure that multiclass classification actually works.
-In many places in the package there are constant checks if we are doing mult. cls.
-Those checks lead to running code designed for mult. cls., which is not extensively
-tested.
+## What Gizmo Does  
 
-- Vera mentioned that when choosing to *not* use undersampling on the dataset after data cleaning and feature filtering 
-  we are left in an empty dataset. Possible causes:
-  - Correlation score is too low
-  - P-value is too high
+1. **Data Preparation**: Cleans missing values, removes outliers, and generates useful features.  
+2. **Model Training**: Builds multiple machine learning models automatically.  
+3. **Result Comparison**: Calculates metrics like accuracy, precision, recall, and more.  
+4. **Reporting**: Produces detailed PDF and Word documents with results and visuals.  
 
-- Debug prints have to be removed for the final version
+---
 
-- All erros can be found in ./logs
+## Features  
 
-### Progress
-- Eval now works, but the displayed graphs are missing
-- Eval had some issues with getting the right session name. Now that's fixed. 
-  > Reminder: related classes and functions are SessionManager; word_merge, etc
+- **End-to-End Automation**: Handles the entire machine learning pipeline.  
+- **Interactive GUI**: Easy-to-use interface for data preparation, training, and evaluation.  
+- **Multi-Model Training**: Supports models like XGBoost, Random Forest, Logistic Regression, and more.  
+- **Resource Optimization**: Automatically adjusts system settings for best performance.  
+- **Comprehensive Reporting**: Includes graphs, metrics, and summaries.  
+
+---
+
+## What You Get  
+
+When you use Gizmo, it produces:  
+1. **Reports**:  
+   - Professional Word and PDF summaries.  
+   - Includes visualizations like ROC curves and confusion matrices.  
+2. **Predictions**:  
+   - CSV files with model predictions.  
+3. **Model Comparisons**:  
+   - Metrics for each model, highlighting the best one.  
+
+---
+
+## Setup  
+
+You can use Gizmo on both Windows and Linux/Mac.  
+
+### Step 1: Clone the Repository  
+
+```bash  
+git clone https://github.com/sikamikanikoBG/gizmo.git  
+cd gizmo  
+```  
+
+### Step 2: Create the Environment  
+
+#### For Windows  
+Run the `setup.bat` file:  
+```cmd  
+setup.bat  
+```  
+
+#### For Linux/Mac  
+Run the `setup.sh` file:  
+```bash  
+bash setup.sh  
+```  
+
+### What These Scripts Do:  
+- Create a **Conda environment** called `gizmo_env`.  
+- Install all required Python libraries listed in `requirements.txt`.  
+
+### Step 3: Activate the Environment  
+
+#### On Windows:  
+```cmd  
+conda activate gizmo_env  
+```  
+
+#### On Linux/Mac:  
+```bash  
+conda activate gizmo_env  
+```  
+
+You’re now ready to use Gizmo!  
+
+---
+
+## How to Use  
+
+### Example 1: Data Preparation  
+
+Prepare your data using the `data_prep` module:  
+```bash  
+python main.py --project my_project --data_prep_module standard  
+```  
+
+- **What Happens**:  
+  - Cleans your data and handles missing values.  
+  - Creates new features like ratios and binned values.  
+  - Saves the prepared dataset for training.  
+
+---
+
+### Example 2: Train Models  
+
+Train models on your prepared data using the `train` module:  
+```bash  
+python main.py --project my_project --train_module standard
+```  
+
+- **What Happens**:  
+  - Trains a Logistic Regression model.  
+  - Saves the model, metrics, and results.  
 
 
-### Multiclass predictions with Gizmo
+---
 
-Now it is possible to build a multiclass models with Scoring Gizmo.
-A multiclass model is one that targets more than two classes in its criterion (label / target) variable.
+### Compare Results  
 
-There's nothing special / different in using multiclass modeling: you specify the criterion variable in the project's params file, and the Scoring Gizmo package takes care of processing the data.
-In the evaluation session it will create ROC graphs that capture all classes' performance.
+After training, Gizmo will automatically compare all models and highlight the best one in the reports.  
 
+---
 
-There are three main differences between the binary classification case and the multiclass case:
-- Only XGBoost is used right now. It is possible to use other algorithms, by means of creating one-vs-rest datasets, but that would require significant re-engineering effort for the whole package.
-- Feature selection: In the binary classification case, feature selection is mainly done by calculating correlations between the predictors and the target. In the case of multiclass criterion variable we use **predictive power score**  to do feature selection. This methodology results in **far less features selected**, but it is possible to capture non-linear and/or asymetrical relationships between the predictor variables. In the case of correlation, it will always capture linear and symetrical relationships only.
-- Probabilities and bands. As we have multiple classes, defining cut-offs for those classes is hard, and it is non-trivial to implement in a generic way.
+### Using the GUI  
+
+For an interactive experience:  
+1. Launch the GUI:  
+   ```bash  
+   python gizmo_ui.py  
+   ```  
+2. Use the interface to prepare data, train models, and review results.  
+
+---
+
+## Supported Models  
+
+Gizmo supports the following machine learning models:  
+- **XGBoost**  
+- **Random Forest**  
+- **Decision Trees**  
+
+These models are trained using optimized hyperparameters and evaluated across multiple metrics.  
+
+---
+
+## System Requirements  
+
+### Minimum Requirements  
+- **RAM**: 8 GB  
+- **CPU**: Dual-core  
+- **Disk Space**: 20 GB free  
+
+### Recommended  
+- **RAM**: 16 GB or more  
+- **GPU**: NVIDIA 3090 or equivalent (for faster processing).  
+
+---
+
+## Contributing  
+
+We welcome contributions! Here's how you can help:  
+1. Fork this repository.  
+2. Create a new branch for your changes:  
+   ```bash  
+   git checkout -b feature/your-feature-name  
+   ```  
+3. Submit a pull request with your improvements.  
+
+---
+
+## License  
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.  
