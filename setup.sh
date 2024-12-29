@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # setup.sh
-echo "Creating new conda environment gizmo_ar with Python 3.11..."
-conda create -n gizmo_ar python=3.11 -y
+echo "Creating new conda environment gizmo_ar with Python 3.9..."
+conda create -n gizmo_ar python=3.9 -y
 
 echo "Activating environment..."
 source $(conda info --base)/etc/profile.d/conda.sh

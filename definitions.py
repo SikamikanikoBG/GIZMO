@@ -22,7 +22,7 @@ input_df = None
 
 # XGBoost
 n_estimators = 100
-early_stopping_rounds = 10
+early_stopping_rounds = 100
 learning_rate = 0.01
 max_features = 30
 
