@@ -2,192 +2,146 @@
   <img src="gizmo_mascot.png" alt="Gizmo mascot" />
 </p>
 
+# Gizmo Project
+### Automated Machine Learning Pipeline with Interactive UI
 
-# Gizmo Project:
-### Automates data prep, model training, and reporting for machine learning. 
+![Python](https://img.shields.io/badge/Python-3.9-blue)
+![Conda](https://img.shields.io/badge/Conda-Environment-green)
+![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20MacOS-orange)
+![License](https://img.shields.io/badge/License-MIT-brightgreen)
 
-![Python](https://img.shields.io/badge/Python-3.11-blue)  
-![Conda](https://img.shields.io/badge/Conda-Environment-green)  
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-orange)  
-![License](https://img.shields.io/badge/License-MIT-brightgreen)  
+Gizmo is an end-to-end machine learning automation tool that streamlines the entire process from data preparation to model evaluation. With its intuitive GUI, you can manage projects, prepare data, train models, and generate comprehensive reports with just a few clicks.
 
-The **Gizmo Project** automates machine learning workflows from start to finish. It cleans your data, trains models, compares them, and generates professional reports—all with just a few commands.  
+## 🌟 Key Features
 
----
+- **Interactive GUI**: User-friendly interface for all ML pipeline stages
+- **Automated Data Preparation**: Handles missing values, outliers, and feature engineering
+- **Multi-Model Training**: Supports XGBoost, Random Forest, and more
+- **Comprehensive Reporting**: Generates detailed reports with visualizations and metrics
+- **Exploratory Data Analysis**: Built-in EDA tools with sweetviz integration
 
-## Table of Contents  
-1. [What Gizmo Does](#what-gizmo-does)  
-2. [Features](#features)  
-3. [What You Get](#what-you-get)  
-4. [Setup](#setup)  
-5. [How to Use](#how-to-use)  
-6. [Supported Models](#supported-models)  
-7. [System Requirements](#system-requirements)  
-8. [Contributing](#contributing)  
-9. [License](#license)  
+## 📸 Screenshots
 
----
+### Project Management
+Easily manage your ML projects, configure parameters, and set up data processing rules.
+![Project Management Tab](./images/pm.png)
 
-## What Gizmo Does  
+### Exploratory Data Analysis
+Analyze your data with interactive visualizations and detailed statistics.
+![EDA Tab](./images/eda.png)
 
-1. **Data Preparation**: Cleans missing values, removes outliers, and generates useful features.  
-2. **Model Training**: Builds multiple machine learning models automatically.  
-3. **Result Comparison**: Calculates metrics like accuracy, precision, recall, and more.  
-4. **Reporting**: Produces detailed PDF and Word documents with results and visuals.  
+## 🚀 Getting Started
 
----
+### Prerequisites
+- Python 3.9
+- Conda package manager
 
-## Features  
+### Installation
 
-- **End-to-End Automation**: Handles the entire machine learning pipeline.  
-- **Interactive GUI**: Easy-to-use interface for data preparation, training, and evaluation.  
-- **Multi-Model Training**: Supports models like XGBoost, Random Forest, Logistic Regression, and more.  
-- **Resource Optimization**: Automatically adjusts system settings for best performance.  
-- **Comprehensive Reporting**: Includes graphs, metrics, and summaries.  
+1. **Clone the repository**
+```bash
+git clone https://github.com/SikamikanikoBG/jizzmo.git
+cd gizmo
+```
 
----
+2. **Set up the environment**
+```bash
+# On Linux/Mac
+bash setup.sh
 
-## What You Get  
+# On Windows
+setup.bat
+```
 
-When you use Gizmo, it produces:  
-1. **Reports**:  
-   - Professional Word and PDF summaries.  
-   - Includes visualizations like ROC curves and confusion matrices.  
-2. **Predictions**:  
-   - CSV files with model predictions.  
-3. **Model Comparisons**:  
-   - Metrics for each model, highlighting the best one.  
+3. **Activate the environment**
+```bash
+conda activate gizmo_ar
+```
 
----
+## 📚 Usage
 
-## Setup  
+### Using the GUI
 
-You can use Gizmo on both Windows and Linux/Mac.  
+1. **Launch the interface**
+```bash
+python gizmo_ui.py
+```
 
-### Step 1: Clone the Repository  
+2. **Navigate through the tabs:**
+   - **Project Management**: Configure project parameters and settings
+   - **EDA**: Perform exploratory data analysis on your datasets
+   - **Pipeline Execution**: Run data preparation and model training
+   - **Results**: View and compare model performance
 
-```bash  
-git clone https://github.com/SikamikanikoBG/jizzmo.git  
-cd gizmo  
-```  
+### Command Line Interface
 
-### Step 2: Create the Environment  
+For automated workflows, use the CLI:
 
-#### For Windows  
-Run the `setup.bat` file:  
-```cmd  
-setup.bat  
-```  
+```bash
+# Data preparation
+python main.py --project my_project --data_prep_module standard
 
-#### For Linux/Mac  
-Run the `setup.sh` file:  
-```bash  
-bash setup.sh  
-```  
-
-### What These Scripts Do:  
-- Create a **Conda environment** called `gizmo_env`.  
-- Install all required Python libraries listed in `requirements.txt`.  
-
-### Step 3: Activate the Environment  
-
-#### On Windows:  
-```cmd  
-conda activate gizmo_env  
-```  
-
-#### On Linux/Mac:  
-```bash  
-conda activate gizmo_env  
-```  
-
-You’re now ready to use Gizmo!  
-
----
-
-## How to Use  
-
-### Example 1: Data Preparation  
-
-Prepare your data using the `data_prep` module:  
-```bash  
-python main.py --project my_project --data_prep_module standard  
-```  
-
-- **What Happens**:  
-  - Cleans your data and handles missing values.  
-  - Creates new features like ratios and binned values.  
-  - Saves the prepared dataset for training.  
-
----
-
-### Example 2: Train Models  
-
-Train models on your prepared data using the `train` module:  
-```bash  
+# Model training
 python main.py --project my_project --train_module standard
-```  
 
-- **What Happens**:  
-  - Trains a Logistic Regression model.  
-  - Saves the model, metrics, and results.  
+# Model evaluation
+python main.py --project my_project --eval_module standard --session SESSION_ID
+```
 
+## 🛠️ Pipeline Stages
 
----
+### 1. Data Preparation
+- Handles missing values with configurable strategies
+- Removes outliers automatically
+- Creates derived features
+- Supports temporal data splitting
 
-### Compare Results  
+### 2. Model Training
+- **Supported Models**:
+  - XGBoost
+  - Random Forest
+  - Decision Trees
+  - Logistic Regression
+- Automatic hyperparameter optimization
+- Cross-validation support
 
-After training, Gizmo will automatically compare all models and highlight the best one in the reports.  
+### 3. Evaluation
+- Comprehensive metrics calculation
+- ROC curves and confusion matrices
+- Detailed performance reports
+- Model comparison tools
 
----
+## 💻 System Requirements
 
-### Using the GUI  
+### Minimum
+- RAM: 8 GB
+- CPU: 2 cores
+- Storage: 20 GB
 
-For an interactive experience:  
-1. Launch the GUI:  
-   ```bash  
-   python gizmo_ui.py  
-   ```  
-2. Use the interface to prepare data, train models, and review results.  
+### Recommended
+- RAM: 16 GB
+- CPU: 4+ cores
+- Storage: 50 GB SSD
 
----
+## 🤝 Contributing
 
-## Supported Models  
+Contributions are welcome! To contribute:
 
-Gizmo supports the following machine learning models:  
-- **XGBoost**  
-- **Random Forest**  
-- **Decision Trees**  
+1. Fork the repository
+2. Create a feature branch
+```bash
+git checkout -b feature/amazing-feature
+```
+3. Commit your changes
+4. Push to your branch
+5. Open a Pull Request
 
-These models are trained using optimized hyperparameters and evaluated across multiple metrics.  
+## 📄 License
 
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## System Requirements  
+## 🙏 Acknowledgments
 
-### Minimum Requirements  
-- **RAM**: 8 GB  
-- **CPU**: Dual-core  
-- **Disk Space**: 20 GB free  
-
-### Recommended  
-- **RAM**: 16 GB or more  
-- **GPU**: NVIDIA 3090 or equivalent (for faster processing).  
-
----
-
-## Contributing  
-
-We welcome contributions! Here's how you can help:  
-1. Fork this repository.  
-2. Create a new branch for your changes:  
-   ```bash  
-   git checkout -b feature/your-feature-name  
-   ```  
-3. Submit a pull request with your improvements.  
-
----
-
-## License  
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.  
+- Thanks to all contributors who have helped shape this project
+- Built with [Gradio](https://gradio.app/) for the UI
+- Uses [Sweetviz](https://github.com/fbdesignpro/sweetviz) for EDA reports
