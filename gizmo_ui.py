@@ -473,7 +473,7 @@ class GizmoUI:
             self.report_path = report_path
             self.warnings = warnings
 
-    def generate_eda_report(self, project_name: str, dataset_type: str, vs_criterion: bool = False) -> "GizmoUI.EDAReport":
+    def generate_eda_report(self, project_name: str, dataset_type: str, vs_criterion: bool = False, force_new: bool = False) -> "GizmoUI.EDAReport":
         """Generate Sweetviz EDA report for the specified dataset"""
         warnings = []
         try:
@@ -482,8 +482,8 @@ class GizmoUI:
             
             if not project_name:
                 return self.EDAReport("Please select a project", [])
-            
-             # Report path setup...
+
+            # Setup paths
             report_dir = os.path.join(self.project_structure['output_data'], project_name, 'eda')
             os.makedirs(report_dir, exist_ok=True)
             
@@ -492,79 +492,45 @@ class GizmoUI:
             report_name = f"sweetviz_report_{dataset_suffix}_{report_type}.html"
             report_path = os.path.join(report_dir, report_name)
 
-            # Check if report already exists
-            if os.path.exists(report_path):
+            # Check existing report unless force_new is True
+            if os.path.exists(report_path) and not force_new:
                 self.logger.info(f"Using existing report: {report_path}")
                 return self.EDAReport(report_path, [])
-            
+                
             # Load data with warnings
             if dataset_type == 'input':
                 input_path = os.path.join(self.project_structure['input_data'], project_name)
                 csv_files = [f for f in os.listdir(input_path) if f.endswith('.csv')]
                 if not csv_files:
-                    return self.EDAReport("No CSV files found in input directory", [])
+                    return self.EDAReport("No CSV files found in input directory", warnings)
                 
                 try:
+                    print(f"Loading input dataset from {csv_files[0]}")
                     df = pd.read_csv(os.path.join(input_path, csv_files[0]))
                     if df.empty:
-                        return self.EDAReport("Input dataset is empty", [])
-                    self.logger.info(f"Loaded input dataset from {csv_files[0]}")
+                        return self.EDAReport("Dataset is empty", warnings)
                 except Exception as e:
-                    return self.EDAReport(f"Error reading input CSV: {str(e)}", [])
-                
+                    return self.EDAReport(f"Error reading CSV: {str(e)}", warnings)
+                    
             else:  # processed data
                 processed_path = os.path.join(self.project_structure['output_data'], project_name, 'output_data_file.parquet')
                 processed_full_path = os.path.join(self.project_structure['output_data'], project_name, 'output_data_file_full.parquet')
                 
                 if not os.path.exists(processed_path) or not os.path.exists(processed_full_path):
-                    return self.EDAReport("Processed data files not found. Please run data preparation first.", [])
+                    return self.EDAReport("Processed data files not found. Please run data preparation first.", warnings)
                 
                 try:
                     df = pd.read_parquet(processed_path)
                     df_full = pd.read_parquet(processed_full_path)
                     if df.empty or df_full.empty:
-                        return self.EDAReport("One or both processed datasets are empty", [])
-                    self.logger.info("Loaded processed datasets")
+                        return self.EDAReport("One or both processed datasets are empty", warnings)
                 except Exception as e:
-                    return self.EDAReport(f"Error reading parquet files: {str(e)}", [])
-            
-            # Data cleaning with warnings
-            def clean_dataframe(df, name="Dataset"):
-                local_warnings = []
-                
-                # Check for and replace infinite values
-                inf_mask = np.isinf(df.select_dtypes(include=np.number))
-                if inf_mask.any().any():
-                    affected_cols = df.columns[inf_mask.any()].tolist()
-                    local_warnings.append(f"Infinite values found and replaced in columns: {', '.join(affected_cols)}")
-                    df = df.replace([np.inf, -np.inf], np.nan)
-                
-                # Convert boolean columns
-                bool_cols = df.select_dtypes(include=['bool']).columns
-                if not bool_cols.empty:
-                    local_warnings.append(f"Boolean columns converted to integer: {', '.join(bool_cols)}")
-                    for col in bool_cols:
-                        df[col] = df[col].astype(int)
-                
-                # Handle datetime columns
-                date_cols = df.select_dtypes(include=['datetime64']).columns
-                if not date_cols.empty:
-                    local_warnings.append(f"Datetime columns converted to string: {', '.join(date_cols)}")
-                    for col in date_cols:
-                        df[col] = df[col].astype(str)
-                
-                return df, local_warnings
-            
-            df, df_warnings = clean_dataframe(df, "Main dataset")
-            warnings.extend(df_warnings)
-            
-            if dataset_type == 'processed':
-                df_full, df_full_warnings = clean_dataframe(df_full, "Full dataset")
-                warnings.extend(df_full_warnings)
-            
-            # Criterion analysis with warnings
-            if vs_criterion and dataset_type == 'processed':
-                try:
+                    return self.EDAReport(f"Error reading parquet files: {str(e)}", warnings)
+
+            # Generate appropriate report
+            try:
+                if vs_criterion:
+                    # Load criterion column from parameters
                     param_path = os.path.join(self.project_structure['params'], f'params_{project_name}.json')
                     if not os.path.exists(param_path):
                         return self.EDAReport("Parameters file not found", warnings)
@@ -579,52 +545,49 @@ class GizmoUI:
                     if criterion_col not in df.columns:
                         return self.EDAReport(f"Criterion column '{criterion_col}' not found in dataset", warnings)
                     
-                    # Convert criterion column if needed
-                    if not df[criterion_col].dtype in ['int64', 'float64', 'bool']:
-                        warnings.append(f"Criterion column '{criterion_col}' converted to numeric")
+                    # Ensure criterion column is numeric
+                    if not pd.api.types.is_numeric_dtype(df[criterion_col]):
+                        warnings.append(f"Converting {criterion_col} to numeric type")
                         df[criterion_col] = pd.to_numeric(df[criterion_col], errors='coerce')
                     
-                    if df[criterion_col].isna().all():
-                        return self.EDAReport(f"Criterion column '{criterion_col}' has no valid numeric values", warnings)
-                    
-                    report = sv.compare(
-                        [df, "Processed Dataset"],
-                        [df_full, "Full Dataset"],
-                        target_feat=criterion_col,
-                        pairwise_analysis='off'
-                    )
-                except Exception as e:
-                    return self.EDAReport(f"Error in criterion analysis: {str(e)}", warnings)
-            else:
-                try:
                     if dataset_type == 'processed':
-                        report = sv.compare(
+                        df_full[criterion_col] = pd.to_numeric(df_full[criterion_col], errors='coerce')
+                        my_report = sv.compare(
+                            [df, "Processed Dataset"],
+                            [df_full, "Full Dataset"],
+                            target_feat=criterion_col,
+                            pairwise_analysis='off'
+                        )
+                    else:
+                        my_report = sv.analyze(
+                            source=df,
+                            target_feat=criterion_col,
+                            pairwise_analysis='off'
+                        )
+                else:
+                    if dataset_type == 'processed':
+                        my_report = sv.compare(
                             [df, "Processed Dataset"],
                             [df_full, "Full Dataset"],
                             pairwise_analysis='off'
                         )
                     else:
-                        report = sv.analyze(
+                        my_report = sv.analyze(
                             source=df,
                             pairwise_analysis='off'
                         )
-                except Exception as e:
-                    return self.EDAReport(f"Error generating report: {str(e)}", warnings)
-            
-            # Generate report
-            try:
-                report.show_html(filepath=report_path, open_browser=False)
+
+                # Save report
+                my_report.show_html(filepath=report_path, open_browser=False)
                 return self.EDAReport(report_path, warnings)
-            except Exception as e:
-                return self.EDAReport(f"Error saving report: {str(e)}", warnings)
                 
+            except Exception as e:
+                return self.EDAReport(f"Error generating report: {str(e)}", warnings)
+
         except Exception as e:
-            error_msg = f"Error generating EDA report: {str(e)}"
+            error_msg = f"Error in EDA report generation: {str(e)}"
             self.logger.error(error_msg)
             return self.EDAReport(error_msg, warnings)
-
-
-
 
     def create_interface(self):
         """Create enhanced Gradio interface with structured parameter form"""
@@ -722,35 +685,81 @@ class GizmoUI:
                     elem_classes="scrollable-report"
                 )
                 
-                def process_eda_result(project, dataset, vs_criterion):
-                    result = self.generate_eda_report(project, dataset, vs_criterion)
+                # In create_interface method:
+
+                def process_eda_result(project, dataset, vs_criterion, force_new=False):
+                    """Process EDA report generation with proper handling of new vs existing reports"""
+                    print(f"Processing EDA report: project={project}, dataset={dataset}, vs_criterion={vs_criterion}, force_new={force_new}")
                     
-                    # Show warnings if any exist
+                    result = self.generate_eda_report(project, dataset, vs_criterion=vs_criterion, force_new=force_new)
+                    
                     warnings_html = ""
                     if result.warnings:
                         warnings_html = "### Data Processing Warnings:\n" + "\n".join([f"- {w}" for w in result.warnings])
+                        warnings_box.visible = True
+                    else:
+                        warnings_box.visible = False
                     
-                    # Load report content if it's a valid path
                     if result.report_path.endswith('.html'):
                         with open(result.report_path, 'r', encoding='utf-8') as f:
                             report_content = f.read()
+                            iframe_content = f'''
+                            <div style="width:100%;height:100%">
+                                <iframe srcdoc="{report_content.replace('"', '&quot;')}" 
+                                        style="width:100%;height:800px;border:none;">
+                                </iframe>
+                            </div>
+                            '''
                     else:
-                        report_content = f"<div class='error'>{result.report_path}</div>"
+                        iframe_content = f"<div class='error'>{result.report_path}</div>"
                     
-                    return warnings_html, report_content
-                
-                # Update click handlers
+                    return warnings_html, iframe_content
+
+                # Button handlers - Using consistent naming and direct function calls
                 run_btn.click(
                     fn=process_eda_result,
-                    inputs=[project_dropdown, dataset_type, gr.Checkbox(value=False, visible=False)],
+                    inputs=[
+                        project_dropdown,
+                        dataset_type,
+                        gr.Checkbox(value=False, visible=False),  # vs_criterion
+                        gr.Checkbox(value=True, visible=False)    # force_new
+                    ],
                     outputs=[warnings_box, report_html]
                 )
-                
+
                 run_criterion_btn.click(
                     fn=process_eda_result,
-                    inputs=[project_dropdown, dataset_type, gr.Checkbox(value=True, visible=False)],
+                    inputs=[
+                        project_dropdown,
+                        dataset_type,
+                        gr.Checkbox(value=True, visible=False),   # vs_criterion
+                        gr.Checkbox(value=True, visible=False)    # force_new
+                    ],
                     outputs=[warnings_box, report_html]
                 )
+
+                analyze_btn.click(
+                    fn=process_eda_result,
+                    inputs=[
+                        project_dropdown,
+                        dataset_type,
+                        gr.Checkbox(value=False, visible=False),  # vs_criterion
+                        gr.Checkbox(value=False, visible=False)   # force_new
+                    ],
+                    outputs=[warnings_box, report_html]
+                )
+
+                analyze_criterion_btn.click(
+                    fn=process_eda_result,
+                    inputs=[
+                        project_dropdown,
+                        dataset_type,
+                        gr.Checkbox(value=True, visible=False),   # vs_criterion
+                        gr.Checkbox(value=False, visible=False)   # force_new
+                    ],
+                    outputs=[warnings_box, report_html]
+                )
+
 
             with gr.Tab("Pipeline Execution"):
                 with gr.Row():
