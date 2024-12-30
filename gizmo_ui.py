@@ -633,19 +633,20 @@ class GizmoUI:
     def create_interface(self):
         """Create enhanced Gradio interface with structured parameter form"""
         with gr.Blocks(title="Gizmo UI", css="""
-        .scrollable-report {
-            height: 1600px;  /* Set a fixed height */
-            overflow-y: auto;  /* Enable vertical scrolling */
-            overflow-x: auto;  /* Enable horizontal scrolling if needed */
-            border: 1px solid #ccc;  /* Optional: adds a border */
-            padding: 10px;  /* Optional: adds some padding */
-        }
-        .scrollable-report iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    """) as interface:
+                        .scrollable-report {
+                            height: 100vh;  /* Use viewport height */
+                            overflow-y: auto;
+                            overflow-x: auto;
+                            border: 1px solid #ccc;
+                            padding: 10px;
+                        }
+                        .scrollable-report iframe {
+                            width: 100%;
+                            height: 100vh;  /* Use viewport height */
+                            border: none;
+                        }
+                        """
+                        ) as interface:
             gr.Markdown("# Gizmo Machine Learning Pipeline Interface")
             
             with gr.Tab("Project Management"):
@@ -728,6 +729,7 @@ class GizmoUI:
                 
                 # In create_interface method:
 
+                # Update the process_eda_result function's HTML handling:
                 def process_eda_result(project, dataset, vs_criterion, force_new=False):
                     """Process EDA report generation with proper handling of new vs existing reports"""
                     print(f"Processing EDA report: project={project}, dataset={dataset}, vs_criterion={vs_criterion}, force_new={force_new}")
@@ -745,9 +747,9 @@ class GizmoUI:
                         with open(result.report_path, 'r', encoding='utf-8') as f:
                             report_content = f.read()
                             iframe_content = f'''
-                            <div style="width:100%;height:100%">
+                            <div style="width:100%;height:100vh">
                                 <iframe srcdoc="{report_content.replace('"', '&quot;')}" 
-                                        style="width:100%;height:800px;border:none;">
+                                        style="width:100%;height:100vh;border:none;">
                                 </iframe>
                             </div>
                             '''
