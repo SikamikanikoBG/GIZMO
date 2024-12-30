@@ -496,7 +496,45 @@ class GizmoUI:
             if os.path.exists(report_path) and not force_new:
                 self.logger.info(f"Using existing report: {report_path}")
                 return self.EDAReport(report_path, [])
-                
+
+            def safe_convert_to_numeric(df, column):
+                """Safely convert a column to numeric, handling Series boolean ambiguity"""
+                try:
+                    if str(df[column].dtype) in ['int64', 'float64']:
+                        return df[column]
+                    
+                    # Handle boolean series explicitly
+                    if str(df[column].dtype) == 'bool':
+                        return df[column].astype(int)
+                        
+                    # Check if all values are numeric already
+                    if pd.to_numeric(df[column], errors='coerce').notna().all():
+                        return pd.to_numeric(df[column], errors='coerce')
+                        
+                    # For datetime columns, convert to Unix timestamp
+                    if pd.api.types.is_datetime64_any_dtype(df[column]):
+                        warnings.append(f"Converting datetime column {column} to numeric timestamp")
+                        return pd.to_numeric(df[column].astype(np.int64) // 10**9)
+                        
+                    # For categorical/object columns
+                    if pd.api.types.is_categorical_dtype(df[column]) or pd.api.types.is_object_dtype(df[column]):
+                        # Try to convert directly first
+                        numeric_series = pd.to_numeric(df[column], errors='coerce')
+                        if numeric_series.notna().any():  # If any conversion succeeded
+                            return numeric_series
+                        
+                        # If direct conversion failed, try label encoding
+                        warnings.append(f"Label encoding categorical column {column}")
+                        return pd.Categorical(df[column]).codes
+                        
+                    # Default fallback
+                    return pd.to_numeric(df[column], errors='coerce')
+                    
+                except Exception as e:
+                    warnings.append(f"Error converting {column}: {str(e)}")
+                    # Return a numeric type series filled with NaN as fallback
+                    return pd.Series(np.nan, index=df.index, dtype=float)
+
             # Load data with warnings
             if dataset_type == 'input':
                 input_path = os.path.join(self.project_structure['input_data'], project_name)
@@ -507,7 +545,7 @@ class GizmoUI:
                 try:
                     print(f"Loading input dataset from {csv_files[0]}")
                     df = pd.read_csv(os.path.join(input_path, csv_files[0]))
-                    if df.empty:
+                    if len(df) == 0:  # Use len() instead of .empty
                         return self.EDAReport("Dataset is empty", warnings)
                 except Exception as e:
                     return self.EDAReport(f"Error reading CSV: {str(e)}", warnings)
@@ -522,7 +560,7 @@ class GizmoUI:
                 try:
                     df = pd.read_parquet(processed_path)
                     df_full = pd.read_parquet(processed_full_path)
-                    if df.empty or df_full.empty:
+                    if len(df) == 0 or len(df_full) == 0:  # Use len() instead of .empty
                         return self.EDAReport("One or both processed datasets are empty", warnings)
                 except Exception as e:
                     return self.EDAReport(f"Error reading parquet files: {str(e)}", warnings)
@@ -545,13 +583,16 @@ class GizmoUI:
                     if criterion_col not in df.columns:
                         return self.EDAReport(f"Criterion column '{criterion_col}' not found in dataset", warnings)
                     
-                    # Ensure criterion column is numeric
-                    if not pd.api.types.is_numeric_dtype(df[criterion_col]):
-                        warnings.append(f"Converting {criterion_col} to numeric type")
-                        df[criterion_col] = pd.to_numeric(df[criterion_col], errors='coerce')
+                    # Safely convert criterion column
+                    df[criterion_col] = safe_convert_to_numeric(df, criterion_col)
+                    if dataset_type == 'processed':
+                        df_full[criterion_col] = safe_convert_to_numeric(df_full, criterion_col)
+
+                    # Check if conversion resulted in all NaN values
+                    if df[criterion_col].isna().all():
+                        return self.EDAReport(f"Criterion column '{criterion_col}' has no valid numeric values after conversion", warnings)
                     
                     if dataset_type == 'processed':
-                        df_full[criterion_col] = pd.to_numeric(df_full[criterion_col], errors='coerce')
                         my_report = sv.compare(
                             [df, "Processed Dataset"],
                             [df_full, "Full Dataset"],
@@ -580,7 +621,7 @@ class GizmoUI:
                 # Save report
                 my_report.show_html(filepath=report_path, open_browser=False)
                 return self.EDAReport(report_path, warnings)
-                
+                    
             except Exception as e:
                 return self.EDAReport(f"Error generating report: {str(e)}", warnings)
 

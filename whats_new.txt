@@ -1,3 +1,4 @@
+8.0.3 - UI EDA: fix: add robust type handling in EDA report generation to prevent Series ambiguity errors
 8.0.2 - UI EDA: fix: ensure interactive functionality for both new and loaded Sweetviz reports in Gradio UI
 8.0.1 - UI EDA: fixed with some data cleaning. Readme updated.
 8.0.0 - GIZMO User Interface with Gradio. Edit params (to be further improved), EDA, Run sessions.
