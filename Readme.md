@@ -40,7 +40,7 @@ Analyze your data with interactive visualizations and detailed statistics.
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/SikamikanikoBG/jizzmo.git
+git clone https://github.com/SikamikanikoBG/GIZMO.git
 cd gizmo
 ```
 
